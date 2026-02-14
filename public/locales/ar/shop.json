@@ -1,0 +1,51 @@
+{
+  "title": "المتجر",
+  "search": {
+    "placeholder": "ابحث عن المنتجات...",
+    "noResults": "لم يتم العثور على منتجات",
+    "searching": "جاري البحث...",
+    "selectCarPart": "اختر قطعة سيارتك",
+    "results": "نتائج البحث",
+    "viewAllResults": "عرض جميع النتائج لـ",
+    "unnamedProduct": "منتج بدون اسم"
+  },
+  "carSearch": {
+    "carMake": "صنع السيارة",
+    "carModel": "موديل السيارة",
+    "productionYear": "سنة الصنع",
+    "any": "الكل",
+    "searchButton": "بحث"
+  },
+  "filters": {
+    "title": "التصفية",
+    "category": "الفئة",
+    "priceRange": "نطاق السعر",
+    "brand": "العلامة التجارية",
+    "availability": "التوفر",
+    "clearAll": "مسح جميع الفلاتر",
+    "apply": "تطبيق الفلاتر",
+    "categories": "الفئات",
+    "noCategories": "لا توجد فئات متاحة",
+    "selected": "مختارة"
+  },
+  "sort": {
+    "title": "ترتيب حسب",
+    "any": "الكل",
+    "featured": "مميز",
+    "priceLowToHigh": "السعر: من الأقل إلى الأعلى",
+    "priceHighToLow": "السعر: من الأعلى إلى الأقل",
+    "nameAsc": "الاسم: من أ إلى ي",
+    "nameDesc": "الاسم: من ي إلى أ"
+  },
+  "productCard": {
+    "addToCart": "أضف إلى السلة",
+    "outOfStock": "غير متوفر",
+    "viewDetails": "عرض التفاصيل",
+    "quickView": "عرض سريع"
+  },
+  "pagination": {
+    "previous": "السابق",
+    "next": "التالي",
+    "page": "صفحة {{current}} من {{total}}"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "pageTitle": "Shopping Cart - MotoGT",
+  "title": "Shopping Cart",
+  "itemCount": "{{count}} item",
+  "itemCount_plural": "{{count}} items",
+  "empty": {
+    "title": "Your cart is empty",
+    "message": "Add some items to your cart to get started.",
+    "startShopping": "Continue Shopping"
+  },
+  "items": {
+    "item": "Item",
+    "items": "Items",
+    "quantity": "Quantity",
+    "price": "Price",
+    "total": "Total",
+    "remove": "Remove",
+    "update": "Update"
+  },
+  "summary": {
+    "title": "Summary",
+    "subtotal": "Subtotal",
+    "shippingCost": "Shipping Cost",
+    "shipping": "Shipping",
+    "free": "Free",
+    "tax": "Tax",
+    "discount": "Discount",
+    "totalAmount": "Total Amount",
+    "total": "Total",
+    "proceedToCheckout": "Continue to Checkout",
+    "continueShopping": "Continue Shopping"
+  },
+  "messages": {
+    "itemRemoved": "Item removed from cart",
+    "quantityUpdated": "Quantity updated",
+    "errorUpdating": "Failed to update cart",
+    "maxQuantity": "Maximum quantity reached"
+  },
+  "promoCode": {
+    "placeholder": "Enter promo code",
+    "apply": "Apply",
+    "applied": "Promo code applied",
+    "invalid": "Invalid promo code",
+    "remove": "Remove"
+  },
+  "disclaimer": "Please ensure that the parts you are purchasing are compatible with your vehicle. We are not liable for incorrect orders resulting from mismatched or incompatible items.",
+  "recommendations": "You might also like"
+}

@@ -1,0 +1,49 @@
+{
+  "breadcrumbs": {
+    "home": "Home",
+    "shop": "Shop",
+    "product": "Product"
+  },
+  "details": {
+    "title": "Product Details",
+    "description": "Description",
+    "specifications": "Specifications",
+    "reviews": "Reviews",
+    "relatedProducts": "Related Products",
+    "options": "الخيارات"
+  },
+  "price": {
+    "original": "Original Price",
+    "sale": "Sale Price",
+    "discount": "{{percent}}% OFF",
+    "currency": "SAR"
+  },
+  "availability": {
+    "inStock": "In Stock",
+    "outOfStock": "Out of Stock",
+    "limitedStock": "Limited Stock",
+    "preOrder": "Pre-Order"
+  },
+  "actions": {
+    "addToCart": "Add to Cart",
+    "buyNow": "Buy Now",
+    "addToWishlist": "Add to Wishlist",
+    "removeFromWishlist": "Remove from Wishlist",
+    "share": "Share",
+    "notify": "Notify Me When Available"
+  },
+  "fitment": {
+    "title": "Fitment",
+    "compatible": "Compatible with your vehicle",
+    "notCompatible": "Not compatible with your vehicle",
+    "checkFitment": "Check Fitment",
+    "selectVehicle": "Select your vehicle to check fitment"
+  },
+  "reviews": {
+    "title": "Customer Reviews",
+    "noReviews": "No reviews yet",
+    "writeReview": "Write a Review",
+    "rating": "Rating",
+    "verified": "Verified Purchase"
+  }
+}

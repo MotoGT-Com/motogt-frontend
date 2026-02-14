@@ -1,0 +1,348 @@
+---
+description: Guidelines and best practices for using Figma MCP to generate high-quality, functional HTML/React code from design files
+alwaysApply: false
+---
+
+# Figma MCP Guidelines
+
+## Core Principles
+### Semantic HTML First
+- ALWAYS use proper semantic HTML elements instead of generic divs
+- Use `<form>`, `<input>`, `<label>`, `<button>`, `<section>`, `<header>`, `<main>`, `<nav>` etc.
+- Every form input MUST have a corresponding `<label>` element with proper `for` attributes
+- Use `<fieldset>` and `<legend>` for grouping related form elements
+- Ensure proper heading hierarchy (`<h1>`, `<h2>`, `<h3>`, etc.)
+
+### Functional Components Over Styling
+- Generate FUNCTIONAL code, not just visual replicas
+- Form elements must be actual `<input>`, `<select>`, `<textarea>` elements with proper `name` and `id` attributes
+- Buttons must be `<button>` elements with proper `type` attributes (`submit`, `button`, `reset`)
+- Links must be `<a>` elements with proper `href` attributes
+- Images must be `<img>` elements with proper `src` and `alt` attributes
+- ALWAYS use figma images hosted on localhost from the figma code, don't use placeholder images.
+- When using svg icons, either use the figma code or use the closest lucide icons. Don't create new icons or mess with the existing ones.
+
+### Accessibility Requirements
+- ALWAYS include proper ARIA labels and roles
+- Ensure proper color contrast ratios
+- Include focus states for interactive elements
+- Use semantic markup for screen readers
+- Add `aria-describedby` for form validation messages
+- Include `aria-required` for required form fields
+
+## HTML Structure Guidelines
+### Form Generation
+- When generating forms, ALWAYS use this structure:
+```html
+<form class="..." method="post" action="/register">
+  <fieldset class="...">
+    <legend class="sr-only">Registration Information</legend>
+    
+    <div class="form-group">
+      <label for="fullName" class="...">Full Name</label>
+      <input 
+        type="text" 
+        id="fullName" 
+        name="fullName" 
+        class="..." 
+        placeholder="Enter your full name"
+        required 
+        aria-describedby="fullName-error"
+      />
+      <span id="fullName-error" class="error-message" aria-live="polite"></span>
+    </div>
+    
+    <button type="submit" class="...">Sign Up</button>
+  </fieldset>
+</form>
+```
+
+### Layout Structure
+- Use CSS Grid or Flexbox for layouts instead of absolute positioning
+- Avoid excessive div nesting - maximum 3 levels deep unless absolutely necessary
+- NEVER use absolute positioned decorative borders - use CSS border properties directly on elements
+- Use semantic containers and avoid fixed pixel widths for responsive design
+- Implement proper responsive breakpoints for mobile, tablet, and desktop
+- Use `max-width` and responsive units instead of fixed widths
+
+```html
+<!-- BAD: Fixed positioning and decorative borders -->
+<div class="absolute left-[755px] top-1/2 transform -translate-y-1/2 w-[409px]">
+  <div class="relative bg-white h-12 px-3 py-0 rounded-sm w-full">
+    <div class="absolute inset-[-1px] border border-primary border-solid rounded-[3px] pointer-events-none"></div>
+    <input type="text" class="form-input" />
+  </div>
+</div>
+
+<!-- GOOD: Responsive layout with proper CSS borders -->
+<main class="registration-page">
+  <div class="container max-w-md mx-auto px-4">
+    <form class="registration-form">
+      <div class="form-group">
+        <input 
+          type="text" 
+          class="form-input border-2 border-gray-300 focus:border-primary rounded-md px-3 py-2 w-full"
+        />
+      </div>
+    </form>
+  </div>
+</main>
+```
+
+## CSS/Styling Guidelines
+### Class Naming
+- Use meaningful, semantic class names instead of utility-only classes
+- Follow BEM methodology when possible: `.block__element--modifier`
+- Avoid single-use utility classes for complex components
+- Group related styles into component classes
+
+### Responsive Design
+- ALWAYS use responsive units (`rem`, `em`, `%`, `vw`, `vh`) instead of fixed pixels
+- Use CSS Grid and Flexbox for responsive layouts
+- Include mobile-first media queries
+- Avoid absolute positioning for main layout elements
+
+### Layout Approach
+- Use CSS Grid for 2D layouts (rows and columns)
+- Use Flexbox for 1D layouts (single row/column)
+- Use CSS custom properties for consistent spacing and colors
+- Prefer CSS Grid/Flexbox over absolute positioning
+
+## React Component Guidelines
+### Component Structure
+- Generate functional React components with proper TypeScript types
+- Use React hooks (useState, useEffect, etc.) for state management
+- Include proper event handlers for form interactions
+- Add form validation logic
+
+### Example React Component Structure:
+```tsx
+import React, { useState } from 'react';
+
+interface RegistrationFormProps {
+  onSubmit?: (data: RegistrationData) => void;
+}
+
+interface RegistrationData {
+  fullName: string;
+  email: string;
+  phone: string;
+  // ... other fields
+}
+
+export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmit }) => {
+  const [formData, setFormData] = useState<RegistrationData>({
+    fullName: '',
+    email: '',
+    phone: '',
+  });
+  
+  const [errors, setErrors] = useState<Partial<RegistrationData>>({});
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Validation logic
+    if (validateForm()) {
+      onSubmit?.(formData);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="registration-form">
+      {/* Form fields */}
+    </form>
+  );
+};
+```
+
+## Anti-Patterns to Avoid
+### DON'T Use These Patterns
+- ❌ Excessive div nesting (more than 3 levels)
+- ❌ Absolute positioning for main layout elements
+- ❌ Non-semantic HTML (divs instead of buttons, inputs, etc.)
+- ❌ Missing form functionality (no actual inputs)
+- ❌ Hardcoded pixel values for responsive elements
+- ❌ Missing accessibility attributes
+- ❌ Complex utility class combinations instead of semantic classes
+- ❌ Inline styles or style attributes
+- ❌ Missing form validation
+- ❌ Non-functional interactive elements
+- ❌ Fixed width layouts that don't adapt to different screen sizes
+- ❌ Missing proper form structure (`<form>` wrapper)
+- ❌ Incorrect placeholder text that doesn't match field purpose
+- ❌ Missing proper input types (email, tel, password, etc.)
+- ❌ Decorative borders created with absolute positioned divs
+- ❌ Missing proper label-input associations (`for` and `id` attributes)
+- ❌ Non-functional checkboxes (styled divs instead of actual inputs)
+- ❌ Missing hover and focus states for interactive elements
+- ❌ Hardcoded country codes without proper selection functionality
+- ❌ Text alignment inconsistencies (center vs left for form labels)
+
+### Examples of Bad Patterns:
+```html
+<!-- BAD: Non-semantic, non-functional -->
+<div class="bg-white box-border content-stretch flex flex-col gap-2 h-12 items-start justify-center px-3 py-0 relative rounded-sm shrink-0 w-[409px]">
+  <div class="font-inter font-medium leading-[0] not-italic relative shrink-0 text-[12px] text-black/30">
+    Enter Your Name
+  </div>
+</div>
+
+<!-- BAD: Decorative border with absolute positioning -->
+<div class="absolute inset-[-1px] border border-primary border-solid rounded-[3px] pointer-events-none shadow-[0px_4px_10px_0px_rgba(0,0,0,0.12)]"></div>
+
+<!-- BAD: Non-functional checkbox -->
+<div class="checkbox-container relative w-6 h-6">
+  <div class="absolute inset-0 bg-primary rounded-[3px]"></div>
+  <img src="..." alt="Tick" class="absolute top-[3px] left-[3px] w-[18px] h-[18px]" />
+</div>
+
+<!-- BAD: Missing form wrapper -->
+<div class="flex flex-col gap-3 w-full">
+  <!-- form fields without form element -->
+</div>
+
+<!-- BAD: Wrong placeholder text -->
+<input type="text" placeholder="Enter Your Car Name" class="...">
+<!-- When field is for "Full Name" -->
+
+<!-- GOOD: Semantic, functional -->
+<form class="registration-form" method="post" action="/register">
+  <div class="form-group">
+    <label for="fullName" class="form-label">Full Name</label>
+    <input 
+      type="text" 
+      id="fullName" 
+      name="fullName" 
+      class="form-input" 
+      placeholder="Enter your full name"
+      required
+      aria-describedby="fullName-error"
+    />
+    <span id="fullName-error" class="error-message" aria-live="polite"></span>
+  </div>
+  
+  <!-- GOOD: Functional checkbox -->
+  <div class="form-group">
+    <label class="checkbox-label">
+      <input type="checkbox" name="terms" required class="checkbox-input" />
+      <span class="checkbox-custom"></span>
+      I agree to our Terms and Conditions and Privacy Policy.
+    </label>
+  </div>
+  
+  <button type="submit" class="submit-button">Sign Up</button>
+</form>
+```
+
+## Required Functionality
+### Form Validation
+- Include basic HTML5 validation attributes (`required`, `type`, `pattern`)
+- Add client-side JavaScript validation for better UX
+- Display validation error messages
+- Handle form submission properly
+- ALWAYS wrap all form inputs in a `<form>` element with proper `method` and `action` attributes
+- Ensure placeholder text matches the actual field purpose (don't use "Enter Your Car Name" for a person's name field)
+
+### Interactive Elements
+- All buttons must be functional with proper event handlers
+- Form inputs must be controllable (React controlled components)
+- Include loading states for async operations
+- Add hover and focus states for interactive elements
+- Use actual `<input type="checkbox">` elements, not styled divs for checkboxes
+- Implement proper checkbox state management with form data
+
+### Input Field Requirements
+- Use correct input types: `email` for emails, `tel` for phone numbers, `password` for passwords
+- Ensure proper label-input associations with `for` and `id` attributes
+- Add appropriate `name` attributes for form submission
+- Include proper `autocomplete` attributes for better UX
+- Use semantic placeholders that match field purpose
+
+### Country/Phone Number Fields
+- Implement functional country code selection, not just static display
+- Use proper dropdown/select elements for country selection
+- Handle phone number formatting and validation
+- Include proper flag icons or country selection UI
+
+### Focus and Interaction States
+- Add proper CSS focus states for all interactive elements
+- Implement hover effects for buttons and clickable elements  
+- Use CSS transitions for smooth state changes
+- Avoid JavaScript-only styling - use CSS for visual states
+
+### State Management
+- Use React state for form data management
+- Include error state management
+- Add loading states for form submission
+- Handle success/failure states
+
+## Performance Considerations
+### Optimization
+- Use CSS custom properties for consistent theming
+- Minimize CSS specificity conflicts
+- Use efficient selectors
+- Avoid unnecessary re-renders in React components
+- Implement proper memoization where needed
+
+### Bundle Size
+- Avoid importing entire utility libraries when only using a few classes
+- Use tree-shaking friendly imports
+- Minimize inline styles and complex class combinations
+
+## Testing Considerations
+### Testability
+- Add proper `data-testid` attributes for testing
+- Use semantic HTML that works well with testing libraries
+- Include proper ARIA labels for accessibility testing
+- Structure components to be easily unit testable
+
+## File Organization
+### Structure
+- Separate styles into dedicated CSS/SCSS files when not using CSS-in-JS
+- Group related components in logical folders
+- Use consistent naming conventions across files
+- Include TypeScript interfaces in separate files when complex
+
+## Integration Guidelines
+### API Integration
+- Design forms to work with real backend APIs
+- Include proper error handling for network requests
+- Add loading states during API calls
+- Handle different response scenarios (success, error, validation errors)
+
+### State Management
+- Design components to work with global state management (Redux, Context, etc.)
+- Make components reusable and configurable
+- Separate business logic from presentation logic
+
+## Quality Checklist
+Before considering Figma MCP output complete, ensure:
+- ✅ All interactive elements are functional
+- ✅ Forms use proper HTML form elements with `<form>` wrapper
+- ✅ Accessibility attributes are present (`for`, `id`, `aria-*`, `role`)
+- ✅ Responsive design is implemented (no fixed pixel positioning)
+- ✅ No excessive div nesting (max 3 levels)
+- ✅ Semantic HTML is used throughout (`button`, `input`, `label`, etc.)
+- ✅ CSS uses modern layout techniques (Grid/Flexbox, not absolute positioning)
+- ✅ Form validation is implemented with proper error handling
+- ✅ Error handling is included with `aria-live` regions
+- ✅ Loading states are considered for async operations
+- ✅ Component is reusable and configurable
+- ✅ TypeScript types are properly defined (for React)
+- ✅ Event handlers are implemented with proper state management
+- ✅ Performance optimizations are applied
+- ✅ Placeholder text matches field purpose
+- ✅ Proper input types are used (`email`, `tel`, `password`)
+- ✅ Label-input associations are correct (`for`/`id` matching)
+- ✅ Checkboxes are actual input elements, not styled divs
+- ✅ Country/phone selection is functional, not just decorative
+- ✅ CSS borders are used instead of absolute positioned decorative elements
+- ✅ Focus and hover states work properly
+- ✅ Form can actually be submitted and handles validation errors
+- ✅ Layout adapts to different screen sizes without breaking
+
+## React Component Guidelines
+- When using react, always look for the components in the project and use them instead of creating new ones or using basic html elements.
+- Always look for shadcn components in the @/components folder.
+- Analyze the components styling and the tailwind theme used to build the components.
+- Use theme colors set in the root css file instead of hardcoded colors.

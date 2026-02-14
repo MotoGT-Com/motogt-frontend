@@ -1,0 +1,84 @@
+{
+  "title": "كراجي",
+  "pageTitle": "كراجي - موتو جي تي",
+  "carCount": "{{count}} سيارة",
+  "carCount_plural": "{{count}} سيارات",
+  "help": {
+    "ariaLabel": "تعرف أكثر على كراجي",
+    "title": "كراجي",
+    "description": "أضف سياراتك إلى كراجك لتعرف فورًا المنتجات المناسبة لمركبتك. هذا يساعدنا على تخصيص تجربة التسوق وعرض القطع المتوافقة."
+  },
+  "error": {
+    "title": "تعذر تحميل الكراج",
+    "message": "نواجه مشكلة في تحميل كراجك الآن. يرجى تحديث الصفحة أو المحاولة مرة أخرى لاحقًا.",
+    "refreshPage": "تحديث الصفحة",
+    "details": "خطأ: {{message}}"
+  },
+  "empty": {
+    "title": "كراجك فارغ",
+    "message": "أضف سياراتك للحصول على توصيات منتجات مخصصة",
+    "addVehicle": "إضافة مركبة",
+    "imageAlt": "كراج فارغ",
+    "noCarsTitle": "يبدو أنك لم تضف أي سيارات إلى كراجك بعد!",
+    "noCarsDescription": "إضافة سيارتك ستساعدنا على تحسين تجربة التسوق بشكل أفضل."
+  },
+  "remove": {
+    "buttonShort": "إزالة",
+    "buttonLong": "من الكراج",
+    "dialogTitle": "إزالة من الكراج",
+    "dialogDescription": "هل أنت متأكد أنك تريد إزالة هذه السيارة من كراجك؟ لا يمكن التراجع عن هذا الإجراء.",
+    "cancel": "إلغاء",
+    "confirm": "إزالة من الكراج"
+  },
+  "addVehicle": {
+    "title": "إضافة مركبة جديدة",
+    "year": "السنة",
+    "yearPlaceholder": "اختر السنة",
+    "make": "الصنع",
+    "makePlaceholder": "اختر الصنع",
+    "model": "الطراز",
+    "modelPlaceholder": "اختر الطراز",
+    "trim": "الفئة",
+    "trimPlaceholder": "اختر الفئة (اختياري)",
+    "nickname": "اسم مستعار",
+    "nicknamePlaceholder": "أعط مركبتك اسمًا مستعارًا (اختياري)",
+    "addButton": "إضافة مركبة",
+    "cancel": "إلغاء"
+  },
+  "addCarDialog": {
+    "title": "إضافة سيارة جديدة",
+    "description": "من خلال إضافة سيارة إلى مرآبك ستكون تجربة التسوق الخاصة بك أسهل وستتمكن من العثور على ما تبحث عنه بشكل أسرع.",
+    "carMake": "ماركة السيارة",
+    "carMakePlaceholder": "اختر ماركة السيارة",
+    "carModel": "موديل السيارة",
+    "carModelPlaceholder": "اختر موديل السيارة",
+    "productionYear": "سنة الإنتاج",
+    "productionYearPlaceholder": "2024",
+    "loadingCars": "جارٍ تحميل السيارات...",
+    "failedToLoad": "فشل تحميل السيارات",
+    "tryAgain": "حاول مرة أخرى",
+    "addingCar": "جارٍ إضافة السيارة...",
+    "addCar": "إضافة سيارة",
+    "addNewCar": "إضافة سيارة جديدة"
+  },
+  "vehicle": {
+    "edit": "تعديل",
+    "delete": "حذف",
+    "setDefault": "تعيين كافتراضي",
+    "default": "افتراضي",
+    "shopForVehicle": "تسوق لهذه المركبة"
+  },
+  "messages": {
+    "vehicleAdded": "تمت إضافة المركبة بنجاح",
+    "vehicleUpdated": "تم تحديث المركبة بنجاح",
+    "vehicleDeleted": "تمت إزالة المركبة من المرآب",
+    "errorAdding": "فشلت إضافة المركبة",
+    "errorUpdating": "فشل تحديث المركبة",
+    "errorDeleting": "فشل حذف المركبة"
+  },
+  "fitment": {
+    "compatible": "متوافق مع {{vehicle}}",
+    "notCompatible": "غير متوافق مع {{vehicle}}",
+    "universal": "توافق شامل"
+  }
+}

@@ -1,0 +1,127 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-background-secondary: var(--background-secondary);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-placeholder: var(--placeholder);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --font-sans: "Inter Variable", sans-serif;
+  --font-koulen: "Koulen", sans-serif;
+  --container-8xl: 100rem;
+}
+
+:root,
+.dark {
+  --background: oklch(1 0 0);
+  --background-secondary: hsl(0 0% 95%);
+  --foreground: oklch(0.1408 0.0044 285.8229);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.1408 0.0044 285.8229);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.1408 0.0044 285.8229);
+  --primary: oklch(0.5463 0.2106 23.054);
+  --primary-foreground: oklch(0.9851 0 0);
+  --secondary: oklch(0.9612 0 0);
+  --secondary-foreground: oklch(0.2103 0.0059 285.8852);
+  --muted: oklch(0.9674 0.0013 286.3752);
+  --muted-foreground: hsla(0, 0%, 0%, 0.5);
+  --accent: oklch(0.9674 0.0013 286.3752);
+  --accent-foreground: oklch(0.2103 0.0059 285.8852);
+  --destructive: oklch(0.6368 0.2078 25.3313);
+  --destructive-foreground: oklch(0.9851 0 0);
+  --border: oklch(0.9249 0 0);
+  --input: oklch(0.9249 0 0);
+  --placeholder: hsl(0 0% 45% / 0.5);
+  --ring: oklch(0.5463 0.2106 23.054);
+  --chart-1: oklch(0.6767 0.1572 35.0959);
+  --chart-2: oklch(0.6307 0.1009 183.8484);
+  --chart-3: oklch(0.379 0.0438 226.1538);
+  --chart-4: oklch(0.833 0.1185 88.3461);
+  --chart-5: oklch(0.7843 0.1256 58.9964);
+  --sidebar: oklch(0.9851 0 0);
+  --sidebar-foreground: oklch(0.3703 0.0119 285.8054);
+  --sidebar-primary: oklch(0.2103 0.0059 285.8852);
+  --sidebar-primary-foreground: oklch(0.9851 0 0);
+  --sidebar-accent: oklch(0.9674 0.0013 286.3752);
+  --sidebar-accent-foreground: oklch(0.2103 0.0059 285.8852);
+  --sidebar-border: oklch(0.9276 0.0058 264.5313);
+  --sidebar-ring: oklch(0.6231 0.188 259.8145);
+  --radius: 0.375rem;
+}
+
+@layer base {
+  :root {
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  * {
+    @apply border-border outline-ring/60;
+  }
+  html {
+    overscroll-behavior: none;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@layer components {
+  .skeleton-shimmer {
+    background-image: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.04) 0%,
+      rgba(0, 0, 0, 0.07) 45%,
+      rgba(0, 0, 0, 0.04) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "meta": {
+    "title": "Home - MotoGT"
+  },
+  "announcement": {
+    "freeDeliveryJO": "Free delivery on all orders across Jordan"
+  },
+  "hero": {
+    "searchTitle": "What Are We Looking For Today?"
+  },
+  "sections": {
+    "theHottest": "The Hottest on",
+    "everythingYouNeed": "Everything You Need",
+    "exploreOur": "Explore Our",
+    "ridingGear": "Riding Gear",
+    "cleaningProducts": "Cleaning Products",
+    "motorcycleAccessories": "Motorcycle Accessories",
+    "limitedQuantity": "Limited Quantity!",
+    "jetourT2": "Jetour T2",
+    "blackCarbonKit": "Black Carbon Kit"
+  },
+  "products": {
+    "exterior": "Exterior Parts",
+    "interior": "Interior Parts",
+    "loadingProducts": "Loading products...",
+    "noProducts": "No products available"
+  },
+  "bestSellers": {
+    "title": "Our Best Sellers",
+    "viewAll": "View All"
+  },
+  "newArrivals": {
+    "title": "Just Arrived"
+  },
+  "banner": {
+    "ownYourLook": "Own your look"
+  },
+  "loading": {
+    "categoryName": "Category Name"
+  }
+}

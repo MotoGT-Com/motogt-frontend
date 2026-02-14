@@ -1,0 +1,51 @@
+{
+  "title": "Shop",
+  "search": {
+    "placeholder": "Search for products...",
+    "noResults": "No products found",
+    "searching": "Searching...",
+    "selectCarPart": "Select your car part",
+    "results": "Search Results",
+    "viewAllResults": "View all results for",
+    "unnamedProduct": "Unnamed Product"
+  },
+  "carSearch": {
+    "carMake": "Car Make",
+    "carModel": "Car Model",
+    "productionYear": "Production Year",
+    "any": "Any",
+    "searchButton": "Search"
+  },
+  "filters": {
+    "title": "Filters",
+    "category": "Category",
+    "priceRange": "Price Range",
+    "brand": "Brand",
+    "availability": "Availability",
+    "clearAll": "Clear All Filters",
+    "apply": "Apply Filters",
+    "categories": "Categories",
+    "noCategories": "No categories available",
+    "selected": "Selected"
+  },
+  "sort": {
+    "title": "Sort By",
+    "any": "Any",
+    "featured": "Featured",
+    "priceLowToHigh": "Price: Low to High",
+    "priceHighToLow": "Price: High to Low",
+    "nameAsc": "A - Z",
+    "nameDesc": "Z - A"
+  },
+  "productCard": {
+    "addToCart": "Add to Cart",
+    "outOfStock": "Out of Stock",
+    "viewDetails": "View Details",
+    "quickView": "Quick View"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {{current}} of {{total}}"
+  }
+}

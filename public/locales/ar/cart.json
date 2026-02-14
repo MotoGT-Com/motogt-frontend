@@ -1,0 +1,48 @@
+{
+  "pageTitle": "سلة التسوق - موتو جي تي",
+  "title": "سلة التسوق",
+  "itemCount": "{{count}} منتج",
+  "itemCount_plural": "{{count}} منتجات",
+  "empty": {
+    "title": "سلتك فارغة",
+    "message": "أضف بعض المنتجات إلى سلتك للبدء.",
+    "startShopping": "متابعة التسوق"
+  },
+  "items": {
+    "item": "منتج",
+    "items": "منتجات",
+    "quantity": "الكمية",
+    "price": "السعر",
+    "total": "المجموع",
+    "remove": "إزالة",
+    "update": "تحديث"
+  },
+  "summary": {
+    "title": "الملخص",
+    "subtotal": "المجموع الفرعي",
+    "shippingCost": "تكلفة الشحن",
+    "shipping": "الشحن",
+    "free": "مجاني",
+    "tax": "الضريبة",
+    "discount": "الخصم",
+    "totalAmount": "المبلغ الإجمالي",
+    "total": "المجموع الكلي",
+    "proceedToCheckout": "متابعة إلى الدفع",
+    "continueShopping": "متابعة التسوق"
+  },
+  "messages": {
+    "itemRemoved": "تمت إزالة المنتج من السلة",
+    "quantityUpdated": "تم تحديث الكمية",
+    "errorUpdating": "فشل تحديث السلة",
+    "maxQuantity": "تم الوصول للكمية القصوى"
+  },
+  "promoCode": {
+    "placeholder": "أدخل رمز الخصم",
+    "apply": "تطبيق",
+    "applied": "تم تطبيق رمز الخصم",
+    "invalid": "رمز خصم غير صالح",
+    "remove": "إزالة"
+  },
+  "disclaimer": "يرجى التأكد من أن القطع التي تشتريها متوافقة مع سيارتك. نحن غير مسؤولين عن الطلبات غير الصحيحة الناتجة عن منتجات غير متطابقة أو غير متوافقة.",
+  "recommendations": "قد يعجبك أيضاً"
+}

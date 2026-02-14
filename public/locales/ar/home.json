@@ -1,0 +1,41 @@
+{
+  "meta": {
+    "title": "الرئيسية - موتو جي تي"
+  },
+  "announcement": {
+    "freeDeliveryJO": "توصيل مجاني لجميع الطلبات في الأردن"
+  },
+  "hero": {
+    "searchTitle": "عن ماذا تبحث اليوم؟"
+  },
+  "sections": {
+    "theHottest": "الأكثر رواجًا على",
+    "everythingYouNeed": "كل ما تحتاجه",
+    "exploreOur": "استكشف",
+    "ridingGear": "ملابس واقية",
+    "cleaningProducts": "منتجات التنظيف",
+    "motorcycleAccessories": "إكسسوارات الدراجات النارية",
+    "limitedQuantity": "كمية محدودة!",
+    "jetourT2": "T2 جيتور",
+    "blackCarbonKit": "طقم الكربون الأسود"
+  },
+  "products": {
+    "exterior": "قطع خارجية",
+    "interior": "قطع داخلية",
+    "loadingProducts": "جاري تحميل المنتجات...",
+    "noProducts": "لا توجد منتجات متاحة"
+  },
+  "bestSellers": {
+    "title": "الأكثر مبيعًا",
+    "viewAll": "عرض الكل"
+  },
+  "newArrivals": {
+    "title": "وصل حديثًا"
+  },
+  "banner": {
+    "ownYourLook": "اصنع مظهرك الخاص"
+  },
+  "loading": {
+    "categoryName": "اسم الفئة"
+  }
+}

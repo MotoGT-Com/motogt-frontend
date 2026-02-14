@@ -1,0 +1,100 @@
+{
+  "pageTitle": "Checkout - MotoGT",
+  "title": "Checkout",
+  "emptyCart": {
+    "title": "Your cart is empty",
+    "description": "Add some items to your cart before checkout.",
+    "continueShopping": "Continue Shopping"
+  },
+  "addressSection": {
+    "title": "Address Information",
+    "default": "Default",
+    "addNewAddress": "Add New Address",
+    "addModal": {
+      "title": "Add New Address",
+      "description": "Save your delivery address without leaving checkout.",
+      "fields": {
+        "title": "Address Nickname",
+        "country": "Country",
+        "city": "City",
+        "addressLine1": "Address Line 1",
+        "addressLine2": "Address Line 2",
+        "postalCode": "Postal Code"
+      },
+      "placeholders": {
+        "title": "e.g., Home, Office, Workshop",
+        "country": "Select Country",
+        "city": "Select City",
+        "addressLine1": "Street, building, apartment number",
+        "addressLine2": "Landmark, district, or floor (optional)",
+        "postalCode": "Postal/ZIP code (optional)"
+      },
+      "errors": {
+        "titleRequired": "Address nickname is required",
+        "countryRequired": "Country is required",
+        "cityRequired": "City is required",
+        "addressLine1Required": "Address line 1 is required"
+      }
+    }
+  },
+  "paymentSection": {
+    "title": "Payment Method",
+    "cashOnDelivery": "Cash on Delivery",
+    "cardOnDelivery": "Card on Delivery",
+    "payWithCliq": "Pay with CliQ",
+    "creditDebitCard": "Credit/debit card and Apple Pay",
+    "paySecurely": "Pay securely with credit/debit card or Apple Pay"
+  },
+  "orderSummary": {
+    "title": "Order Summary",
+    "item": "Item",
+    "items": "Items",
+    "subtotal": "Subtotal",
+    "shippingCost": "Shipping Cost",
+    "free": "Free",
+    "discount": "Discount",
+    "totalAmount": "Total Amount",
+    "noImage": "No Image"
+  },
+  "promoCode": {
+    "placeholder": "Promo Code",
+    "apply": "Apply",
+    "enterCode": "Please enter a promo code",
+    "alreadyApplied": "A promo code is already applied. Remove it first.",
+    "applied": "Promo code applied successfully!",
+    "removed": "Promo code removed",
+    "invalid": "Invalid promo code",
+    "validationFailed": "Failed to validate promo code. Please try again.",
+    "off": "OFF"
+  },
+  "delivery": {
+    "expectedIn": "Expected to be delivered in",
+    "daysRange": "2-7 Days"
+  },
+  "paymentRedirect": {
+    "title": "Redirecting to secure payment gateway",
+    "description": "Please wait while we connect you to our trusted payment provider.",
+    "note": "Do not close this tab. You will be redirected automatically."
+  },
+  "actions": {
+    "confirmPayment": "Confirm Payment",
+    "processingPayment": "Processing Payment...",
+    "placingOrder": "Placing Order...",
+    "placeOrder": "Place Order",
+    "processing": "Processing...",
+    "back": "Back",
+    "continue": "Continue",
+    "cancel": "Cancel",
+    "saveAddress": "Save Address",
+    "savingAddress": "Saving Address..."
+  },
+  "messages": {
+    "orderPlaced": "Order placed successfully!",
+    "orderError": "Failed to place order. Please try again.",
+    "paymentInitiationFailed": "Payment initiation failed. Please retry from orders page.",
+    "validationError": "Please fill in all required fields",
+    "addressAdded": "Address added successfully!",
+    "addressAddFailed": "Failed to create address. Please try again."
+  },
+  "disclaimer": "Please ensure that the parts you are purchasing are compatible with your vehicle. We are not liable for incorrect orders resulting from mismatched or incompatible items."
+}

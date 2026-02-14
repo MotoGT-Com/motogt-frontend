@@ -1,0 +1,250 @@
+{
+  "nav": {
+    "home": "Home",
+    "shop": "Shop",
+    "allItems": "All Items",
+    "quick": "Quick",
+    "myGarage": "My Garage",
+    "garage": "Garage",
+    "myGarage": "My Garage",
+    "cart": "Cart",
+    "wishlist": "Wishlist",
+    "profile": "Profile",
+    "logout": "Logout",
+    "myOrders": "My Orders",
+    "accountInfo": "Account Information",
+    "addressInfo": "Address Information",
+    "support": "Support",
+    "contactUs": "Contact Us",
+    "login": "Login",
+    "createAccount": "Create Account",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "carParts": "Car Parts",
+    "motorcycles": "Motorcycles",
+    "carCareAccessories": "Car Care & Accessories",
+    "recommendedForYou": "Recommended For You"
+  },
+  "buttons": {
+    "addToCart": "Add to Cart",
+    "buy": "Buy",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back",
+    "continue": "Continue",
+    "apply": "Apply",
+    "clear": "Clear",
+    "search": "Search",
+    "filter": "Filter",
+    "viewAll": "View All",
+    "seeMore": "See More",
+    "seeLess": "See Less",
+    "loading": "Loading...",
+    "tryAgain": "Try Again"
+  },
+  "status": {
+    "pending": "Pending",
+    "processing": "Processing",
+    "shipped": "Shipped",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled",
+    "inStock": "In Stock",
+    "outOfStock": "Out of Stock",
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "messages": {
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Info",
+    "noResults": "No results found",
+    "loading": "Loading...",
+    "somethingWentWrong": "Something went wrong. Please try again.",
+    "itemAddedToCart": "Item added to cart",
+    "itemRemovedFromCart": "Item removed from cart",
+    "itemAddedToWishlist": "Item added to wishlist",
+    "itemRemovedFromWishlist": "Item removed from wishlist",
+    "addedToCartWithName": "{{product}} has been added to the cart successfully",
+    "addedToWishlistWithName": "{{product}} has been added to favorites successfully",
+    "removedFromWishlistWithName": "{{product}} has been removed from favorites"
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidEmail": "Invalid email address",
+    "invalidPhone": "Invalid phone number",
+    "minLength": "Must be at least {{min}} characters",
+    "maxLength": "Must be at most {{max}} characters",
+    "passwordMatch": "Passwords must match",
+    "invalidFormat": "Invalid format"
+  },
+  "footer": {
+    "allRightsReserved": "All rights reserved",
+    "privacyPolicy": "Privacy Policy",
+    "termsAndConditions": "Terms and Conditions",
+    "help": {
+      "title": "Need Help?",
+      "phone": "+971 4 358 0 877",
+      "email": "support@motogt.com",
+      "hours": {
+        "sunThu": "Sun - Thu: 9AM - 7PM",
+        "sat": "Sat: 10AM- 5PM",
+        "friday": "Friday Closed"
+      }
+    },
+    "quickLinks": {
+      "title": "Quick Links",
+      "orders": "Your Orders",
+      "yourGarage": "Your Garage",
+      "contactUs": "Contact Us",
+      "availableCars": "Available Cars",
+      "faqs": "FAQs"
+    },
+    "information": {
+      "title": "Information",
+      "bestSellers": "Best Sellers",
+      "newArrivals": "New Arrivals",
+      "recommended": "Recommended for you",
+      "carParts": "Car Parts",
+      "motorcycleGear": "Motorcycle Gear",
+      "cleaningCarCare": "Cleaning and Car Care"
+    },
+    "policies": {
+      "title": "Policies",
+      "terms": "Terms of Service",
+      "refund": "Refund Policy",
+      "privacy": "Privacy Policy"
+    },
+    "community": {
+      "title": "Join The Community",
+      "description": "Connect with our community to stay connected with MotoGT. Discover new arrivals, and top deals. Follow us to never miss an update.",
+      "instagram": "Instagram",
+      "whatsapp": "WhatsApp",
+      "whatsappMessage": "Hello MotoGT team, I need help with my order."
+    },
+    "bottom": {
+      "copy": "© {{year}}",
+      "accept": "We accept"
+    }
+  },
+  "availableCarsPage": {
+    "title": "Available Cars",
+    "subtitle": "Explore all supported makes and models available for fitment and product matching.",
+    "searchPlaceholder": "Search by brand or model",
+    "apply": "Apply",
+    "allBrands": "All Brands",
+    "results": "{{count}} cars found",
+    "noResults": "No cars matched your filters.",
+    "products": "products",
+    "viewProducts": "View Products",
+    "addToGarage": "Add to Garage",
+    "removeFromGarage": "Remove from Garage",
+    "engine": "Engine",
+    "fuel": "Fuel",
+    "transmission": "Transmission",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {{current}} of {{total}}"
+  },
+  "refundPolicy": {
+    "pageTitle": "Refund Policy - MotoGT",
+    "title": "MotoGT Refund Policy",
+    "effectiveDateLabel": "Effective Date",
+    "effectiveDate": "10 Feb 2026",
+    "intro": "At MotoGT, we’re committed to providing a seamless shopping experience for aftermarket automotive parts and accessories. If you’re not completely satisfied with your purchase, we’re here to help.",
+    "eligibility": {
+      "title": "Eligibility for Refunds",
+      "description": "You may request a refund for eligible items within 14 days of delivery, provided that:",
+      "items": [
+        "The part has a defect or the fitment is incorrect due to MotoGT error",
+        "The item is unused, uninstalled, and in its original packaging",
+        "All original tags, labels, and documentation are intact",
+        "The item is not marked as final sale, clearance, or non-returnable (e.g. custom-made or special-order products)"
+      ]
+    },
+    "process": {
+      "title": "Refund Process",
+      "steps": [
+        "Submit a Return Request: Go to your MotoGT account > Orders > Report a problem.",
+        "Receive Return Instructions: Our team will contact you with the return instructions.",
+        "Ship the Item: You must ship the item using the provided return label (if eligible), or at your own cost.",
+        "Inspection & Refund: Once we receive and inspect the item, refunds are typically processed within 5–7 business days."
+      ],
+      "note": "Refunds are issued to your original payment method. Shipping charges are non-refundable unless the return is due to MotoGT error or a defective product."
+    },
+    "nonRefundable": {
+      "title": "Non-Refundable Items",
+      "items": [
+        "Installed, used, or damaged parts",
+        "Electrical components (unless defective)",
+        "Items returned more than 14 days after delivery",
+        "Gift cards"
+      ]
+    },
+    "exchanges": {
+      "title": "Exchanges",
+      "description": "We currently do not support direct exchanges. To replace an item, please request a return and place a new order."
+    },
+    "damaged": {
+      "title": "Damaged or Defective Items",
+      "description": "If your item arrived damaged or defective, contact us within 7 days of delivery with photos and your order number. We'll prioritize a replacement or refund at no extra cost."
+    },
+    "cancellations": {
+      "title": "Cancellations",
+      "description": "Orders can be canceled before they ship. To cancel, visit your order details or contact MotoGT Support. Once shipped, orders must follow the standard return process."
+    },
+    "questions": {
+      "title": "Questions?",
+      "descriptionPrefix": "Contact our support team at",
+      "descriptionMiddle": "or visit our",
+      "helpCenter": "Help Center"
+    },
+    "closing": "Thank you for choosing MotoGT. We appreciate your trust and are here to support your journey, mile after mile."
+  },
+  "faq": {
+    "title": "Still Not Convinced?",
+    "subtitle": "We Got The Answers",
+    "items": [
+      {
+        "question": "What can I find on MotoGT?",
+        "answer": "MotoGT is your one stop shop for aftermarket car parts and accessories. From performance upgrades and lighting kits to interior add ons, wheels, tires, and vehicle protection. we've got thousands of products for a wide range of makes and models. Whether you're customizing, maintaining, or upgrading, you'll find the right part with the right fit."
+      },
+      {
+        "question": "How do I know if a part fits my vehicle?",
+        "answer": "Simply use our vehicle selector (year, make, model) before you shop. You can also save cars to your Garage, we'll only show you parts that fit."
+      },
+      {
+        "question": "What payment methods do you accept?",
+        "answer": "You can pay using credit or debit card, CliQ, or cash on delivery. Depending on what's available in your area. All payments are securely processed and encrypted for your protection."
+      },
+      {
+        "question": "What's the shipping time & cost?",
+        "answer": "Shipping within Jordan is currently free. We also offer international shipping, cost and estimated delivery time are shown at checkout."
+      },
+      {
+        "question": "Do you ship internationally?",
+        "answer": "Yes, we currently ship to UAE, Saudi Arabia, Jordan, and Qatar, with more regions coming soon. International shipping rates and delivery times are shown at checkout."
+      }
+    ]
+  },
+  "wishlist": {
+    "pageTitle": "Wishlist - MotoGT",
+    "title": "Wishlist",
+    "part": "Part",
+    "parts": "Parts",
+    "emptyTitle": "Your wishlist is empty",
+    "emptyDescription": "Start adding products to your wishlist to see them here.",
+    "continueShopping": "Continue Shopping",
+    "errorLoading": "Error loading favorites"
+  },
+  "fitmnetLabel": {
+    "title": "Add a car to your garage",
+    "desceription": "Add your car to your garage to instantly see products that fit your vehicle",
+    "linkText": "To the garage"
+  }
+}

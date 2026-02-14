@@ -1,0 +1,49 @@
+{
+  "breadcrumbs": {
+    "home": "الصفحة الرئيسية",
+    "shop": "المتجر",
+    "product": "المنتج"
+  },
+  "details": {
+    "title": "تفاصيل المنتج",
+    "description": "الوصف",
+    "specifications": "المواصفات",
+    "reviews": "التقييمات",
+    "relatedProducts": "منتجات ذات صلة",
+    "options": "الخيارات"
+  },
+  "price": {
+    "original": "السعر الأصلي",
+    "sale": "سعر التخفيض",
+    "discount": "خصم {{percent}}%",
+    "currency": "ريال"
+  },
+  "availability": {
+    "inStock": "متوفر",
+    "outOfStock": "غير متوفر",
+    "limitedStock": "كمية محدودة",
+    "preOrder": "طلب مسبق"
+  },
+  "actions": {
+    "addToCart": "أضف إلى السلة",
+    "buyNow": "اشتري الآن",
+    "addToWishlist": "أضف إلى المفضلة",
+    "removeFromWishlist": "إزالة من المفضلة",
+    "share": "مشاركة",
+    "notify": "أخبرني عند التوفر"
+  },
+  "fitment": {
+    "title": "التوافق",
+    "compatible": "متوافق مع سيارتك",
+    "notCompatible": "غير متوافق مع سيارتك",
+    "checkFitment": "تحقق من التوافق",
+    "selectVehicle": "اختر سيارتك للتحقق من التوافق"
+  },
+  "reviews": {
+    "title": "تقييمات العملاء",
+    "noReviews": "لا توجد تقييمات بعد",
+    "writeReview": "اكتب تقييمًا",
+    "rating": "التقييم",
+    "verified": "عملية شراء موثقة"
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "title": "My Garage",
+  "pageTitle": "My Garage - MotoGT",
+  "carCount": "{{count}} car",
+  "carCount_plural": "{{count}} cars",
+  "help": {
+    "ariaLabel": "Learn more about My Garage",
+    "title": "My Garage",
+    "description": "Add your cars to your garage to instantly see which products fit your vehicles. This helps us personalize your shopping experience and show you compatible parts."
+  },
+  "error": {
+    "title": "Unable to load garage",
+    "message": "We're having trouble loading your garage. Please try refreshing the page or try again later.",
+    "refreshPage": "Refresh Page",
+    "details": "Error: {{message}}"
+  },
+  "empty": {
+    "title": "Your garage is empty",
+    "message": "Add your vehicles to get personalized product recommendations",
+    "addVehicle": "Add Vehicle",
+    "imageAlt": "Garage Empty",
+    "noCarsTitle": "It looks like you haven't added any cars to your garage yet!",
+    "noCarsDescription": "Adding your car will help us make your shopping experience even better."
+  },
+  "remove": {
+    "buttonShort": "Remove",
+    "buttonLong": "from garage",
+    "dialogTitle": "Remove from garage",
+    "dialogDescription": "Are you sure you want to remove this car from your garage? This action cannot be undone.",
+    "cancel": "Cancel",
+    "confirm": "Remove from garage"
+  },
+  "addVehicle": {
+    "title": "Add New Vehicle",
+    "year": "Year",
+    "yearPlaceholder": "Select year",
+    "make": "Make",
+    "makePlaceholder": "Select make",
+    "model": "Model",
+    "modelPlaceholder": "Select model",
+    "trim": "Trim",
+    "trimPlaceholder": "Select trim (optional)",
+    "nickname": "Nickname",
+    "nicknamePlaceholder": "Give your vehicle a nickname (optional)",
+    "addButton": "Add Vehicle",
+    "cancel": "Cancel"
+  },
+  "addCarDialog": {
+    "title": "Add New Car",
+    "description": "By adding a car to your garage your shopping experience will be easier and you will be able to find what you are looking for faster.",
+    "carMake": "Car Make",
+    "carMakePlaceholder": "Select car make",
+    "carModel": "Car Model",
+    "carModelPlaceholder": "Select car model",
+    "productionYear": "Production Year",
+    "productionYearPlaceholder": "2024",
+    "loadingCars": "Loading cars...",
+    "failedToLoad": "Failed to load cars",
+    "tryAgain": "Try Again",
+    "addingCar": "Adding Car...",
+    "addCar": "Add Car",
+    "addNewCar": "Add New car"
+  },
+  "vehicle": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "setDefault": "Set as Default",
+    "default": "Default",
+    "shopForVehicle": "Shop for this Vehicle"
+  },
+  "messages": {
+    "vehicleAdded": "Vehicle added successfully",
+    "vehicleUpdated": "Vehicle updated successfully",
+    "vehicleDeleted": "Vehicle removed from garage",
+    "errorAdding": "Failed to add vehicle",
+    "errorUpdating": "Failed to update vehicle",
+    "errorDeleting": "Failed to delete vehicle"
+  },
+  "fitment": {
+    "compatible": "Fits your {{vehicle}}",
+    "notCompatible": "Does not fit your {{vehicle}}",
+    "universal": "Universal Fit"
+  }
+}

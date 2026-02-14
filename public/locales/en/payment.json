@@ -1,0 +1,43 @@
+{
+  "callback": {
+    "loading": {
+      "title": "Verifying Payment",
+      "description": "Please wait while we confirm your payment...",
+      "checking": "Checking {{current}}/{{max}}"
+    },
+    "success": {
+      "title": "Payment Successful!",
+      "description": "Your payment has been processed successfully",
+      "orderConfirmed": "Order Confirmed",
+      "orderPlaced": "Order #{{orderId}} has been placed successfully",
+      "amountPaid": "Amount Paid",
+      "transactionRef": "Transaction Ref",
+      "card": "Card"
+    },
+    "failed": {
+      "title": "Payment Failed",
+      "description": "Your payment could not be processed",
+      "whatHappened": "What happened?",
+      "retryMessage": "Your payment was not successful. You can retry the payment from your orders page."
+    },
+    "cancelled": {
+      "title": "Payment Cancelled",
+      "description": "You cancelled the payment process",
+      "whatHappened": "What happened?",
+      "retryMessage": "The payment was cancelled before completion. Your order may still be pending - you can retry the payment from your orders page."
+    },
+    "timeout": {
+      "title": "Payment Verification Pending",
+      "description": "We're still processing your payment",
+      "whatToDo": "What should I do?",
+      "processing": "Your payment is being processed by the payment gateway. This may take a few minutes.",
+      "checkLater": "Please check your orders page in a few minutes to see the updated status."
+    },
+    "buttons": {
+      "viewOrders": "View Orders",
+      "continueShopping": "Continue Shopping",
+      "retryPayment": "View Orders & Retry Payment",
+      "goHome": "Go Home"
+    }
+  }
+}

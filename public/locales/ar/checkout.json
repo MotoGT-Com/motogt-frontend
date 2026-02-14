@@ -1,0 +1,100 @@
+{
+  "pageTitle": "إتمام الطلب - موتو جي تي",
+  "title": "إتمام الطلب",
+  "emptyCart": {
+    "title": "سلتك فارغة",
+    "description": "أضف بعض المنتجات إلى سلتك قبل إتمام الطلب.",
+    "continueShopping": "متابعة التسوق"
+  },
+  "addressSection": {
+    "title": "معلومات العنوان",
+    "default": "افتراضي",
+    "addNewAddress": "إضافة عنوان جديد",
+    "addModal": {
+      "title": "إضافة عنوان جديد",
+      "description": "احفظ عنوان التوصيل دون مغادرة صفحة إتمام الطلب.",
+      "fields": {
+        "title": "اسم العنوان",
+        "country": "الدولة",
+        "city": "المدينة",
+        "addressLine1": "العنوان 1",
+        "addressLine2": "العنوان 2",
+        "postalCode": "الرمز البريدي"
+      },
+      "placeholders": {
+        "title": "مثال: المنزل، المكتب، الورشة",
+        "country": "اختر الدولة",
+        "city": "اختر المدينة",
+        "addressLine1": "الشارع، المبنى، رقم الشقة",
+        "addressLine2": "معلم قريب، الحي، أو الطابق (اختياري)",
+        "postalCode": "الرمز البريدي (اختياري)"
+      },
+      "errors": {
+        "titleRequired": "اسم العنوان مطلوب",
+        "countryRequired": "الدولة مطلوبة",
+        "cityRequired": "المدينة مطلوبة",
+        "addressLine1Required": "العنوان 1 مطلوب"
+      }
+    }
+  },
+  "paymentSection": {
+    "title": "طريقة الدفع",
+    "cashOnDelivery": "الدفع عند الاستلام",
+    "cardOnDelivery": "الدفع بالبطاقة عند الاستلام",
+    "payWithCliq": "الدفع بواسطة كليك",
+    "creditDebitCard": "بطاقة ائتمان / Apple Pay",
+    "paySecurely": "ادفع بأمان باستخدام بطاقتك"
+  },
+  "orderSummary": {
+    "title": "ملخص الطلب",
+    "item": "منتج",
+    "items": "منتجات",
+    "subtotal": "المجموع الفرعي",
+    "shippingCost": "تكلفة الشحن",
+    "free": "مجاني",
+    "discount": "الخصم",
+    "totalAmount": "المبلغ الإجمالي",
+    "noImage": "لا توجد صورة"
+  },
+  "promoCode": {
+    "placeholder": "كود الخصم",
+    "apply": "تطبيق",
+    "enterCode": "الرجاء إدخال كود الخصم",
+    "alreadyApplied": "تم تطبيق كود خصم بالفعل. قم بإزالته أولاً.",
+    "applied": "تم تطبيق كود الخصم بنجاح!",
+    "removed": "تم إزالة كود الخصم",
+    "invalid": "كود خصم غير صالح",
+    "validationFailed": "فشل التحقق من كود الخصم. الرجاء المحاولة مرة أخرى.",
+    "off": "خصم"
+  },
+  "delivery": {
+    "expectedIn": "من المتوقع التسليم في",
+    "daysRange": "2-7 أيام"
+  },
+  "paymentRedirect": {
+    "title": "جارٍ التحويل إلى بوابة الدفع الآمنة",
+    "description": "يرجى الانتظار بينما نقوم بتوصيلك بمزود الدفع الموثوق.",
+    "note": "لا تغلق هذه الصفحة. سيتم تحويلك تلقائياً."
+  },
+  "actions": {
+    "confirmPayment": "تأكيد الدفع",
+    "processingPayment": "جاري معالجة الدفع...",
+    "placingOrder": "جاري تقديم الطلب...",
+    "placeOrder": "تقديم الطلب",
+    "processing": "جاري المعالجة...",
+    "back": "رجوع",
+    "continue": "متابعة",
+    "cancel": "إلغاء",
+    "saveAddress": "حفظ العنوان",
+    "savingAddress": "جاري حفظ العنوان..."
+  },
+  "messages": {
+    "orderPlaced": "تم تقديم الطلب بنجاح!",
+    "orderError": "فشل تقديم الطلب. الرجاء المحاولة مرة أخرى.",
+    "paymentInitiationFailed": "فشل بدء عملية الدفع. الرجاء المحاولة من صفحة الطلبات.",
+    "validationError": "الرجاء ملء جميع الحقول المطلوبة",
+    "addressAdded": "تمت إضافة العنوان بنجاح!",
+    "addressAddFailed": "فشلت إضافة العنوان. الرجاء المحاولة مرة أخرى."
+  },
+  "disclaimer": "يرجى التأكد من أن القطع التي تشتريها متوافقة مع مركبتك. نحن غير مسؤولين عن الطلبات غير الصحيحة الناتجة عن منتجات غير متطابقة أو غير متوافقة."
+}
