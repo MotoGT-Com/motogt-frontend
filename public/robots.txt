@@ -1,0 +1,11 @@
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://motogt.com/sitemap.xml
+
+# Disallow sensitive routes (optional - adjust as needed)
+Disallow: /api/
+Disallow: /checkout
+Disallow: /payment/

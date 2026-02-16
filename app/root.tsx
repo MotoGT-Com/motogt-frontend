@@ -35,34 +35,60 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export const meta: Route.MetaFunction = () => {
   return [
+    { title: "MotoGT - Transform Your Ride" },
     {
       name: "description",
       content:
         "Transform your ride with MotoGT. The MENA platform for car styling and cars accessories. Guaranteed fitment, creator built proof, fast delivery, and diverse options.",
     },
     {
-      name: "og:type",
+      property: "og:type",
       content: "website",
     },
     {
-      name: "og:site_name",
+      property: "og:site_name",
       content: "MotoGT",
     },
     {
-      name: "og:title",
-      content: "MotoGT",
+      property: "og:title",
+      content: "MotoGT - Transform Your Ride",
     },
     {
-      name: "og:url",
+      property: "og:url",
       content: "https://motogt.com",
     },
     {
-      name: "og:description",
+      property: "og:description",
       content:
         "Transform your ride with MotoGT. The MENA platform for car styling and cars accessories. Guaranteed fitment, creator built proof, fast delivery, and diverse options.",
     },
     {
-      name: "og:image",
+      property: "og:image",
+      content: "https://motogt.com/og-image.jpg",
+    },
+    {
+      property: "og:image:width",
+      content: "1200",
+    },
+    {
+      property: "og:image:height",
+      content: "630",
+    },
+    {
+      name: "twitter:card",
+      content: "summary_large_image",
+    },
+    {
+      name: "twitter:title",
+      content: "MotoGT - Transform Your Ride",
+    },
+    {
+      name: "twitter:description",
+      content:
+        "Transform your ride with MotoGT. The MENA platform for car styling and cars accessories. Guaranteed fitment, creator built proof, fast delivery, and diverse options.",
+    },
+    {
+      name: "twitter:image",
       content: "https://motogt.com/og-image.jpg",
     },
   ];
