@@ -120,6 +120,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="google-site-verification" content="ifoBponjdgiewA3DS35cQdKfaLusWjmlFcOGDrhggME" />
         <meta name="version" content="1.1.1" />
         <meta name="application-version" content="1.1.1" />
         {/* Version: 1.1.1 */}
