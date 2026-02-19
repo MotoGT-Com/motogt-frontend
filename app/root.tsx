@@ -14,6 +14,8 @@ import i18n from "./lib/i18n";
 import { useEffect } from "react";
 import { config } from "./config";
 import { getLocaleWithCookie } from "./lib/i18n-cookie";
+import { AuthModalProvider } from "./context/AuthModalContext";
+import { AuthModal } from "./components/auth/AuthModal";
 
 const queryClient = new QueryClient();
 
@@ -180,7 +182,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body className="font-sans min-h-screen flex flex-col bg-background-secondary">
         <I18nextProvider i18n={i18n}>
           <QueryClientProvider client={queryClient}>
-            {children}
+            <AuthModalProvider>
+              {children}
+              <AuthModal />
+            </AuthModalProvider>
           </QueryClientProvider>
         </I18nextProvider>
         <Toaster className="hidden" />

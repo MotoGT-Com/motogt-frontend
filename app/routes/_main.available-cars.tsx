@@ -1,5 +1,5 @@
 import { Car, Loader2, Search } from "lucide-react";
-import { href, Link, useNavigate, useRouteLoaderData, useSearchParams } from "react-router";
+import { href, Link, useRouteLoaderData, useSearchParams } from "react-router";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { getApiCars, getApiCarsBrands } from "~/lib/client";
@@ -27,6 +27,7 @@ import { useTranslation } from "react-i18next";
 import { serializeShopURL } from "./_main.shop._index";
 import { AddNewCarDialog } from "~/components/add-new-car-dialog";
 import type { Route as MainRoute } from "./+types/_main";
+import { useAuthModal } from "~/context/AuthModalContext";
 
 const LIMIT = 24;
 
@@ -112,10 +113,10 @@ export const meta: Route.MetaFunction = () => {
 
 export default function AvailableCars({ loaderData }: Route.ComponentProps) {
   const { cars, meta, brands, selectedBrand } = loaderData;
-  const navigate = useNavigate();
   const mainLoaderData =
     useRouteLoaderData<MainRoute.ComponentProps["loaderData"]>("routes/_main");
   const isAuthenticated = !!mainLoaderData?.isAuthenticated;
+  const { openAuthModal } = useAuthModal();
   const [searchParams] = useSearchParams();
   const { t } = useTranslation("common");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -323,7 +324,12 @@ export default function AvailableCars({ loaderData }: Route.ComponentProps) {
                       className={`${cardCtaClass} bg-[#F2F2F2] hover:bg-[#F2F2F2]/80 text-primary`}
                       onClick={() => {
                         if (!isAuthenticated) {
-                          navigate(href("/login"));
+                          openAuthModal("register", {
+                            intent: {
+                              type: "garage",
+                              returnTo: href("/my-garage"),
+                            },
+                          });
                           return;
                         }
 

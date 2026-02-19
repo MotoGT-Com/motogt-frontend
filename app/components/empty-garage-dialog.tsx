@@ -1,9 +1,12 @@
 import { useState, useEffect, useRef } from "react";
+import { href, useRouteLoaderData } from "react-router";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
 import { AddNewCarDialog } from "~/components/add-new-car-dialog";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "~/components/ui/hover-card";
 import { HelpCircle } from "lucide-react";
+import { useAuthModal } from "~/context/AuthModalContext";
+import type { Route } from "../routes/+types/_main";
 
 /**
  * EmptyGarageDialog Component
@@ -19,6 +22,10 @@ export function EmptyGarageDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const mainLoaderData =
+    useRouteLoaderData<Route.ComponentProps["loaderData"]>("routes/_main");
+  const isAuthenticated = !!mainLoaderData?.isAuthenticated;
+  const { openAuthModal } = useAuthModal();
   const [addCarDialogOpen, setAddCarDialogOpen] = useState(false);
   const shouldOpenAddCarDialog = useRef(false);
 
@@ -28,6 +35,14 @@ export function EmptyGarageDialog({
   };
 
   const handleAddCarButtonClick = () => {
+    if (!isAuthenticated) {
+      onOpenChange(false);
+      openAuthModal("register", {
+        intent: { type: "garage", returnTo: href("/my-garage") },
+      });
+      return;
+    }
+
     // Mark that we should open the add car dialog
     shouldOpenAddCarDialog.current = true;
     // Close the empty garage dialog
@@ -124,4 +139,3 @@ export function EmptyGarageDialog({
     </>
   );
 }
-

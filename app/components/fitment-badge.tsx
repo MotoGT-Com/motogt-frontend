@@ -1,12 +1,14 @@
 import * as React from "react";
 import { useState } from "react";
 import { CheckIcon, PlusIcon, XIcon } from "lucide-react";
-import { Link } from "react-router";
+import { Link, href, useRouteLoaderData } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "~/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { garageCarsQueryOptions } from "~/lib/queries";
 import { EmptyGarageDialog } from "~/components/empty-garage-dialog";
+import type { Route } from "../routes/+types/_main";
+import { useAuthModal } from "~/context/AuthModalContext";
 
 const fitmentBadgeVariants = cva(
   "inline-flex items-center gap-1 md:gap-2 pl-1 md:pl-1 pr-2 md:pr-2 py-1 md:py-1 font-semibold md:font-koulen text-[10px] md:text-sm border-[0.5px] md:border-[0.5px] rounded-[2px] md:rounded-[2px] whitespace-nowrap shrink-0 transition-colors",
@@ -141,11 +143,26 @@ function GarageLinkBadge({
   children,
   ...props
 }: React.ComponentProps<"div">) {
+  const loaderData =
+    useRouteLoaderData<Route.ComponentProps["loaderData"]>("routes/_main");
+  const isAuthenticated = !!loaderData?.isAuthenticated;
+  const { openAuthModal } = useAuthModal();
   const [emptyDialogOpen, setEmptyDialogOpen] = useState(false);
-  const garageCarsQuery = useQuery(garageCarsQueryOptions);
+  const garageCarsQuery = useQuery({
+    ...garageCarsQueryOptions,
+    enabled: isAuthenticated,
+  });
   const hasCars = garageCarsQuery.data?.userCars && garageCarsQuery.data.userCars.length > 0;
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!isAuthenticated) {
+      e.preventDefault();
+      openAuthModal("register", {
+        intent: { type: "garage", returnTo: href("/my-garage") },
+      });
+      return;
+    }
+
     if (garageCarsQuery.isSuccess && !hasCars) {
       e.preventDefault();
       setEmptyDialogOpen(true);
@@ -165,4 +182,3 @@ function GarageLinkBadge({
     </>
   );
 }
-

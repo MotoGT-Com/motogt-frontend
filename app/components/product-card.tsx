@@ -26,6 +26,7 @@ import { buildProductPath } from "~/lib/product-url";
 import { useTranslation } from "react-i18next";
 import { useCurrency } from "~/hooks/use-currency";
 import { useState as useReactState } from "react";
+import { useAuthModal } from "~/context/AuthModalContext";
 
 type UserCar = UserCarsResponse["data"]["userCars"][0];
 type FavoriteItem = ProductItem | GetApiHomeExteriorProductsResponse["data"][0];
@@ -700,12 +701,27 @@ function GarageLink({
   children,
   ...props
 }: React.ComponentProps<typeof Link>) {
+  const loaderData =
+    useRouteLoaderData<Route.ComponentProps["loaderData"]>("routes/_main");
+  const isAuthenticated = !!loaderData?.isAuthenticated;
+  const { openAuthModal } = useAuthModal();
   const [emptyDialogOpen, setEmptyDialogOpen] = useState(false);
-  const garageCarsQuery = useQuery(garageCarsQueryOptions);
+  const garageCarsQuery = useQuery({
+    ...garageCarsQueryOptions,
+    enabled: isAuthenticated,
+  });
   const hasCars =
     garageCarsQuery.data?.userCars && garageCarsQuery.data.userCars.length > 0;
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!isAuthenticated) {
+      e.preventDefault();
+      openAuthModal("register", {
+        intent: { type: "garage", returnTo: "/my-garage" },
+      });
+      return;
+    }
+
     if (garageCarsQuery.isSuccess && !hasCars) {
       e.preventDefault();
       setEmptyDialogOpen(true);

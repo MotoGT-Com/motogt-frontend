@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { NavLink, href } from "react-router";
+import { NavLink, href, useRouteLoaderData } from "react-router";
 import { garageCarsQueryOptions } from "~/lib/queries";
 import { EmptyGarageDialog } from "~/components/empty-garage-dialog";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "~/components/ui/hover-card";
 import { GarageHoverPopupContent } from "~/components/garage-hover-popup";
+import { useAuthModal } from "~/context/AuthModalContext";
 
 /**
  * GarageNavButton Component
@@ -29,11 +30,27 @@ export function GarageNavButton({
     icon?: React.ComponentType<{ isActive?: boolean; className?: string }>;
   }) {
   const [emptyDialogOpen, setEmptyDialogOpen] = useState(false);
-  const garageCarsQuery = useQuery(garageCarsQueryOptions);
+  const mainLoaderData = useRouteLoaderData("routes/_main") as
+    | { isAuthenticated?: boolean }
+    | undefined;
+  const isAuthenticated = !!mainLoaderData?.isAuthenticated;
+  const { openAuthModal } = useAuthModal();
+  const garageCarsQuery = useQuery({
+    ...garageCarsQueryOptions,
+    enabled: isAuthenticated,
+  });
 
   const hasCars = garageCarsQuery.data?.userCars && garageCarsQuery.data.userCars.length > 0;
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!isAuthenticated) {
+      e.preventDefault();
+      openAuthModal("register", {
+        intent: { type: "garage", returnTo: href("/my-garage") },
+      });
+      return;
+    }
+
     // Only intercept if we know the user has no cars
     if (garageCarsQuery.isSuccess && !hasCars) {
       e.preventDefault();
@@ -88,4 +105,3 @@ export function GarageNavButton({
     </>
   );
 }
-

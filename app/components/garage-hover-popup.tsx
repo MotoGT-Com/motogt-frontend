@@ -1,9 +1,11 @@
-import { Link } from "react-router";
+import { Link, href, useRouteLoaderData } from "react-router";
 import { Loader2 } from "lucide-react";
 import { AddNewCarDialog } from "~/components/add-new-car-dialog";
 import { cn } from "~/lib/utils";
 import type { UserCarsResponse } from "~/lib/client";
 import { useTranslation } from "react-i18next";
+import type { Route } from "../routes/+types/_main";
+import { useAuthModal } from "~/context/AuthModalContext";
 
 type UserCar = UserCarsResponse["data"]["userCars"][0];
 
@@ -17,6 +19,10 @@ export function GarageHoverPopupContent({
   className?: string;
 }) {
   const { i18n } = useTranslation();
+  const loaderData =
+    useRouteLoaderData<Route.ComponentProps["loaderData"]>("routes/_main");
+  const isAuthenticated = !!loaderData?.isAuthenticated;
+  const { openAuthModal } = useAuthModal();
   const isRTL = (i18n.language || "").startsWith("ar");
   const hasCars = userCars.length > 0;
   const strings = {
@@ -52,6 +58,13 @@ export function GarageHoverPopupContent({
         <Link
           to="/my-garage"
           className="text-sm font-medium text-[rgba(0,0,0,0.6)] hover:text-black underline"
+          onClick={(event) => {
+            if (isAuthenticated) return;
+            event.preventDefault();
+            openAuthModal("register", {
+              intent: { type: "garage", returnTo: href("/my-garage") },
+            });
+          }}
         >
           {strings.viewGarage}
         </Link>

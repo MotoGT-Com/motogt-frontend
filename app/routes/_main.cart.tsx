@@ -4,16 +4,17 @@ import type { Route } from "./+types/_main.cart";
 import { getApiProductsPublic } from "~/lib/client";
 import { defaultParams } from "~/lib/api-client";
 import { useCartManager } from "~/lib/cart-manager";
-import { Link } from "react-router";
+import { href, Link } from "react-router";
 import { authContext } from "~/context";
 import { toast } from "sonner";
 import { CartItemComponent } from "~/components/cart-item";
 import { useTranslation } from "react-i18next";
 import ProductsHorizontalScroll from "~/components/ProductsHorizontalScroll";
 import { useCurrency } from "~/hooks/use-currency";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import { WhatsAppButton } from "~/components/whatsapp-button";
 import getLocalizedTranslation from "~/lib/get-locale-translation";
+import { useAuthModal } from "~/context/AuthModalContext";
 
 // Loader function to fetch cart data
 export async function loader({ context }: Route.LoaderArgs) {
@@ -51,6 +52,7 @@ export async function loader({ context }: Route.LoaderArgs) {
 export default function Cart({ loaderData }: Route.ComponentProps) {
   const { t, i18n } = useTranslation('cart');
   const { recommendedProductsResponse, isAuthenticated } = loaderData;
+  const { openAuthModal } = useAuthModal();
   const { cartQuery, updateQuantityMutation, removeFromCartMutation } =
     useCartManager(isAuthenticated);
   
@@ -111,6 +113,20 @@ export default function Cart({ loaderData }: Route.ComponentProps) {
   if (cartQuery.error) {
     return <div>Error loading cart</div>;
   }
+
+  const handleCheckoutClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (isAuthenticated) {
+      return;
+    }
+
+    event.preventDefault();
+    openAuthModal("register", {
+      intent: {
+        type: "checkout",
+        returnTo: href("/checkout"),
+      },
+    });
+  };
 
   return (
     <>
@@ -223,7 +239,11 @@ export default function Cart({ loaderData }: Route.ComponentProps) {
                     </div>
 
                     <div className="flex flex-col gap-2">
-                      <Link to="/checkout" className="block w-full">
+                      <Link
+                        to="/checkout"
+                        className="block w-full"
+                        onClick={handleCheckoutClick}
+                      >
                         <Button
                           className="w-full h-10 font-bold"
                           disabled={

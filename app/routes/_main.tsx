@@ -48,6 +48,7 @@ import { CurrencyProvider, useCurrency } from "~/hooks/use-currency";
 import { CartHoverPopup } from "~/components/cart-hover-popup";
 import { useTranslation } from "react-i18next";
 import { SiteFooter } from "~/components/site-footer";
+import { useAuthModal } from "~/context/AuthModalContext";
 
 /**
  * Server-side loader that fetches authentication state, user data, and product types
@@ -84,6 +85,7 @@ export default function Main(props: Route.ComponentProps) {
 function MainContent({ matches, loaderData }: Route.ComponentProps) {
   const { t } = useTranslation('common');
   const { isAuthenticated, user } = loaderData;
+  const { openAuthModal } = useAuthModal();
 
   const garageCarsQuery = useQuery({
     ...garageCarsQueryOptions,
@@ -136,6 +138,20 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
       ),
     [matches]
   );
+
+  const handleProtectedNavClick = (
+    event: React.MouseEvent<HTMLAnchorElement>,
+    returnTo?: string
+  ) => {
+    if (isAuthenticated) return;
+    event.preventDefault();
+    openAuthModal("register", {
+      intent: returnTo
+        ? { type: "none", returnTo }
+        : { type: "none" },
+    });
+    setIsMobileMenuOpen(false);
+  };
 
   return (
     <>
@@ -204,6 +220,9 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
                 size="icon"
                 variant="outline"
                 icon={ProfileNavIcon}
+                navLinkOnClick={(event) =>
+                  handleProtectedNavClick(event, href("/profile"))
+                }
               >
                 <span className="sr-only">{t("nav.profile")}</span>
               </NavLinkButton>
@@ -337,6 +356,9 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
                       to={href("/recommended")}
                       size="lg"
                       icon={FeaturedNavIcon}
+                      navLinkOnClick={(event) =>
+                        handleProtectedNavClick(event, href("/recommended"))
+                      }
                     >
                       {t("nav.recommendedForYou")}
                     </NavLinkButton>
@@ -354,19 +376,23 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
                         <Button
                           className="font-koulen justify-center!"
                           size="lg"
+                          onClick={() => {
+                            openAuthModal("login", { intent: { type: "none" } });
+                            setIsMobileMenuOpen(false);
+                          }}
                         >
-                          <Link to={href("/login")} prefetch="render">
-                            {t('nav.login')}
-                          </Link>
+                          {t('nav.login')}
                         </Button>
                         <Button
                           variant={"outline"}
                           className="font-koulen justify-center!"
                           size="lg"
+                          onClick={() => {
+                            openAuthModal("register", { intent: { type: "none" } });
+                            setIsMobileMenuOpen(false);
+                          }}
                         >
-                          <Link to={href("/register")} prefetch="render">
-                            {t('nav.createAccount')}
-                          </Link>
+                          {t('nav.createAccount')}
                         </Button>
                       </>
                     )}
@@ -440,7 +466,13 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
             >
               {t("nav.carCareAccessories")}
             </NavLinkButton>
-            <NavLinkButton to={href("/recommended")} icon={FeaturedNavIcon}>
+            <NavLinkButton
+              to={href("/recommended")}
+              icon={FeaturedNavIcon}
+              navLinkOnClick={(event) =>
+                handleProtectedNavClick(event, href("/recommended"))
+              }
+            >
               {t("nav.recommendedForYou")}
             </NavLinkButton>
             <NavLinkButton to={href("/wishlist")} icon={WishlistNavIcon}>
@@ -481,11 +513,13 @@ function NavLinkButton({
   className,
   children,
   icon: Icon,
+  navLinkOnClick,
   prefetch = "render",
   ...props
 }: React.ComponentProps<typeof Button> &
   Pick<React.ComponentProps<typeof NavLink>, "prefetch" | "to"> & {
     icon?: React.ComponentType<{ isActive?: boolean; className?: string }>;
+    navLinkOnClick?: React.MouseEventHandler<HTMLAnchorElement>;
   }) {
   return (
     <Button
@@ -501,6 +535,7 @@ function NavLinkButton({
         to={to}
         className="[&.active]:bg-primary [&.active]:text-white [&.active>img]:opacity-100"
         prefetch={prefetch}
+        onClick={navLinkOnClick}
       >
         {({ isActive }) => (
           <>

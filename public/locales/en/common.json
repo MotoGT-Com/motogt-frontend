@@ -61,6 +61,79 @@
     "singleClosing": "I am interested in ordering this item.",
     "cartClosing": "I want to order the items in my cart."
   },
+  "authModal": {
+    "title": "Authentication",
+    "register": {
+      "title": "Let's Create an account",
+      "subtitle": "By adding a car to your garage your shopping experience will be easier and you will be able to find what you are looking for faster",
+      "passwordHint": "It must be a combination of minimum 8 letters, numbers, and symbols.",
+      "termsPrefix": "I Agree to MotoGT's",
+      "termsLink": "Terms and Conditions",
+      "termsAnd": "and",
+      "privacyLink": "Privacy Policy",
+      "haveAccount": "Do you have an account?"
+    },
+    "login": {
+      "title": "Already have an account?",
+      "subtitle": "By adding a car to your garage your shopping experience will be easier and you will be able to find what you are looking for faster",
+      "forgotPassword": "Forgot Password?",
+      "noAccount": "No account yet?"
+    },
+    "forgotPassword": {
+      "title": "Forgot Password",
+      "subtitle": "Enter your email and we'll send you a reset link.",
+      "success": "Password reset link sent to your email."
+    },
+    "verifyOTP": {
+      "title": "Confirm Email",
+      "subtitle": "Please enter the verification code sent to",
+      "didNotReceive": "Didn't get code?",
+      "resend": "Resend",
+      "ariaOtpSlot": "OTP digit {{index}}"
+    },
+    "fields": {
+      "firstNameLabel": "First Name",
+      "firstNamePlaceholder": "Enter your first name",
+      "lastNameLabel": "Last Name",
+      "lastNamePlaceholder": "Enter your last name",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "Enter your email address",
+      "phoneLabel": "Phone Number",
+      "phonePlaceholder": "Enter your phone number",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter your password"
+    },
+    "buttons": {
+      "signUp": "Sign Up",
+      "signIn": "Sign In",
+      "createAccount": "Create Account",
+      "continue": "Continue",
+      "sendResetLink": "Send Reset Link",
+      "pleaseWait": "Please wait...",
+      "back": "Back",
+      "backToLogin": "Back to Login"
+    },
+    "validation": {
+      "firstNameRequired": "Please enter your first name",
+      "lastNameRequired": "Please enter your last name",
+      "invalidEmail": "Please enter a valid email address",
+      "invalidPhone": "Please enter a valid phone number",
+      "passwordRequired": "Please enter your password",
+      "passwordMin": "Password must be at least 8 characters",
+      "passwordComplexity": "Password must contain letters, numbers, and symbols",
+      "termsRequired": "You must agree to the terms and conditions",
+      "otpLength": "Please enter the 6-digit verification code"
+    },
+    "errors": {
+      "registerFailed": "Registration failed. Please try again.",
+      "loginFailed": "Login failed. Please try again.",
+      "forgotFailed": "Failed to send reset link. Please try again.",
+      "otpFailed": "OTP verification failed. Please try again.",
+      "otpStillRequired": "Email verification is still required. Please try again.",
+      "resendFailed": "Failed to resend OTP. Please try again.",
+      "sessionFailed": "Failed to start your session. Please try again."
+    }
+  },
   "status": {
     "pending": "Pending",
     "processing": "Processing",
