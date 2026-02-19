@@ -1,6 +1,7 @@
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "~/components/ui/hover-card";
 import { Link, href } from "react-router";
 import { Button } from "~/components/ui/button";
+import { WhatsAppButton } from "~/components/whatsapp-button";
 import { cn } from "~/lib/utils";
 import { useTranslation } from "react-i18next";
 import { Trash2 } from "lucide-react";
@@ -9,8 +10,10 @@ import { useEffect, useState } from "react";
 
 type CartItem = {
   productId: string;
+  itemCode?: string;
+  product?: { itemCode?: string | null };
   productImage: string;
-  productTranslations: Array<{ name: string }>;
+  productTranslations: Array<{ name: string; languageCode?: string }>;
   unitPrice: number;
   quantity: number;
 };
@@ -180,11 +183,25 @@ export function CartHoverPopup({
             </span>
           </div>
           <div className="px-5 pb-5">
-            <Button className={cn("w-full h-10 font-semibold")} asChild>
-              <Link to={href("/cart")} prefetch="render">
-                {strings.cta}
-              </Link>
-            </Button>
+            <div className="flex flex-col gap-2">
+              <Button className={cn("w-full h-10 font-semibold font-sans normal-case")} asChild>
+                <Link to={href("/cart")} prefetch="render">
+                  {strings.cta}
+                </Link>
+              </Button>
+              <WhatsAppButton
+                className="h-10 font-semibold font-sans normal-case"
+                items={items.map((item) => ({
+                  productName: resolveItemName(item),
+                  itemCode: item.itemCode ?? item.product?.itemCode ?? item.productId,
+                  quantity: item.quantity,
+                }))}
+                currency={selectedCurrency}
+                totalAmount={(convertedTotal ?? totalAmount).toFixed(2)}
+                lang={currentLanguage}
+                disabled={items.length === 0}
+              />
+            </div>
           </div>
         </div>
       </HoverCardContent>

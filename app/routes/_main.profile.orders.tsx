@@ -32,6 +32,7 @@ type OrderItem = GetApiCheckoutOrdersResponse["data"]["orders"][number];
 
 type CartProduct = {
   productId: string;
+  itemCode?: string;
   productTranslations: Array<{
     name: string;
     slug?: string;
@@ -45,6 +46,7 @@ type CartProduct = {
 
 const toCartProduct = (product: ProductItem): CartProduct => ({
   productId: product.id,
+  itemCode: product.itemCode,
   productTranslations: product.translations.map((translation) => ({
     name: translation.name,
     slug: translation.slug,

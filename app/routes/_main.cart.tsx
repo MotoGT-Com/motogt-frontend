@@ -12,6 +12,8 @@ import { useTranslation } from "react-i18next";
 import ProductsHorizontalScroll from "~/components/ProductsHorizontalScroll";
 import { useCurrency } from "~/hooks/use-currency";
 import { useEffect, useState } from "react";
+import { WhatsAppButton } from "~/components/whatsapp-button";
+import getLocalizedTranslation from "~/lib/get-locale-translation";
 
 // Loader function to fetch cart data
 export async function loader({ context }: Route.LoaderArgs) {
@@ -47,7 +49,7 @@ export async function loader({ context }: Route.LoaderArgs) {
 }
 
 export default function Cart({ loaderData }: Route.ComponentProps) {
-  const { t } = useTranslation('cart');
+  const { t, i18n } = useTranslation('cart');
   const { recommendedProductsResponse, isAuthenticated } = loaderData;
   const { cartQuery, updateQuantityMutation, removeFromCartMutation } =
     useCartManager(isAuthenticated);
@@ -220,16 +222,37 @@ export default function Cart({ loaderData }: Route.ComponentProps) {
                       </div>
                     </div>
 
-                    <Link to="/checkout">
-                      <Button
-                        className="w-full h-10 font-bold"
-                        disabled={
-                          cartQuery.data && cartQuery.data.items.length === 0
-                        }
-                      >
-                        {t('summary.proceedToCheckout')}
-                      </Button>
-                    </Link>
+                    <div className="flex flex-col gap-2">
+                      <Link to="/checkout" className="block w-full">
+                        <Button
+                          className="w-full h-10 font-bold"
+                          disabled={
+                            cartQuery.data && cartQuery.data.items.length === 0
+                          }
+                        >
+                          {t('summary.proceedToCheckout')}
+                        </Button>
+                      </Link>
+                      <WhatsAppButton
+                        className="h-10 text-base font-bold font-sans normal-case"
+                        items={cartQuery.data.items.map((item: any) => ({
+                          productName:
+                            getLocalizedTranslation(
+                              item.product?.translations ??
+                                item.productTranslations
+                            )?.name || "Product",
+                          itemCode:
+                            item.itemCode ??
+                            item.product?.itemCode ??
+                            item.productId,
+                          quantity: item.quantity,
+                        }))}
+                        currency={selectedCurrency}
+                        totalAmount={(convertedSubtotal ?? totals.total).toFixed(2)}
+                        lang={i18n.language}
+                        disabled={cartQuery.data.items.length === 0}
+                      />
+                    </div>
                   </div>
                 </SimpleCard>
               )}

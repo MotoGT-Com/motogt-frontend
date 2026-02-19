@@ -43,9 +43,23 @@
     "viewAll": "عرض الكل",
     "seeMore": "عرض المزيد",
     "seeLess": "عرض أقل",
+    "orderOnWhatsApp": "اطلب عبر واتساب",
     "loading": "جاري التحميل...",
     "tryAgain": "حاول مرة أخرى",
     "addCar": "إضافة سيارة"
+  },
+  "whatsapp": {
+    "singleHeader": "استفسار طلب مفرد جديد - MotoGT",
+    "cartHeader": "استفسار طلب سلة جديد - MotoGT",
+    "customer": "العميل",
+    "product": "المنتج",
+    "code": "الكود",
+    "price": "السعر",
+    "link": "الرابط",
+    "itemsInCart": "المنتجات في السلة",
+    "totalPrice": "السعر الإجمالي",
+    "singleClosing": "أنا مهتم بطلب هذا المنتج.",
+    "cartClosing": "أرغب بطلب المنتجات الموجودة في سلتي."
   },
   "status": {
     "pending": "قيد الانتظار",

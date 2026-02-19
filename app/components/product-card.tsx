@@ -19,6 +19,7 @@ import { garageCarsQueryOptions } from "~/lib/queries";
 import { useQuery } from "@tanstack/react-query";
 import { FitmentBadge } from "./fitment-badge";
 import { FavoritesButton } from "./favorites-button";
+import { WhatsAppButton } from "./whatsapp-button";
 import { EmptyGarageDialog } from "./empty-garage-dialog";
 import getLocalizedTranslation from "~/lib/get-locale-translation";
 import { buildProductPath } from "~/lib/product-url";
@@ -154,7 +155,7 @@ function ProductCard({
   );
   const id = useId();
   const [isHovered, setIsHovered] = useState(false);
-  const { t } = useTranslation("common");
+  const { t, i18n } = useTranslation("common");
   const location = useLocation();
   const productName = getLocalizedTranslation(product.translations)?.name;
   const productPath = buildProductPath(product);
@@ -604,6 +605,7 @@ function ProductCard({
               onClick={() =>
                 addToCartMutation.mutate({
                   productId: product.id,
+                  itemCode: product.itemCode,
                   productTranslations: product.translations.map(t => ({ name: t.name, slug: t.slug, languageCode: t.languageCode })),
                   productImage: product.mainImage || "",
                   unitPrice: product.price,
@@ -630,6 +632,19 @@ function ProductCard({
               {t("status.outOfStock")}
             </Button>
           )}
+          <WhatsAppButton
+            className="w-full z-20 relative h-9 text-base"
+            items={[
+              {
+                productName: productName || "Product",
+                itemCode: product.itemCode || "-",
+                price: (convertedPrice ?? product.price).toFixed(2),
+                productUrl: productPath,
+              },
+            ]}
+            currency={selectedCurrency}
+            lang={i18n.language}
+          />
         </div>
       </div>
     </SimpleCard>

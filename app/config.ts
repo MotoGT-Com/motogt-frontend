@@ -11,6 +11,7 @@ type AppConfig = {
   languageIds: LanguageIds;
   supportPhoneNumber: string;
   supportWhatsappNumber: string;
+  whatsappOrderNumber: string;
 };
 
 const env = import.meta.env;
@@ -47,5 +48,9 @@ export const config: AppConfig = {
   supportWhatsappNumber: getEnv(
     "VITE_SUPPORT_WHATSAPP_NUMBER",
     "962793003737"
+  ),
+  whatsappOrderNumber: getEnv(
+    "VITE_WHATSAPP_NUMBER",
+    getEnv("VITE_SUPPORT_WHATSAPP_NUMBER", "962793003737")
   ),
 };

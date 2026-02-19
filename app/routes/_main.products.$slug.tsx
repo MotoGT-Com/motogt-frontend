@@ -24,6 +24,7 @@ import { useTranslation } from "react-i18next";
 import getLocalizedTranslation from "~/lib/get-locale-translation";
 import i18n from "~/lib/i18n";
 import ProductsHorizontalScroll from "~/components/ProductsHorizontalScroll";
+import { WhatsAppButton } from "~/components/whatsapp-button";
 import { getLocaleFromRequest } from "~/lib/i18n-cookie";
 import { config } from "~/config";
 import { buildProductPath, buildProductSlugSegment, extractProductIdFromSlugSegment } from "~/lib/product-url";
@@ -257,6 +258,7 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
 
   const displayPrice = convertedPrice ?? currentPrice;
   const displayBasePrice = convertedBasePrice ?? product.price;
+  const localizedProductName = getLocalizedTranslation(product.translations)?.name ?? "";
 
   // Get current stock quantity
   const currentStock = currentVariant?.stockQuantity ?? product.stockQuantity;
@@ -811,43 +813,60 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
               )}
             </div>
 
-            {/* Add to Cart Button */}
-            <Button
-              className="w-full h-12 font-koulen text-lg order-3 md:order-8"
-              onClick={() =>
-                addToCartMutation.mutate({
-                  productId: product.id,
-                  productTranslations: product.translations.map(t => ({ name: t.name, slug: t.slug, languageCode: t.languageCode })),
-                  productImage:
-                    currentVariant?.mainImage || product.mainImage || "",
-                  unitPrice: currentPrice,
-                  quantity: quantity,
-                  variantId: selectedVariant || undefined,
-                })
-              }
-              disabled={
-                addToCartMutation.isPending ||
-                currentStock === 0 ||
-                (product.variants &&
+            <div className="order-3 md:order-8 flex flex-col gap-2">
+              {/* Add to Cart Button */}
+              <Button
+                className="w-full h-12 font-koulen text-lg"
+                onClick={() =>
+                  addToCartMutation.mutate({
+                    productId: product.id,
+                    itemCode: product.itemCode,
+                    productTranslations: product.translations.map(t => ({ name: t.name, slug: t.slug, languageCode: t.languageCode })),
+                    productImage:
+                      currentVariant?.mainImage || product.mainImage || "",
+                    unitPrice: currentPrice,
+                    quantity: quantity,
+                    variantId: selectedVariant || undefined,
+                  })
+                }
+                disabled={
+                  addToCartMutation.isPending ||
+                  currentStock === 0 ||
+                  (product.variants &&
+                    product.variants.length > 0 &&
+                    !selectedVariant)
+                }
+              >
+                {addToCartMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    Adding...
+                  </>
+                ) : currentStock === 0 ? (
+                  t("common:status.outOfStock")
+                ) : product.variants &&
                   product.variants.length > 0 &&
-                  !selectedVariant)
-              }
-            >
-              {addToCartMutation.isPending ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Adding...
-                </>
-              ) : currentStock === 0 ? (
-                t("common:status.outOfStock")
-              ) : product.variants &&
-                product.variants.length > 0 &&
-                !selectedVariant ? (
-                t("common:status.selectOptions")
-              ) : (
-                t("common:buttons.addToCart")
-              )}
-            </Button>
+                  !selectedVariant ? (
+                  t("common:status.selectOptions")
+                ) : (
+                  t("common:buttons.addToCart")
+                )}
+              </Button>
+
+              <WhatsAppButton
+                className="h-12 text-lg"
+                items={[
+                  {
+                    productName: localizedProductName,
+                    itemCode: product.itemCode,
+                    price: displayPrice.toFixed(2),
+                    productUrl: buildProductPath(product),
+                  },
+                ]}
+                currency={selectedCurrency}
+                lang={i18n.language}
+              />
+            </div>
           </div>
         </div>
         

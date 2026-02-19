@@ -44,8 +44,22 @@
     "viewAll": "View All",
     "seeMore": "See More",
     "seeLess": "See Less",
+    "orderOnWhatsApp": "Order on WhatsApp",
     "loading": "Loading...",
     "tryAgain": "Try Again"
+  },
+  "whatsapp": {
+    "singleHeader": "New Single Order Inquiry - MotoGT",
+    "cartHeader": "New Cart Order Inquiry - MotoGT",
+    "customer": "Customer",
+    "product": "Product",
+    "code": "Code",
+    "price": "Price",
+    "link": "Link",
+    "itemsInCart": "Items in Cart",
+    "totalPrice": "Total Price",
+    "singleClosing": "I am interested in ordering this item.",
+    "cartClosing": "I want to order the items in my cart."
   },
   "status": {
     "pending": "Pending",

@@ -50,6 +50,7 @@ const ProductTranslationSchema = z.object({
 
 const ProductItemSchema = z.object({
   productId: z.string(),
+  itemCode: z.string().optional(),
   productTranslations: z.array(ProductTranslationSchema),
   productImage: z.string(),
   unitPrice: z.number(),
@@ -340,6 +341,7 @@ class ServerCartManager implements CartManager {
     // Transform the API response to match our CartItem interface
     return response.data.data.items.map((item) => ({
       productId: item.productId,
+      itemCode: item.product.itemCode,
       productImage: item.product.mainImage || "",
       productTranslations: item.product.translations,
       unitPrice: item.unitPrice,
