@@ -160,6 +160,14 @@ function ProductCard({
   const location = useLocation();
   const productName = getLocalizedTranslation(product.translations)?.name;
   const productPath = buildProductPath(product);
+
+  // Warm secondary image cache so hover swap is instant.
+  useEffect(() => {
+    if (typeof window === "undefined" || !product.secondaryImage) return;
+
+    const preloadImage = new Image();
+    preloadImage.src = product.secondaryImage;
+  }, [product.secondaryImage]);
   
   // Currency hook for price conversion
   const { selectedCurrency, convertPrice } = useCurrency();
