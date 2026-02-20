@@ -26,12 +26,12 @@
 import { href, Link, NavLink, Outlet, useLocation } from "react-router";
 import { Logo } from "~/components/logo";
 import { Button } from "~/components/ui/button";
-import { MenuIcon, XIcon } from "lucide-react";
+import { MenuIcon, SearchIcon, XIcon } from "lucide-react";
 import type { Route } from "./+types/_main";
 import { cn } from "~/lib/utils";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTrigger, } from "~/components/ui/sheet";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useCartManager } from "~/lib/cart-manager";
 import { authContext } from "~/context";
 import { garageCarsQueryOptions } from "~/lib/queries";
@@ -49,6 +49,7 @@ import { CartHoverPopup } from "~/components/cart-hover-popup";
 import { useTranslation } from "react-i18next";
 import { SiteFooter } from "~/components/site-footer";
 import { useAuthModal } from "~/context/AuthModalContext";
+import { ProductSearch } from "~/components/product-search";
 
 /**
  * Server-side loader that fetches authentication state, user data, and product types
@@ -83,7 +84,8 @@ export default function Main(props: Route.ComponentProps) {
 }
 
 function MainContent({ matches, loaderData }: Route.ComponentProps) {
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
+  const isRTL = i18n.language === "ar";
   const { isAuthenticated, user } = loaderData;
   const { openAuthModal } = useAuthModal();
 
@@ -124,11 +126,41 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
   
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
 
   // Close mobile menu when route changes
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
+
+  useEffect(() => {
+    setIsSearchOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!isSearchOpen) return;
+
+    const handleOutsideClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement | null;
+
+      // Radix Select/Popover content is portaled to document.body, so selecting
+      // an item should not be treated as a click outside the header search area.
+      if (
+        target?.closest("[data-slot='select-content']") ||
+        target?.closest("[data-slot='select-item']") ||
+        target?.closest("[data-radix-popper-content-wrapper]")
+      ) {
+        return;
+      }
+
+      if (headerRef.current?.contains(target as Node)) return;
+      setIsSearchOpen(false);
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [isSearchOpen]);
 
   // Hide footer on garage pages
   const hideFooter = useMemo(
@@ -156,10 +188,13 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
   return (
     <>
       {/* Main Header - Sticky navigation bar */}
-      <header className="bg-background border-b sticky top-0 z-50 font-koulen">
+      <header
+        ref={headerRef}
+        className="bg-background border-b sticky top-0 z-50 font-koulen"
+      >
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between w-full">
           {/* Desktop: Left Garage Button */}
-          <div className="hidden md:flex items-center">
+          <div className="hidden md:flex items-center gap-3">
             <GarageNavButton
               to={href("/my-garage")}
               variant="outline"
@@ -169,6 +204,22 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
                 ? `${garageCarsQuery.data.summary.primaryCar.carDetails.brand} ${garageCarsQuery.data.summary.primaryCar.carDetails.model}`
                 : t("nav.myGarage")}
             </GarageNavButton>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className={cn(
+                "h-10 w-10",
+                isSearchOpen &&
+                  "bg-primary text-white border-primary hover:bg-primary/90 hover:text-white"
+              )}
+              onClick={() => setIsSearchOpen((prev) => !prev)}
+              aria-label={isSearchOpen ? t("buttons.close") : t("buttons.search")}
+              aria-expanded={isSearchOpen}
+              aria-controls="desktop-header-search"
+            >
+              {isSearchOpen ? <XIcon className="size-5" /> : <SearchIcon className="size-5" />}
+            </Button>
           </div>
 
           {/* Logo */}
@@ -446,39 +497,69 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
           </div>
         </div>
         {/* Desktop Secondary Navigation */}
-        <div className="hidden md:flex items-center justify-center border-t bg-background">
-          <nav className="flex items-center gap-6 py-3">
-            <NavLinkButton
-              to={href("/shop/:productType", { productType: "car-parts" })}
-              icon={CarPartsNavIcon}
+        <div className="hidden md:block border-t bg-background">
+          <div className="max-w-7xl mx-auto px-6">
+            <div
+              id="desktop-header-search"
+              className={cn(
+                "transition-all duration-300 ease-out overflow-hidden",
+                isSearchOpen
+                  ? "max-h-[300px] opacity-100 py-4"
+                  : "max-h-0 opacity-0 py-0 pointer-events-none"
+              )}
             >
-              {t("nav.carParts")}
-            </NavLinkButton>
-            <NavLinkButton
-              to={href("/shop/:productType", { productType: "motorcycles" })}
-              icon={RidingGearNavIcon}
+              <ProductSearch
+                className="font-sans"
+                cardClassName="shadow-none"
+                searchSectionClassName="focus-within:ring-0 focus-within:ring-offset-0"
+                size="compact"
+                autoFocusSearch={isSearchOpen}
+                searchPlaceholder={isRTL ? "اكتب شيئًا" : "Type Something"}
+                onSubmitSuccess={() => setIsSearchOpen(false)}
+              />
+            </div>
+            <div
+              className={cn(
+                "transition-all duration-300 ease-out overflow-hidden",
+                isSearchOpen
+                  ? "max-h-0 opacity-0 py-0 pointer-events-none"
+                  : "max-h-[120px] opacity-100 py-3"
+              )}
             >
-              {t("nav.motorcycles")}
-            </NavLinkButton>
-            <NavLinkButton
-              to={href("/shop/:productType", { productType: "car-care-accessiores" })}
-              icon={CareNavIcon}
-            >
-              {t("nav.carCareAccessories")}
-            </NavLinkButton>
-            <NavLinkButton
-              to={href("/recommended")}
-              icon={FeaturedNavIcon}
-              navLinkOnClick={(event) =>
-                handleProtectedNavClick(event, href("/recommended"))
-              }
-            >
-              {t("nav.recommendedForYou")}
-            </NavLinkButton>
-            <NavLinkButton to={href("/wishlist")} icon={WishlistNavIcon}>
-              {t("nav.wishlist")}
-            </NavLinkButton>
-          </nav>
+              <nav className="flex items-center justify-center gap-6">
+                <NavLinkButton
+                  to={href("/shop/:productType", { productType: "car-parts" })}
+                  icon={CarPartsNavIcon}
+                >
+                  {t("nav.carParts")}
+                </NavLinkButton>
+                <NavLinkButton
+                  to={href("/shop/:productType", { productType: "motorcycles" })}
+                  icon={RidingGearNavIcon}
+                >
+                  {t("nav.motorcycles")}
+                </NavLinkButton>
+                <NavLinkButton
+                  to={href("/shop/:productType", { productType: "car-care-accessiores" })}
+                  icon={CareNavIcon}
+                >
+                  {t("nav.carCareAccessories")}
+                </NavLinkButton>
+                <NavLinkButton
+                  to={href("/recommended")}
+                  icon={FeaturedNavIcon}
+                  navLinkOnClick={(event) =>
+                    handleProtectedNavClick(event, href("/recommended"))
+                  }
+                >
+                  {t("nav.recommendedForYou")}
+                </NavLinkButton>
+                <NavLinkButton to={href("/wishlist")} icon={WishlistNavIcon}>
+                  {t("nav.wishlist")}
+                </NavLinkButton>
+              </nav>
+            </div>
+          </div>
         </div>
       </header>
       <HeaderToast />

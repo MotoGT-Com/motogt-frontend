@@ -18,6 +18,7 @@ import { useDebounce } from "use-debounce";
 import { useTranslation } from "react-i18next";
 import getLocalizedTranslation from "~/lib/get-locale-translation";
 import { buildProductPath } from "~/lib/product-url";
+import { cn } from "~/lib/utils";
 
 const anyValue = "any";
 
@@ -46,13 +47,31 @@ const searchSchema = z
     );
   });
 
-function ProductSearch() {
+function ProductSearch({
+  className,
+  searchPlaceholder,
+  autoFocusSearch = false,
+  onSubmitSuccess,
+  cardClassName,
+  searchSectionClassName,
+  size = "default",
+}: {
+  className?: string;
+  searchPlaceholder?: string;
+  autoFocusSearch?: boolean;
+  onSubmitSuccess?: () => void;
+  cardClassName?: string;
+  searchSectionClassName?: string;
+  size?: "default" | "compact";
+}) {
   const location = useLocation();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation("shop");
   const isRTL = i18n.language === "ar";
 
   const [searchParams] = useQueryStates(shopSearchParamsSchema);
+  const isCompact = size === "compact";
+  const compactSelectWidth = "w-full sm:w-[8rem] lg:w-[8.5rem] xl:w-36";
 
   const form = useForm({
     resolver: zodResolver(searchSchema),
@@ -94,6 +113,7 @@ function ProductSearch() {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLDivElement>(null);
+  const searchTextInputRef = useRef<HTMLInputElement>(null);
   const [dropdownPosition, setDropdownPosition] = useState<{
     top: number;
     left: number;
@@ -214,6 +234,12 @@ function ProductSearch() {
     }
   }, [showDropdown]);
 
+  useEffect(() => {
+    if (autoFocusSearch) {
+      searchTextInputRef.current?.focus();
+    }
+  }, [autoFocusSearch]);
+
   const availableYears = new Array(new Date().getFullYear() - 2015 + 2)
     .fill(0)
     .map((_, index) => new Date().getFullYear() - index);
@@ -226,19 +252,36 @@ function ProductSearch() {
         carYear: data.carYear ? parseInt(data.carYear) : undefined,
       })
     );
+    onSubmitSuccess?.();
   };
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex md:h-20 gap-4 flex-col md:flex-row relative"
+        className={cn(
+          "flex gap-4 flex-col relative",
+          isCompact
+            ? "md:flex-row rtl:md:flex-row-reverse md:h-14"
+            : "md:flex-row rtl:md:flex-row-reverse md:h-20",
+          className
+        )}
         dir={isRTL ? "rtl" : "ltr"}
       >
-        <SimpleCard className="flex flex-col md:flex-row flex-1 p-4 md:p-0 space-y-3 md:space-y-0 md:divide-x rtl:md:divide-x-reverse divide-border bg-white shadow-lg">
+        <SimpleCard
+          className={cn(
+            "flex flex-col md:flex-row flex-1 p-4 md:p-0 space-y-3 md:space-y-0 md:divide-x rtl:md:divide-x-reverse divide-border bg-white shadow-lg",
+            isCompact && "p-2 md:p-0",
+            cardClassName
+          )}
+        >
           <div 
             ref={searchInputRef}
-            className="relative flex-1 focus-within:ring-ring/50 focus-within:ring-[3px] py-4 md:py-0 border md:border-0"
+            className={cn(
+              "relative flex-1 focus-within:ring-ring/50 focus-within:ring-[3px] border md:border-0",
+              isCompact ? "py-2 md:py-0" : "py-4 md:py-0",
+              searchSectionClassName
+            )}
           >
             <Search className="w-5 h-5 text-gray-400 absolute start-4 top-1/2 -translate-y-1/2 z-10" />
             {searchProductsQuery.isFetching && (
@@ -252,9 +295,16 @@ function ProductSearch() {
                   <FormLabel className="sr-only">{t("carSearch.searchButton")}</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder={t("search.selectCarPart")}
-                      className="border-0 focus-visible:ring-0 text-sm h-auto w-full px-0 py-0 ps-12"
+                      placeholder={searchPlaceholder ?? t("search.selectCarPart")}
+                      className={cn(
+                        "border-0 focus-visible:ring-0 h-auto w-full px-0 py-0 ps-12 text-start",
+                        isCompact ? "text-base" : "text-sm"
+                      )}
                       {...field}
+                      ref={(node) => {
+                        field.ref(node);
+                        searchTextInputRef.current = node;
+                      }}
                       onChange={(e) => {
                         const value = e.target.value;
                         field.onChange(value);
@@ -363,7 +413,12 @@ function ProductSearch() {
                 document.body
               )}
           </div>
-          <div className="flex flex-col md:flex-row space-y-3 md:space-y-0 md:divide-x rtl:md:divide-x-reverse divide-border">
+          <div
+            className={cn(
+              "flex flex-col md:flex-row space-y-3 md:space-y-0 md:divide-x rtl:md:divide-x-reverse divide-border",
+              isCompact && "sm:flex-row sm:space-y-0 sm:divide-x rtl:sm:divide-x-reverse"
+            )}
+          >
             <div className="flex items-center focus-within:ring-ring/50 focus-within:ring-[3px] px-2 py-1 border md:border-0">
               <FormField
                 control={form.control}
@@ -389,10 +444,23 @@ function ProductSearch() {
                           }
                         }}
                       >
-                        <SelectTrigger className="w-36 border-0 focus-visible:ring-0">
-                          <div className="text-start space-y-2">
+                        <SelectTrigger
+                          className={cn(
+                            "border-0 focus-visible:ring-0",
+                            isCompact ? compactSelectWidth : "w-36"
+                          )}
+                        >
+                          <div
+                            className={cn(
+                              "text-start",
+                              isCompact ? "space-y-1" : "space-y-2"
+                            )}
+                          >
                             <div
-                              className="text-sm text-gray-500"
+                              className={cn(
+                                "text-gray-500",
+                                isCompact ? "text-xs" : "text-sm"
+                              )}
                               aria-hidden="true"
                             >
                               {t("carSearch.carMake")}
@@ -441,10 +509,23 @@ function ProductSearch() {
                         }}
                         disabled={form.watch("carBrand") === anyValue}
                       >
-                        <SelectTrigger className="w-36 border-0 focus-visible:ring-0">
-                          <div className="text-start space-y-2">
+                        <SelectTrigger
+                          className={cn(
+                            "border-0 focus-visible:ring-0",
+                            isCompact ? compactSelectWidth : "w-36"
+                          )}
+                        >
+                          <div
+                            className={cn(
+                              "text-start",
+                              isCompact ? "space-y-1" : "space-y-2"
+                            )}
+                          >
                             <div
-                              className="text-sm text-gray-500"
+                              className={cn(
+                                "text-gray-500",
+                                isCompact ? "text-xs" : "text-sm"
+                              )}
                               aria-hidden="true"
                             >
                               {t("carSearch.carModel")}
@@ -491,10 +572,23 @@ function ProductSearch() {
                           }
                         }}
                       >
-                        <SelectTrigger className="w-36 border-0 focus-visible:ring-0">
-                          <div className="text-start space-y-2">
+                        <SelectTrigger
+                          className={cn(
+                            "border-0 focus-visible:ring-0",
+                            isCompact ? compactSelectWidth : "w-36"
+                          )}
+                        >
+                          <div
+                            className={cn(
+                              "text-start",
+                              isCompact ? "space-y-1" : "space-y-2"
+                            )}
+                          >
                             <div
-                              className="text-sm text-gray-500"
+                              className={cn(
+                                "text-gray-500",
+                                isCompact ? "text-xs" : "text-sm"
+                              )}
                               aria-hidden="true"
                             >
                               {t("carSearch.productionYear")}
@@ -521,7 +615,12 @@ function ProductSearch() {
         <Button
           type="submit"
           disabled={!form.formState.isValid}
-          className="h-auto min-w-[12rem] font-koulen text-xl font-normal"
+          className={cn(
+            "w-full md:w-auto min-w-[12rem] font-koulen font-normal bg-[#CF172F] hover:bg-[#CF172F]/90 text-white",
+            isCompact
+              ? "h-14 md:h-full text-lg md:min-w-[12rem]"
+              : "h-auto text-xl"
+          )}
         >
           {t("carSearch.searchButton")}
         </Button>
