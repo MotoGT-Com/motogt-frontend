@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { href, Link, useNavigate, type MiddlewareFunction } from "react-router";
+import { href, Link, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import * as RPNInput from "react-phone-number-input";
 import flags from "react-phone-number-input/flags";
@@ -18,8 +18,8 @@ import { AccordionDropdownButton } from "~/components/accordion-dropdown-button"
 import type { Route } from "./+types/_main.checkout";
 import { getApiStoresByStoreIdCart, getApiUsersMeAddresses, postApiPromoCodesValidate, postApiUsersMeAddresses, } from "~/lib/client";
 import { defaultParams } from "~/lib/api-client";
-import type { AddressResponse, CheckoutRequest } from "~/lib/client/types.gen";
-import { accessTokenCookie, requireAuthMiddleware, } from "~/lib/auth-middleware";
+import type { AddressResponse } from "~/lib/client/types.gen";
+import { accessTokenCookie } from "~/lib/auth-middleware";
 import { useMutation } from "@tanstack/react-query";
 import { checkoutMutationOptions } from "~/lib/queries";
 import { toast } from "sonner";
@@ -29,6 +29,9 @@ import { backupCart, loadPendingPayment, clearPendingPayment, } from "~/lib/paym
 import { useCurrency } from "~/hooks/use-currency";
 import { type Currency } from "~/lib/constants";
 import { getExchangeRate } from "~/lib/currency-utils";
+import { authContext } from "~/context";
+import { useAuthModal } from "~/context/AuthModalContext";
+import { CountrySelect, PhoneInput } from "~/components/phone-number-input";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,10 +43,17 @@ import {
   AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
 
-export const middleware: MiddlewareFunction[] = [requireAuthMiddleware];
-
 // Loader function to fetch cart and address data
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader({ request, context }: Route.LoaderArgs) {
+  const auth = context.get(authContext);
+  if (!auth.isAuthenticated) {
+    return {
+      cart: null,
+      addresses: [],
+      isAuthenticated: false,
+    };
+  }
+
   const accessToken = await accessTokenCookie.parse(
     request.headers.get("Cookie")
   );
@@ -70,11 +80,13 @@ export async function loader({ request }: Route.LoaderArgs) {
     return {
       cart: cartResponse.data?.success ? cartResponse.data.data : null,
       addresses: addressesResponse.data?.data?.addresses || [],
+      isAuthenticated: true,
     };
   } catch (error) {
     return {
       cart: null,
       addresses: [],
+      isAuthenticated: true,
     };
   }
 }
@@ -189,15 +201,16 @@ function getExpectedDeliveryDates() {
 }
 
 export default function Checkout({ loaderData }: Route.ComponentProps) {
-  const { t } = useTranslation('checkout');
-  const { cart, addresses } = loaderData;
+  const { t, i18n } = useTranslation('checkout');
+  const { cart, addresses, isAuthenticated } = loaderData;
   const navigate = useNavigate();
+  const { openAuthModal } = useAuthModal();
   const checkoutMutation = useMutation(checkoutMutationOptions);
   const { initiatePayment, isInitiating } = usePayment();
   const { cartQuery, updateQuantityMutation, removeFromCartMutation } =
-    useCartManager(true); // Checkout requires auth
+    useCartManager(isAuthenticated);
   const [selectedAddress, setSelectedAddress] = useState<string>("");
-  const [selectedPayment, setSelectedPayment] = useState<string>("cod"); // Default to Cash on Delivery
+  const [selectedPayment, setSelectedPayment] = useState<string>("");
   const [promoCode, setPromoCode] = useState("");
   const [promoError, setPromoError] = useState<string | null>(null);
   const [appliedPromoCode, setAppliedPromoCode] =
@@ -232,10 +245,35 @@ export default function Checkout({ loaderData }: Route.ComponentProps) {
   const [isRedirectingToGateway, setIsRedirectingToGateway] = useState(false);
   const [checkoutAddresses, setCheckoutAddresses] = useState(addresses);
   const [isAddAddressDialogOpen, setIsAddAddressDialogOpen] = useState(false);
+  const [guestEmail, setGuestEmail] = useState("");
+  const [guestPhone, setGuestPhone] = useState("");
+  const [guestFirstName, setGuestFirstName] = useState("");
+  const [guestLastName, setGuestLastName] = useState("");
+  const [guestCountry, setGuestCountry] = useState("");
+  const [guestCity, setGuestCity] = useState("");
+  const [guestAddressLine1, setGuestAddressLine1] = useState("");
+  const [guestAddressLine2, setGuestAddressLine2] = useState("");
+  const [guestPostalCode, setGuestPostalCode] = useState("");
+  const [isGuestPhoneVerified, setIsGuestPhoneVerified] = useState(false);
+  const isGuestCheckout = !isAuthenticated;
+  const guestSelectedCountry = guestCountry as keyof typeof ADDRESS_CITIES;
+  const guestAvailableCities = guestSelectedCountry
+    ? ADDRESS_CITIES[guestSelectedCountry] || []
+    : [];
+  const guestRegionNames = new Intl.DisplayNames(
+    [i18n.language?.startsWith("ar") ? "ar" : "en"],
+    { type: "region" }
+  );
 
   useEffect(() => {
     setCheckoutAddresses(addresses);
   }, [addresses]);
+
+  useEffect(() => {
+    if (isGuestCheckout) {
+      setIsGuestPhoneVerified(false);
+    }
+  }, [guestPhone, isGuestCheckout]);
 
   // Auto-select default address when addresses are loaded
   useEffect(() => {
@@ -370,13 +408,13 @@ export default function Checkout({ loaderData }: Route.ComponentProps) {
       } catch (error) {
         setIsRedirectingToGateway(false);
         toast.error(t('messages.paymentInitiationFailed'));
-        navigate(href("/profile/orders"));
+        navigate(href(isGuestCheckout ? "/" : "/profile/orders"));
       } finally {
         setLoading(false);
       }
     } else {
       toast.success(t('messages.orderPlaced'));
-      navigate(href("/profile/orders"));
+      navigate(href(isGuestCheckout ? "/" : "/profile/orders"));
       setLoading(false);
     }
   };
@@ -485,8 +523,37 @@ export default function Checkout({ loaderData }: Route.ComponentProps) {
     }
   };
 
-  const handlePlaceOrder = async () => {
-    if (!selectedAddress || !selectedPayment) {
+  const handlePlaceOrder = async (skipGuestVerification = false) => {
+    if ((!isGuestCheckout && !selectedAddress) || !selectedPayment) {
+      return;
+    }
+
+    if (
+      isGuestCheckout &&
+      (
+        !guestFirstName.trim() ||
+        !guestLastName.trim() ||
+        !guestPhone.trim() ||
+        !guestCountry.trim() ||
+        !guestCity.trim() ||
+        !guestAddressLine1.trim()
+      )
+    ) {
+      toast.error(t("messages.guestRequiredFields"));
+      return;
+    }
+
+    if (isGuestCheckout && !skipGuestVerification && !isGuestPhoneVerified) {
+      openAuthModal("verifyOTP", {
+        otpContext: {
+          source: "guestCheckout",
+          phone: guestPhone.trim(),
+          onVerified: async () => {
+            setIsGuestPhoneVerified(true);
+            await handlePlaceOrder(true);
+          },
+        },
+      });
       return;
     }
 
@@ -509,10 +576,20 @@ export default function Checkout({ loaderData }: Route.ComponentProps) {
       const apiPaymentMethod = getPaymentMethodValue(selectedPayment);
       const checkoutData: any = {
         storeId: defaultParams.storeId,
-        shippingAddressId: selectedAddress,
         paymentMethod: apiPaymentMethod,
         paymentCurrency: selectedCurrency, // Add payment currency
       };
+
+      if (!isGuestCheckout) {
+        checkoutData.shippingAddressId = selectedAddress;
+      } else {
+        checkoutData.guestContact = {
+          firstName: guestFirstName.trim() || undefined,
+          lastName: guestLastName.trim() || undefined,
+          email: guestEmail.trim() || undefined,
+          phone: guestPhone.trim() || undefined,
+        };
+      }
 
       // Add notes to identify the actual payment method selected
       // This helps us display the correct payment method on the orders page
@@ -522,6 +599,19 @@ export default function Checkout({ loaderData }: Route.ComponentProps) {
         checkoutData.notes = "Payment method: Card on Delivery";
       } else if (selectedPayment === "card") {
         checkoutData.notes = "Payment method: Credit Card";
+      }
+
+      if (isGuestCheckout) {
+        const guestAddressSummary = [
+          guestAddressLine1.trim(),
+          guestAddressLine2.trim(),
+          guestCity.trim(),
+          guestCountry.trim(),
+          guestPostalCode.trim(),
+        ]
+          .filter(Boolean)
+          .join(", ");
+        checkoutData.notes = `${checkoutData.notes ? `${checkoutData.notes}\n` : ""}Guest shipping address: ${guestAddressSummary}`;
       }
 
       // Include promo codes if applied
@@ -588,7 +678,7 @@ export default function Checkout({ loaderData }: Route.ComponentProps) {
               toast.error(
                 t('messages.paymentInitiationFailed')
               );
-              navigate(href("/profile/orders"));
+              navigate(href(isGuestCheckout ? "/" : "/profile/orders"));
             } finally {
               // Reset loading state after payment flow completes
               setLoading(false);
@@ -596,7 +686,7 @@ export default function Checkout({ loaderData }: Route.ComponentProps) {
           } else {
             // For non-card payments, navigate to orders
             toast.success(t('messages.orderPlaced'));
-            navigate(href("/profile/orders"));
+            navigate(href(isGuestCheckout ? "/" : "/profile/orders"));
             setLoading(false);
           }
         },
@@ -668,27 +758,207 @@ export default function Checkout({ loaderData }: Route.ComponentProps) {
           <div className="grid lg:grid-cols-[4fr_2fr] gap-8">
             {/* Main Checkout Content */}
             <div className="space-y-6">
-              {/* Delivery Address */}
-              <SimpleCard className="md:p-4 bg-background-secondary md:bg-background border-0 md:border">
-                <h2 className="text-lg font-black italic text-black mb-4">
-                  {t('addressSection.title')}
-                </h2>
-                <RadioGroup
-                  value={selectedAddress}
-                  onValueChange={setSelectedAddress}
-                  className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                >
-                  {checkoutAddresses.map((address) => (
-                    <AddressSelectionCard
-                      key={address.id}
-                      address={address}
-                      isSelected={selectedAddress === address.id}
-                      onSelect={setSelectedAddress}
-                    />
-                  ))}
-                  <AddNewAddressCard onClick={() => setIsAddAddressDialogOpen(true)} />
-                </RadioGroup>
-              </SimpleCard>
+              {isGuestCheckout ? (
+                <SimpleCard className="md:p-4 bg-background-secondary md:bg-background border-0 md:border">
+                  <h2 className="mb-2 text-lg font-black italic text-black">
+                    {t("guestSection.title")}
+                  </h2>
+                  <p className="mb-4 text-sm text-muted-foreground">
+                    {t("guestSection.description")}
+                  </p>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="guest-first-name">
+                        {t("guestSection.fields.firstNameLabel")} <span className="text-[#CF172F]">*</span>
+                      </Label>
+                      <Input
+                        id="guest-first-name"
+                        type="text"
+                        value={guestFirstName}
+                        onChange={(event) => setGuestFirstName(event.target.value)}
+                        placeholder={t("guestSection.fields.firstNamePlaceholder")}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="guest-last-name">
+                        {t("guestSection.fields.lastNameLabel")} <span className="text-[#CF172F]">*</span>
+                      </Label>
+                      <Input
+                        id="guest-last-name"
+                        type="text"
+                        value={guestLastName}
+                        onChange={(event) => setGuestLastName(event.target.value)}
+                        placeholder={t("guestSection.fields.lastNamePlaceholder")}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="guest-phone">
+                        {t("guestSection.fields.phoneLabel")} <span className="text-[#CF172F]">*</span>
+                      </Label>
+                      <div dir="ltr">
+                        <RPNInput.default
+                          id="guest-phone"
+                          className="flex"
+                          countrySelectComponent={CountrySelect}
+                          inputComponent={PhoneInput}
+                          placeholder={t("guestSection.fields.phonePlaceholder")}
+                          defaultCountry="JO"
+                          countries={ADDRESS_ALLOWED_COUNTRIES}
+                          countryCallingCodeEditable={false}
+                          value={guestPhone || undefined}
+                          onChange={(value) => setGuestPhone(value ?? "")}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="guest-email">{t("guestSection.fields.emailLabel")}</Label>
+                      <Input
+                        id="guest-email"
+                        type="email"
+                        value={guestEmail}
+                        onChange={(event) => setGuestEmail(event.target.value)}
+                        placeholder={t("guestSection.fields.emailPlaceholder")}
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label>
+                        {t("guestSection.fields.countryLabel")} <span className="text-[#CF172F]">*</span>
+                      </Label>
+                      <Select
+                        value={guestCountry}
+                        onValueChange={(country) => {
+                          setGuestCountry(country);
+                          setGuestCity("");
+                        }}
+                      >
+                        <SelectTrigger className="h-12 w-full">
+                          <SelectValue placeholder={t("guestSection.fields.countryPlaceholder")} />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[250px] max-w-[250px]">
+                          {Object.entries(flags)
+                            .filter(([countryCode]) =>
+                              ADDRESS_ALLOWED_COUNTRIES.includes(countryCode as RPNInput.Country)
+                            )
+                            .map(([countryCode, Flag]) => (
+                              <SelectItem key={countryCode} value={countryCode}>
+                                {Flag ? <Flag title={countryCode} /> : null}{" "}
+                                <span>{guestRegionNames.of(countryCode)}</span>
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>
+                        {t("guestSection.fields.cityLabel")} <span className="text-[#CF172F]">*</span>
+                      </Label>
+                      <Select
+                        value={guestCity}
+                        onValueChange={(city) => setGuestCity(city)}
+                        disabled={!guestCountry}
+                      >
+                        <SelectTrigger className="h-12 w-full">
+                          <SelectValue placeholder={t("guestSection.fields.cityPlaceholder")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {guestAvailableCities.map((city) => (
+                            <SelectItem key={city} value={city}>
+                              {city}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2 md:col-span-2">
+                      <Label htmlFor="guest-address-line-1">
+                        {t("guestSection.fields.addressLine1Label")} <span className="text-[#CF172F]">*</span>
+                      </Label>
+                      <Input
+                        id="guest-address-line-1"
+                        type="text"
+                        value={guestAddressLine1}
+                        onChange={(event) => setGuestAddressLine1(event.target.value)}
+                        placeholder={t("guestSection.fields.addressLine1Placeholder")}
+                      />
+                    </div>
+                    <div className="space-y-2 md:col-span-2">
+                      <Label htmlFor="guest-address-line-2">{t("guestSection.fields.addressLine2Label")}</Label>
+                      <Input
+                        id="guest-address-line-2"
+                        type="text"
+                        value={guestAddressLine2}
+                        onChange={(event) => setGuestAddressLine2(event.target.value)}
+                        placeholder={t("guestSection.fields.addressLine2Placeholder")}
+                      />
+                    </div>
+                    <div className="space-y-2 md:col-span-2">
+                      <Label htmlFor="guest-postal-code">{t("guestSection.fields.postalCodeLabel")}</Label>
+                      <Input
+                        id="guest-postal-code"
+                        type="text"
+                        value={guestPostalCode}
+                        onChange={(event) => setGuestPostalCode(event.target.value)}
+                        placeholder={t("guestSection.fields.postalCodePlaceholder")}
+                      />
+                    </div>
+                  </div>
+                  <p className="mt-4 text-center text-sm leading-relaxed text-black/65">
+                    <span>{t("guestSection.saveInfoPrefix")} </span>
+                    <button
+                      type="button"
+                      className="cursor-pointer bg-transparent p-0 text-sm font-bold text-[#CF172F] hover:opacity-90"
+                      onClick={() =>
+                        openAuthModal("register", {
+                          intent: {
+                            type: "checkout",
+                            returnTo: href("/checkout"),
+                          },
+                        })
+                      }
+                    >
+                      {t("guestSection.saveInfoCreateAccount")}
+                    </button>
+                    <span> {t("guestSection.saveInfoOr")} </span>
+                    <button
+                      type="button"
+                      className="cursor-pointer bg-transparent p-0 text-sm font-bold text-[#CF172F] hover:opacity-90"
+                      onClick={() =>
+                        openAuthModal("login", {
+                          intent: {
+                            type: "checkout",
+                            returnTo: href("/checkout"),
+                          },
+                        })
+                      }
+                    >
+                      {t("guestSection.saveInfoLogin")}
+                    </button>
+                  </p>
+                </SimpleCard>
+              ) : (
+                <SimpleCard className="md:p-4 bg-background-secondary md:bg-background border-0 md:border">
+                  <h2 className="text-lg font-black italic text-black mb-4">
+                    {t('addressSection.title')}
+                  </h2>
+                  <RadioGroup
+                    value={selectedAddress}
+                    onValueChange={setSelectedAddress}
+                    className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                  >
+                    {checkoutAddresses.map((address) => (
+                      <AddressSelectionCard
+                        key={address.id}
+                        address={address}
+                        isSelected={selectedAddress === address.id}
+                        onSelect={setSelectedAddress}
+                      />
+                    ))}
+                    <AddNewAddressCard onClick={() => setIsAddAddressDialogOpen(true)} />
+                  </RadioGroup>
+                </SimpleCard>
+              )}
 
               {/* Payment Method */}
               <SimpleCard className="md:p-4 bg-background-secondary md:bg-background border-0 md:border">
@@ -1003,11 +1273,13 @@ export default function Checkout({ loaderData }: Route.ComponentProps) {
 
                     <Button
                       className="w-full h-10 bg-primary text-white font-black text-[14px] tracking-[-0.014px] rounded-[2px] hover:bg-primary/90"
-                      onClick={handlePlaceOrder}
+                      onClick={() => {
+                        void handlePlaceOrder();
+                      }}
                       disabled={
                         loading ||
                         isInitiating ||
-                        !selectedAddress ||
+                        (!isGuestCheckout && !selectedAddress) ||
                         !selectedPayment ||
                         isValidatingPromo ||
                         (promoCode.trim().length > 0 && !appliedPromoCode)
@@ -1021,7 +1293,7 @@ export default function Checkout({ loaderData }: Route.ComponentProps) {
                             : t('actions.placingOrder')}
                         </>
                       ) : (
-                        t('actions.confirmPayment')
+                        t(isGuestCheckout ? "actions.placeGuestOrder" : "actions.confirmPayment")
                       )}
                     </Button>
                   </div>
@@ -1044,37 +1316,39 @@ export default function Checkout({ loaderData }: Route.ComponentProps) {
         onConfirm={handleConfirmPriceChange}
         currencySymbol={selectedCurrency}
       />
-      <AddAddressDialog
-        open={isAddAddressDialogOpen}
-        onOpenChange={setIsAddAddressDialogOpen}
-        onAddressCreated={async (createdAddressId, createdAddress) => {
-          try {
-            const refreshed = await getApiUsersMeAddresses({
-              query: { page: 1, limit: 20 },
-            });
-            const refreshedAddresses = refreshed.data?.data?.addresses || [];
-            if (refreshedAddresses.length > 0) {
-              setCheckoutAddresses(refreshedAddresses);
-              const created = refreshedAddresses.find((item) => item.id === createdAddressId);
-              if (created) {
-                setSelectedAddress(created.id);
+      {!isGuestCheckout && (
+        <AddAddressDialog
+          open={isAddAddressDialogOpen}
+          onOpenChange={setIsAddAddressDialogOpen}
+          onAddressCreated={async (createdAddressId, createdAddress) => {
+            try {
+              const refreshed = await getApiUsersMeAddresses({
+                query: { page: 1, limit: 20 },
+              });
+              const refreshedAddresses = refreshed.data?.data?.addresses || [];
+              if (refreshedAddresses.length > 0) {
+                setCheckoutAddresses(refreshedAddresses);
+                const created = refreshedAddresses.find((item) => item.id === createdAddressId);
+                if (created) {
+                  setSelectedAddress(created.id);
+                  return;
+                }
+                const defaultAddress = refreshedAddresses.find((item) => item.isDefault);
+                if (defaultAddress) {
+                  setSelectedAddress(defaultAddress.id);
+                  return;
+                }
+                setSelectedAddress(refreshedAddresses[0].id);
                 return;
               }
-              const defaultAddress = refreshedAddresses.find((item) => item.isDefault);
-              if (defaultAddress) {
-                setSelectedAddress(defaultAddress.id);
-                return;
-              }
-              setSelectedAddress(refreshedAddresses[0].id);
-              return;
+            } catch (error) {
             }
-          } catch (error) {
-          }
 
-          setCheckoutAddresses((current) => [createdAddress, ...current]);
-          setSelectedAddress(createdAddress.id);
-        }}
-      />
+            setCheckoutAddresses((current) => [createdAddress, ...current]);
+            setSelectedAddress(createdAddress.id);
+          }}
+        />
+      )}
     </>
   );
 }

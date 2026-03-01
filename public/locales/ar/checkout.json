@@ -37,6 +37,35 @@
       }
     }
   },
+  "guestSection": {
+    "title": "إتمام الطلب كضيف",
+    "description": "أدخل البريد الإلكتروني أو رقم الهاتف لنرسل لك تحديثات الطلب.",
+    "saveInfoMessage": "لحفظ معلوماتك، وتتبع طلباتك، وبناء كراجك الخاص، أنشئ حساباً أو سجل الدخول.",
+    "saveInfoPrefix": "لحفظ معلوماتك، وتتبع طلباتك، وبناء كراجك الخاص،",
+    "saveInfoCreateAccount": "أنشئ حساباً",
+    "saveInfoOr": "أو",
+    "saveInfoLogin": "سجل الدخول",
+    "fields": {
+      "firstNameLabel": "الاسم الأول",
+      "firstNamePlaceholder": "أدخل الاسم الأول",
+      "lastNameLabel": "اسم العائلة",
+      "lastNamePlaceholder": "أدخل اسم العائلة",
+      "phoneLabel": "رقم الهاتف",
+      "phonePlaceholder": "أدخل رقم هاتفك",
+      "emailLabel": "البريد الإلكتروني",
+      "emailPlaceholder": "أدخل بريدك الإلكتروني (اختياري)",
+      "countryLabel": "الدولة",
+      "countryPlaceholder": "اختر الدولة",
+      "cityLabel": "المدينة",
+      "cityPlaceholder": "اختر المدينة",
+      "addressLine1Label": "العنوان 1",
+      "addressLine1Placeholder": "الشارع، المبنى، رقم الشقة",
+      "addressLine2Label": "العنوان 2",
+      "addressLine2Placeholder": "معلم قريب، الحي، أو الطابق (اختياري)",
+      "postalCodeLabel": "الرمز البريدي",
+      "postalCodePlaceholder": "الرمز البريدي (اختياري)"
+    }
+  },
   "paymentSection": {
     "title": "طريقة الدفع",
     "cashOnDelivery": "الدفع عند الاستلام",
@@ -86,7 +115,8 @@
     "continue": "متابعة",
     "cancel": "إلغاء",
     "saveAddress": "حفظ العنوان",
-    "savingAddress": "جاري حفظ العنوان..."
+    "savingAddress": "جاري حفظ العنوان...",
+    "placeGuestOrder": "إتمام الطلب كضيف"
   },
   "messages": {
     "orderPlaced": "تم تقديم الطلب بنجاح!",
@@ -94,7 +124,10 @@
     "paymentInitiationFailed": "فشل بدء عملية الدفع. الرجاء المحاولة من صفحة الطلبات.",
     "validationError": "الرجاء ملء جميع الحقول المطلوبة",
     "addressAdded": "تمت إضافة العنوان بنجاح!",
-    "addressAddFailed": "فشلت إضافة العنوان. الرجاء المحاولة مرة أخرى."
+    "addressAddFailed": "فشلت إضافة العنوان. الرجاء المحاولة مرة أخرى.",
+    "guestContactRequired": "يرجى إدخال بريد إلكتروني أو رقم هاتف للضيف.",
+    "guestAddressRequired": "يرجى تعبئة الدولة والمدينة والعنوان 1 للضيف.",
+    "guestRequiredFields": "يرجى تعبئة الاسم الأول واسم العائلة ورقم الهاتف والدولة والمدينة والعنوان 1."
   },
   "disclaimer": "يرجى التأكد من أن القطع التي تشتريها متوافقة مع مركبتك. نحن غير مسؤولين عن الطلبات غير الصحيحة الناتجة عن منتجات غير متطابقة أو غير متوافقة."
 }

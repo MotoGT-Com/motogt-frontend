@@ -71,7 +71,7 @@ export function WhatsAppButton({
       onClick={handleClick}
       disabled={disabled}
       className={cn(
-        "w-full rounded-sm border border-gray-300 bg-secondary text-primary hover:bg-secondary/80",
+        "w-full rounded-sm border border-gray-300 bg-secondary text-[#128C7E] hover:bg-secondary/80",
         "font-koulen inline-flex items-center justify-center gap-2",
         className
       )}
@@ -80,7 +80,7 @@ export function WhatsAppButton({
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 16 16"
         fill="none"
-        className="size-5 text-primary shrink-0"
+        className="size-5 text-current shrink-0"
       >
         <path
           fillRule="evenodd"

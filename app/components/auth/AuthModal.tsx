@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useRevalidator } from "react-router";
+import { href, useNavigate, useRevalidator } from "react-router";
 
 import { useAuthModal } from "~/context/AuthModalContext";
 import { Button } from "~/components/ui/button";
@@ -21,6 +21,7 @@ export function AuthModal() {
   const { t } = useTranslation("common");
   const queryClient = useQueryClient();
   const revalidator = useRevalidator();
+  const navigate = useNavigate();
   const {
     isOpen,
     view,
@@ -46,9 +47,25 @@ export function AuthModal() {
   };
 
   const renderView = () => {
+    const isGuestOtp = otpContext?.source === "guestCheckout";
+
+    if (view === "checkoutSelection") {
+      return (
+        <CheckoutSelectionView
+          onClose={closeAuthModal}
+          onContinueAsGuest={() => {
+            closeAuthModal();
+            navigate(href("/checkout"));
+          }}
+          onLoginOrRegister={() => setAuthView("login")}
+        />
+      );
+    }
+
     if (view === "register") {
       return (
         <RegisterView
+          onClose={closeAuthModal}
           onRegistered={(email) => {
             setOtpContext({ email, source: "register" });
             setAuthView("verifyOTP");
@@ -61,6 +78,7 @@ export function AuthModal() {
     if (view === "login") {
       return (
         <LoginView
+          onClose={closeAuthModal}
           onSwitchToRegister={() => setAuthView("register")}
           onForgotPassword={() => setAuthView("forgotPassword")}
           onRequireOtp={(email, password) => {
@@ -79,16 +97,28 @@ export function AuthModal() {
 
     return (
       <OTPView
-        email={otpContext?.email ?? ""}
-        source={otpContext?.source ?? "register"}
+        otpContext={otpContext}
         pendingCredentials={pendingCredentials}
-        onBack={() => setAuthView(otpContext?.source === "login" ? "login" : "register")}
+        onBack={() => {
+          if (isGuestOtp) {
+            closeAuthModal();
+            return;
+          }
+          setAuthView(otpContext?.source === "login" ? "login" : "register");
+        }}
         onSwitchToLogin={() => {
           setPendingCredentials(undefined);
           setOtpContext(undefined);
           setAuthView("login");
         }}
-        onAuthSuccess={handleAuthSuccess}
+        onAuthSuccess={async () => {
+          if (isGuestOtp) {
+            await otpContext?.onVerified?.();
+            closeAuthModal();
+            return;
+          }
+          await handleAuthSuccess();
+        }}
       />
     );
   };
@@ -97,28 +127,91 @@ export function AuthModal() {
     <Dialog open={isOpen} onOpenChange={(nextOpen) => !nextOpen && closeAuthModal()}>
       <DialogContent
         showCloseButton={false}
-        className="!top-auto bottom-0 !translate-y-0 w-[calc(100%-1rem)] max-w-[38rem] rounded-t-2xl border border-black/10 bg-white p-0 shadow-2xl sm:!top-[50%] sm:bottom-auto sm:!translate-y-[-50%] sm:rounded-xl"
+        className="!top-auto bottom-2 !translate-y-0 h-auto max-h-[calc(100dvh-1rem)] w-[calc(100%-1rem)] max-w-[calc(100%-1rem)] overflow-y-auto rounded-2xl border border-black/10 bg-white p-0 shadow-[0_18px_45px_rgba(0,0,0,0.16)] sm:!top-[50%] sm:bottom-auto sm:!translate-y-[-50%] sm:max-h-[calc(100dvh-2rem)] sm:w-[min(92vw,28rem)] sm:max-w-md sm:rounded-xl lg:w-[min(92vw,28rem)] lg:max-w-md"
       >
         <DialogHeader className="sr-only">
           <DialogTitle>{t("authModal.title")}</DialogTitle>
         </DialogHeader>
 
-        <div className="max-h-[92dvh] overflow-y-auto px-5 pb-6 pt-5 text-start sm:max-h-[85dvh] sm:px-6 sm:pb-8 sm:pt-4" dir="auto">
-          <div className="mb-2 flex justify-end">
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="h-9 w-9"
-              onClick={closeAuthModal}
-              aria-label={t("buttons.close")}
-            >
-              <X className="size-4" />
-            </Button>
+        <div
+          className="px-4 py-5 text-start sm:px-6 sm:py-6"
+          dir="auto"
+        >
+          {view !== "checkoutSelection" && view !== "register" && view !== "login" && view !== "verifyOTP" ? (
+            <div className="mb-2 flex justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="h-9 w-9"
+                onClick={closeAuthModal}
+                aria-label={t("buttons.close")}
+              >
+                <X className="size-4" />
+              </Button>
+            </div>
+          ) : null}
+          <div key={view} className="animate-in fade-in-0 slide-in-from-bottom-1 duration-200">
+            {renderView()}
           </div>
-          {renderView()}
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function CheckoutSelectionView({
+  onClose,
+  onContinueAsGuest,
+  onLoginOrRegister,
+}: {
+  onClose: () => void;
+  onContinueAsGuest: () => void;
+  onLoginOrRegister: () => void;
+}) {
+  const { t } = useTranslation("common");
+
+  return (
+    <div className="space-y-5 text-start">
+      <div className="flex items-start justify-between gap-3">
+        <h2 className="text-2xl font-extrabold text-black sm:text-3xl">
+          {t("authModal.checkoutSelection.title")}
+        </h2>
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          className="h-11 w-11 shrink-0"
+          onClick={onClose}
+          aria-label={t("buttons.close")}
+        >
+          <X className="size-5 text-[#CF172F]" />
+        </Button>
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
+          {t("authModal.checkoutSelection.subtitle")}
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <Button
+          type="button"
+          variant="outline"
+          className="h-11 border-2 font-bold"
+          onClick={onContinueAsGuest}
+        >
+          {t("authModal.checkoutSelection.continueAsGuest")}
+        </Button>
+        <Button
+          type="button"
+          className="h-11 bg-[#CF172F] font-bold text-white hover:bg-[#b51429]"
+          onClick={onLoginOrRegister}
+        >
+          {t("authModal.checkoutSelection.loginOrCreate")}
+        </Button>
+      </div>
+    </div>
   );
 }

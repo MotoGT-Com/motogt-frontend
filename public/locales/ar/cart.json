@@ -28,6 +28,7 @@
     "totalAmount": "المبلغ الإجمالي",
     "total": "المجموع الكلي",
     "proceedToCheckout": "متابعة إلى الدفع",
+    "checkoutAsGuest": "المتابعة كضيف",
     "continueShopping": "متابعة التسوق"
   },
   "messages": {

@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -20,6 +20,7 @@ import { postApiAuthLogin } from "~/lib/client";
 import { extractApiError, persistAuthSession } from "./auth-session-client";
 
 type LoginViewProps = {
+  onClose: () => void;
   onSwitchToRegister: () => void;
   onForgotPassword: () => void;
   onRequireOtp: (email: string, password: string) => void;
@@ -27,6 +28,7 @@ type LoginViewProps = {
 };
 
 export function LoginView({
+  onClose,
   onSwitchToRegister,
   onForgotPassword,
   onRequireOtp,
@@ -98,7 +100,19 @@ export function LoginView({
   return (
     <div className="space-y-2 text-start">
       <div className="space-y-2">
-        <h2 className="text-2xl font-extrabold text-black">{t("authModal.login.title")}</h2>
+        <div className="flex items-start justify-between gap-3">
+          <h2 className="text-2xl font-extrabold text-black sm:text-3xl">{t("authModal.login.title")}</h2>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="h-11 w-11 shrink-0"
+            onClick={onClose}
+            aria-label={t("buttons.close")}
+          >
+            <X className="size-5 text-[#CF172F]" />
+          </Button>
+        </div>
         <p className="text-sm text-muted-foreground leading-relaxed">{t("authModal.login.subtitle")}</p>
       </div>
 

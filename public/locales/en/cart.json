@@ -28,6 +28,7 @@
     "totalAmount": "Total Amount",
     "total": "Total",
     "proceedToCheckout": "Continue to Checkout",
+    "checkoutAsGuest": "Checkout as Guest",
     "continueShopping": "Continue Shopping"
   },
   "messages": {

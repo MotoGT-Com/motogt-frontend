@@ -37,6 +37,35 @@
       }
     }
   },
+  "guestSection": {
+    "title": "Guest Checkout",
+    "description": "Enter an email or phone number so we can send order updates.",
+    "saveInfoMessage": "To save your information, track your orders, and build your garage, create an account or login.",
+    "saveInfoPrefix": "To save your information, track your orders, and build your garage,",
+    "saveInfoCreateAccount": "create an account",
+    "saveInfoOr": "or",
+    "saveInfoLogin": "login",
+    "fields": {
+      "firstNameLabel": "First Name",
+      "firstNamePlaceholder": "Enter your first name",
+      "lastNameLabel": "Last Name",
+      "lastNamePlaceholder": "Enter your last name",
+      "phoneLabel": "Phone Number",
+      "phonePlaceholder": "Enter your phone number",
+      "emailLabel": "Email",
+      "emailPlaceholder": "Enter your email (optional)",
+      "countryLabel": "Country",
+      "countryPlaceholder": "Select Country",
+      "cityLabel": "City",
+      "cityPlaceholder": "Select City",
+      "addressLine1Label": "Address Line 1",
+      "addressLine1Placeholder": "Street, building, apartment number",
+      "addressLine2Label": "Address Line 2",
+      "addressLine2Placeholder": "Landmark, district, or floor (optional)",
+      "postalCodeLabel": "Postal Code",
+      "postalCodePlaceholder": "Postal/ZIP code (optional)"
+    }
+  },
   "paymentSection": {
     "title": "Payment Method",
     "cashOnDelivery": "Cash on Delivery",
@@ -86,7 +115,8 @@
     "continue": "Continue",
     "cancel": "Cancel",
     "saveAddress": "Save Address",
-    "savingAddress": "Saving Address..."
+    "savingAddress": "Saving Address...",
+    "placeGuestOrder": "Place Order as a Guest"
   },
   "messages": {
     "orderPlaced": "Order placed successfully!",
@@ -94,7 +124,10 @@
     "paymentInitiationFailed": "Payment initiation failed. Please retry from orders page.",
     "validationError": "Please fill in all required fields",
     "addressAdded": "Address added successfully!",
-    "addressAddFailed": "Failed to create address. Please try again."
+    "addressAddFailed": "Failed to create address. Please try again.",
+    "guestContactRequired": "Please enter a guest email or phone number.",
+    "guestAddressRequired": "Please fill guest country, city, and address line 1.",
+    "guestRequiredFields": "Please fill first name, last name, phone number, country, city, and address line 1."
   },
   "disclaimer": "Please ensure that the parts you are purchasing are compatible with your vehicle. We are not liable for incorrect orders resulting from mismatched or incompatible items."
 }

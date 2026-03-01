@@ -1,0 +1,39 @@
+=== Missing Secondary Image Report ===
+Base URL: https://api.motogt.com
+Store ID: 19bf2cb6-1b50-4b95-80d6-9da6560588fc
+Language ID: 3a59981f-5f2d-4b3e-a12a-2c2b25b4680b
+Products scanned: 642 (API total: 642)
+Products missing secondary image: 12
+Unique item codes missing secondary image: 12
+
+=== Item Codes (Unique) ===
+110077
+110079
+120001
+120002
+620036
+990007
+990009
+990013
+990020
+990021
+990022
+990033
+
+=== Car-by-Car Breakdown (Unique item codes per car) ===
+BMW 5 Series: 1
+  - 620036
+JETOUR G700: 2
+  - 120001
+  - 120002
+JETOUR T2: 2
+  - 110077
+  - 110079
+NO_CAR_COMPATIBILITY: 7
+  - 990007
+  - 990009
+  - 990013
+  - 990020
+  - 990021
+  - 990022
+  - 990033

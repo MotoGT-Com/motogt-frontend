@@ -8,17 +8,23 @@ import {
 } from "react";
 import { useNavigate } from "react-router";
 
-export type AuthModalView = "register" | "login" | "forgotPassword" | "verifyOTP";
+export type AuthModalView = "register" | "login" | "forgotPassword" | "verifyOTP" | "checkoutSelection";
 
 export type AuthIntent = {
   type: "checkout" | "garage" | "none";
   returnTo?: string;
 };
 
-export type OtpContext = {
-  email: string;
-  source: "register" | "login";
-};
+export type OtpContext =
+  | {
+      email: string;
+      source: "register" | "login";
+    }
+  | {
+      phone: string;
+      source: "guestCheckout";
+      onVerified?: () => void | Promise<void>;
+    };
 
 export type PendingCredentials = {
   email: string;

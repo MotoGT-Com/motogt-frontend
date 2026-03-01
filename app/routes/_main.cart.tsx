@@ -114,13 +114,13 @@ export default function Cart({ loaderData }: Route.ComponentProps) {
     return <div>Error loading cart</div>;
   }
 
-  const handleCheckoutClick = (event: MouseEvent<HTMLAnchorElement>) => {
+  const handleContinueCheckoutClick = (event: MouseEvent<HTMLAnchorElement>) => {
     if (isAuthenticated) {
       return;
     }
 
     event.preventDefault();
-    openAuthModal("register", {
+    openAuthModal("login", {
       intent: {
         type: "checkout",
         returnTo: href("/checkout"),
@@ -242,7 +242,7 @@ export default function Cart({ loaderData }: Route.ComponentProps) {
                       <Link
                         to="/checkout"
                         className="block w-full"
-                        onClick={handleCheckoutClick}
+                        onClick={handleContinueCheckoutClick}
                       >
                         <Button
                           className="w-full h-10 font-bold"
@@ -253,6 +253,19 @@ export default function Cart({ loaderData }: Route.ComponentProps) {
                           {t('summary.proceedToCheckout')}
                         </Button>
                       </Link>
+                      {!isAuthenticated && (
+                        <Link to="/checkout" className="block w-full">
+                          <Button
+                            variant="outline"
+                            className="w-full h-10 rounded-sm border border-gray-300 bg-secondary text-base font-bold font-sans normal-case text-primary hover:bg-secondary/80"
+                            disabled={
+                              cartQuery.data && cartQuery.data.items.length === 0
+                            }
+                          >
+                            {t('summary.checkoutAsGuest')}
+                          </Button>
+                        </Link>
+                      )}
                       <WhatsAppButton
                         className="h-10 text-base font-bold font-sans normal-case"
                         items={cartQuery.data.items.map((item: any) => ({

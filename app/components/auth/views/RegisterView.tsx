@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -22,13 +22,14 @@ import { postApiAuthRegister } from "~/lib/client";
 import { extractApiError } from "./auth-session-client";
 
 type RegisterViewProps = {
+  onClose: () => void;
   onRegistered: (email: string) => void;
   onSwitchToLogin: () => void;
 };
 
 const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
 
-export function RegisterView({ onRegistered, onSwitchToLogin }: RegisterViewProps) {
+export function RegisterView({ onClose, onRegistered, onSwitchToLogin }: RegisterViewProps) {
   const { t } = useTranslation("common");
   const [showPassword, setShowPassword] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
@@ -106,7 +107,19 @@ export function RegisterView({ onRegistered, onSwitchToLogin }: RegisterViewProp
   return (
     <div className="space-y-2 text-start">
       <div className="space-y-2">
-        <h2 className="text-2xl font-extrabold text-black">{t("authModal.register.title")}</h2>
+        <div className="flex items-start justify-between gap-3">
+          <h2 className="text-2xl font-extrabold text-black sm:text-3xl">{t("authModal.register.title")}</h2>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="h-11 w-11 shrink-0"
+            onClick={onClose}
+            aria-label={t("buttons.close")}
+          >
+            <X className="size-5 text-[#CF172F]" />
+          </Button>
+        </div>
         <p className="text-sm text-muted-foreground leading-relaxed">{t("authModal.register.subtitle")}</p>
       </div>
 
