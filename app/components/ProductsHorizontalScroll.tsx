@@ -1,4 +1,4 @@
-import { Suspense, useId, useMemo } from "react";
+import { Suspense, useId, useState, useEffect } from "react";
 import { ProductCard, ProductCardSkeleton } from "./product-card";
 import { Await } from "react-router";
 
@@ -12,12 +12,18 @@ interface ProductsHorizontalScrollProps {
 function ProductCarousel({ initialData }: { initialData: any[] }) {
   const id = useId();
   
-  // Memoize the random products to prevent re-shuffling
-  const randomProducts = useMemo(() => {
+  // Show first 10 products in order during SSR, then shuffle client-side
+  // to avoid hydration mismatch from Math.random()
+  const [randomProducts, setRandomProducts] = useState<any[]>(() => {
     const data = Array.isArray(initialData) ? initialData : [];
-    if (data.length === 0) return [];
+    return data.slice(0, 10);
+  });
+
+  useEffect(() => {
+    const data = Array.isArray(initialData) ? initialData : [];
+    if (data.length === 0) return;
     const shuffled = [...data].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 10);
+    setRandomProducts(shuffled.slice(0, 10));
   }, [initialData]);
 
   return (

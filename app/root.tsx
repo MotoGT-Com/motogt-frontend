@@ -11,13 +11,11 @@ import "@fontsource-variable/inter";
 import "@fontsource-variable/inter/wght-italic.css";
 import { I18nextProvider } from "react-i18next";
 import i18n from "./lib/i18n";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { config } from "./config";
 import { getLocaleWithCookie } from "./lib/i18n-cookie";
 import { AuthModalProvider } from "./context/AuthModalContext";
 import { AuthModal } from "./components/auth/AuthModal";
-
-const queryClient = new QueryClient();
 
 export const middleware: MiddlewareFunction[] = [globalAuthMiddleware];
 
@@ -97,6 +95,14 @@ export const meta: Route.MetaFunction = () => {
 };
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  // Create a new QueryClient per request to prevent cross-user data leaks during SSR
+  const [queryClient] = useState(() => new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 60_000,
+      },
+    },
+  }));
   const loaderData = useLoaderData<typeof loader>();
   const currentLang = loaderData?.locale ?? "en";
   const dir = currentLang === "ar" ? "rtl" : "ltr";
@@ -215,19 +221,28 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
       error.status === 404
         ? "The requested page could not be found."
         : error.statusText || details;
-  } else if (import.meta.env.DEV && error && error instanceof Error) {
-    details = error.message;
-    stack = error.stack;
+  } else if (error && error instanceof Error) {
+    // Always log the real error so it appears in server logs (AWS App Runner / CloudWatch)
+    console.error("[MotoGT] Uncaught error:", error.message, error.stack);
+    if (import.meta.env.DEV) {
+      details = error.message;
+      stack = error.stack;
+    }
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
+    <main className="pt-16 p-4 container mx-auto flex flex-col items-center justify-center min-h-[50vh]">
+      <h1 className="text-3xl font-bold mb-4">{message}</h1>
+      <p className="text-lg text-muted-foreground mb-6">{details}</p>
       {stack && (
         <pre className="w-full p-4 overflow-x-auto">
           <code>{stack}</code>
         </pre>
+      )}
+      {!stack && (
+        <a href="/" className="text-primary underline">
+          Go back to the homepage
+        </a>
       )}
     </main>
   );

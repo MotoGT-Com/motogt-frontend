@@ -40,27 +40,26 @@ interface CurrencyContextValue {
 const CurrencyContext = createContext<CurrencyContextValue | undefined>(undefined);
 
 export function CurrencyProvider({ children }: { children: ReactNode }) {
-  const [selectedCurrency, setSelectedCurrencyState] = useState<Currency>(() => {
-    if (typeof window === "undefined") return "JOD";
-    
-    // Check for manual override first
-    const manualOverride = localStorage.getItem(MANUAL_OVERRIDE_KEY);
-    if (manualOverride === "true") {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) return stored as Currency;
-    }
-    
-    // Auto-detect from default country
-    return COUNTRY_TO_CURRENCY[DEFAULT_COUNTRY];
-  });
+  // Initialize with server-safe defaults to avoid hydration mismatch.
+  // localStorage is read in useEffect after hydration.
+  const [selectedCurrency, setSelectedCurrencyState] = useState<Currency>(COUNTRY_TO_CURRENCY[DEFAULT_COUNTRY]);
 
-  const [isManualOverride, setIsManualOverride] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return localStorage.getItem(MANUAL_OVERRIDE_KEY) === "true";
-  });
+  const [isManualOverride, setIsManualOverride] = useState(false);
 
   const [cacheAge, setCacheAge] = useState<number | null>(null);
   const [isUsingCachedRates, setIsUsingCachedRates] = useState(false);
+
+  // Sync currency selection from localStorage after hydration
+  useEffect(() => {
+    const manualOverride = localStorage.getItem(MANUAL_OVERRIDE_KEY);
+    if (manualOverride === "true") {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        setSelectedCurrencyState(stored as Currency);
+        setIsManualOverride(true);
+      }
+    }
+  }, []);
 
   // Initialize and pre-fetch common rates
   useEffect(() => {

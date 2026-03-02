@@ -201,22 +201,21 @@ export default function Checkout({ loaderData }: Route.ComponentProps) {
   const [promoCode, setPromoCode] = useState("");
   const [promoError, setPromoError] = useState<string | null>(null);
   const [appliedPromoCode, setAppliedPromoCode] =
-    useState<ValidatedPromoCode | null>(() => {
-      // Load from localStorage on mount
-      if (typeof window !== "undefined") {
-        const stored = localStorage.getItem(PROMO_CODE_STORAGE_KEY);
-        if (stored) {
-          try {
-            return JSON.parse(stored);
-          } catch {
-            return null;
-          }
-        }
-      }
-      return null;
-    });
+    useState<ValidatedPromoCode | null>(null);
   const [isValidatingPromo, setIsValidatingPromo] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Load promo code from localStorage after hydration to avoid mismatch
+  useEffect(() => {
+    const stored = localStorage.getItem(PROMO_CODE_STORAGE_KEY);
+    if (stored) {
+      try {
+        setAppliedPromoCode(JSON.parse(stored));
+      } catch {
+        // Ignore invalid stored promo code
+      }
+    }
+  }, []);
   
   // Currency conversion and validation
   const { selectedCurrency, convertPrice, batchConvert } = useCurrency();

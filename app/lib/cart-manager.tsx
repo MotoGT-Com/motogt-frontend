@@ -88,6 +88,9 @@ class ClientCartManager implements CartManager {
   private readonly CART_KEY = "cart";
 
   private getClientCart(): CartItem[] {
+    // Guard against SSR — localStorage is not available on the server
+    if (typeof window === "undefined") return [];
+
     try {
       const rawCart = localStorage.getItem(this.CART_KEY);
       if (!rawCart) {
@@ -108,12 +111,17 @@ class ClientCartManager implements CartManager {
       }
     } catch (error) {
       // JSON parsing failed or other error, clear cart
-      localStorage.removeItem(this.CART_KEY);
+      try {
+        localStorage.removeItem(this.CART_KEY);
+      } catch {
+        // Ignore — may still be in SSR context
+      }
       return [];
     }
   }
 
   private setClientCart(cart: CartItem[]): void {
+    if (typeof window === "undefined") return;
     localStorage.setItem(this.CART_KEY, JSON.stringify(cart));
   }
 
@@ -202,6 +210,7 @@ class ClientCartManager implements CartManager {
   }
 
   async clearCart(): Promise<{ success: boolean; error?: string }> {
+    if (typeof window === "undefined") return { success: true };
     try {
       localStorage.removeItem(this.CART_KEY);
       return { success: true };

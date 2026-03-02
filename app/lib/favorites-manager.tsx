@@ -55,6 +55,9 @@ class ClientFavoritesManager implements FavoritesManager {
   private readonly FAVORITES_KEY = "favorites";
 
   private getClientFavorites(): FavoriteItem[] {
+    // Guard against SSR — localStorage is not available on the server
+    if (typeof window === "undefined") return [];
+
     try {
       const rawFavorites = localStorage.getItem(this.FAVORITES_KEY);
       if (!rawFavorites) {
@@ -64,12 +67,17 @@ class ClientFavoritesManager implements FavoritesManager {
       return JSON.parse(rawFavorites);
     } catch (error) {
       // JSON parsing failed or other error, clear favorites
-      localStorage.removeItem(this.FAVORITES_KEY);
+      try {
+        localStorage.removeItem(this.FAVORITES_KEY);
+      } catch {
+        // Ignore — may still be in SSR context
+      }
       return [];
     }
   }
 
   private setClientFavorites(favorites: FavoriteItem[]): void {
+    if (typeof window === "undefined") return;
     localStorage.setItem(this.FAVORITES_KEY, JSON.stringify(favorites));
   }
 
