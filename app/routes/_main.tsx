@@ -192,7 +192,7 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
         ref={headerRef}
         className="bg-background border-b sticky top-0 z-50 font-koulen"
       >
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between w-full">
+        <div className="max-w-7xl mx-auto px-4 py-3 md:px-6 md:py-4 flex items-center justify-between w-full">
           {/* Desktop: Left Garage Button */}
           <div className="hidden md:flex items-center gap-3">
             <GarageNavButton
@@ -226,7 +226,7 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
           <div className="flex items-center md:flex-1 md:justify-center">
             <Link to={href("/")} prefetch="render" target="_self">
               <span className="sr-only">Home</span>
-              <Logo variant="primary" className="w-44" />
+              <Logo variant="primary" className="w-36 md:w-44" />
             </Link>
           </div>
 
@@ -280,7 +280,7 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
             </ProfileHoverPopup>
           </div>
           {/* Mobile Header Actions - Cart and Menu Toggle */}
-          <div className="flex items-center gap-4 md:hidden">
+          <div className="flex items-center gap-2 md:hidden">
             <CurrencySelector />
             <NavLinkButton
               to={href("/cart")}
