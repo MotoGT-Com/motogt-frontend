@@ -80,5 +80,9 @@
     "compatible": "متوافق مع {{vehicle}}",
     "notCompatible": "غير متوافق مع {{vehicle}}",
     "universal": "توافق شامل"
+  },
+  "featuredBanner": {
+    "viewProduct": "عرض المنتج",
+    "featuredFor": "مميز لـ {{brand}} {{model}}"
   }
 }

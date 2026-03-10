@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Loader2, HelpCircle } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 import { useCallback, useEffect, useState } from "react";
 import { GarageCarousel } from "~/components/garage-carousel";
+import { GarageFeaturedBanner } from "~/components/garage-featured-banner";
 import { AddNewCarDialog } from "~/components/add-new-car-dialog";
 import { ConfirmDialog } from "~/components/confirm-dialog";
 import type { Route } from "./+types/_main.my-garage";
@@ -318,7 +319,13 @@ export default function MyGarage({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
         </div>
+
       </div>
+
+      {/* Featured Parts Banner — sibling to the garage section so it's always visible below */}
+      <GarageFeaturedBanner
+        currentCar={garageCarsQuery.data.userCars[selectedIndex]}
+      />
     </>
   );
 }

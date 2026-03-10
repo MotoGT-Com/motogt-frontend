@@ -181,6 +181,62 @@ export const productsByTypeInfiniteQueryOptions = ({
     staleTime,
   });
 
+export const garageFeaturedProductsQueryOptions = (
+  carBrand: string,
+  carModel: string
+) =>
+  queryOptions<ProductListResponse>({
+    queryKey: [
+      "garageFeaturedProducts",
+      carBrand,
+      carModel,
+      (i18n.language || "").split("-")[0],
+    ],
+    queryFn: async () => {
+      const currentLang = (i18n.language || "").split("-")[0];
+      const languageId =
+        currentLang === "ar" ? config.languageIds.ar : config.languageIds.en;
+      const response = await getApiProductsPublic({
+        query: {
+          storeId: defaultParams.storeId,
+          languageId,
+          carBrand,
+          carModel,
+          limit: 5,
+          page: 1,
+        } as any,
+      });
+      if (response.error) {
+        throw new Error(response.error.error?.message || "Failed to fetch featured products");
+      }
+      if (currentLang === "ar" && response.data?.data?.length) {
+        const productIds = response.data.data.map((product: any) => product.id);
+        const englishResponse = await getApiProductsPublic({
+          query: {
+            storeId: defaultParams.storeId,
+            languageId: config.languageIds.en,
+            productIds: productIds.join(","),
+          },
+        });
+        const englishSlugById = new Map<string, string>();
+        for (const product of englishResponse.data?.data ?? []) {
+          const slug = resolveProductSlug(product, { preferEnglish: true, language: "en" });
+          if (slug) englishSlugById.set(product.id, slug);
+        }
+        return {
+          ...response.data,
+          data: response.data.data.map((product: any) => ({
+            ...product,
+            slug_en: englishSlugById.get(product.id),
+          })),
+        };
+      }
+      return response.data;
+    },
+    staleTime: 1000 * 60 * 5,
+    enabled: !!carBrand && !!carModel,
+  });
+
 export const exteriorProductsQueryOptions = queryOptions({
   queryKey: ["products", "homeExteriorProducts"],
   queryFn: async () => {

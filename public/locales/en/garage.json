@@ -80,5 +80,9 @@
     "compatible": "Fits your {{vehicle}}",
     "notCompatible": "Does not fit your {{vehicle}}",
     "universal": "Universal Fit"
+  },
+  "featuredBanner": {
+    "viewProduct": "VIEW PRODUCT",
+    "featuredFor": "Featured for your {{brand}} {{model}}"
   }
 }

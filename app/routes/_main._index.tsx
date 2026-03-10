@@ -9,6 +9,9 @@ import { accessTokenCookie } from "~/lib/auth-middleware";
 import { Suspense } from "react";
 import { exteriorProductsQueryOptions, interiorProductsQueryOptions } from "~/lib/queries";
 import { HomeCarousel } from "~/components/garage-carousel";
+import { GarageFeaturedBanner } from "~/components/garage-featured-banner";
+import { garageCarsQueryOptions } from "~/lib/queries";
+import { useQuery } from "@tanstack/react-query";
 import { Faq } from "~/components/faq";
 import { Logo } from "~/components/logo";
 import ProductsHorizontalScroll from "~/components/ProductsHorizontalScroll";
@@ -162,6 +165,15 @@ export async function loader({ request }: Route.LoaderArgs) {
     motorcycleAccessoriesResponse,
     isAuthenticated: !!accessToken,
   };
+}
+
+function HomeFeaturedBanner({ isAuthenticated }: { isAuthenticated: boolean }) {
+  const garageCarsQuery = useQuery({
+    ...garageCarsQueryOptions,
+    enabled: isAuthenticated,
+  });
+  const cars = garageCarsQuery.data?.userCars ?? [];
+  return <GarageFeaturedBanner userCars={cars} />;
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
@@ -340,6 +352,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
       {/* Car Showcase Section */}
       {isAuthenticated ? <HomeCarousel /> : null}
+      <HomeFeaturedBanner isAuthenticated={isAuthenticated} />
 
       <ProductsHorizontalScroll
         sectionTitle={t('home:sections.cleaningProducts')}
