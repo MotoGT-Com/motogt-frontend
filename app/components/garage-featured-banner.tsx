@@ -233,6 +233,7 @@ export function GarageFeaturedBanner({ userCars }: Props) {
       <div className="w-full h-[500px] md:h-[300px] relative overflow-hidden">
         <img src="/garage/garage-banner.png" alt="" aria-hidden
              className="absolute inset-0 w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-white/10" aria-hidden />
         <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/10 to-black/45 animate-pulse" />
       </div>
     );
@@ -265,6 +266,7 @@ export function GarageFeaturedBanner({ userCars }: Props) {
         {/* Fixed background */}
         <img src="/garage/garage-banner.png" alt="" aria-hidden
              className="absolute inset-0 w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-white/10" aria-hidden />
         <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/10 to-black/45" aria-hidden />
 
         {/* Slide stack */}
@@ -295,9 +297,9 @@ export function GarageFeaturedBanner({ userCars }: Props) {
                 style={{ opacity: active ? 1 : 0, pointerEvents: active ? "auto" : "none" }}
                 aria-hidden={!active}
               >
-                <div className="w-full max-w-7xl mx-auto px-5 md:px-6 grid grid-rows-[175px_auto] md:flex min-h-[500px] md:min-h-[300px]">
+                <div className="w-full max-w-7xl mx-auto px-5 md:px-6 grid grid-rows-[205px_auto] md:flex min-h-[500px] md:min-h-[300px]">
                   {image && (
-                    <div className="md:hidden row-start-1 flex items-end justify-center pt-8">
+                    <div className="md:hidden row-start-1 flex items-start justify-center pt-10">
                       <Link
                         to={path}
                         aria-label={name || t("featuredBanner.viewProduct")}
