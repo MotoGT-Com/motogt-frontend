@@ -17,6 +17,9 @@ const namespaces = [
   "garage",
   "profile",
   "home",
+  "guest-checkout",
+  "guest-order",
+  "track-order",
 ];
 
 const isBrowser = typeof document !== "undefined";

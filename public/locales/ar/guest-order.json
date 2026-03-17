@@ -1,0 +1,17 @@
+{
+  "pageTitle": "تم تأكيد الطلب",
+  "title": "شكراً لك على طلبك!",
+  "subtitle": "تم تقديم طلبك بنجاح.",
+  "orderNumberLabel": "رقم الطلب",
+  "copyOrderNumber": "نسخ رقم الطلب",
+  "saveOrderNumber": "يرجى حفظ هذا الرقم لتتبع طلبك.",
+  "emailConfirmation": "تم إرسال تأكيد إلى {{email}}.",
+  "trackOrder": "تتبع طلبك",
+  "createAccount": "إنشاء حساب",
+  "continueShopping": "متابعة التسوق",
+  "noOrder": {
+    "title": "لم يتم العثور على طلب",
+    "description": "يبدو أنك وصلت هنا بدون طلب. يرجى تقديم طلب أولاً.",
+    "continueShopping": "متابعة التسوق"
+  }
+}

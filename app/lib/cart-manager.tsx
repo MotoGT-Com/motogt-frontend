@@ -36,6 +36,7 @@ import { defaultParams } from "./api-client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useEffect, useRef } from "react";
 import { capitalizeWords } from "./utils";
 import getLocalizedTranslation from "./get-locale-translation";
 import i18n from "./i18n";
@@ -407,25 +408,18 @@ class HybridCartManager implements CartManager {
   }
 
   private getActiveManager(): CartManager {
-    return this.isAuthenticated ? this.serverManager : this.clientManager;
+    // Always use server cart — backend handles both authenticated users (via JWT)
+    // and guest users (via guest_session cookie) automatically
+    return this.serverManager;
   }
 
   async addToCart(
     product: ProductItem,
     quantity: number = 1
   ): Promise<{ success: boolean; error?: string }> {
-    if (this.isAuthenticated) {
-      // Try server first, fallback to client on auth error
-      const result = await this.serverManager.addToCart(product, quantity);
-      if (!result.success && result.error?.includes("401")) {
-        // Authentication failed, fallback to client cart
-        this.isAuthenticated = false;
-        return this.clientManager.addToCart(product, quantity);
-      }
-      return result;
-    } else {
-      return this.clientManager.addToCart(product, quantity);
-    }
+    // Always use server cart — backend creates a guest session automatically
+    // when no Authorization header is present
+    return this.serverManager.addToCart(product, quantity);
   }
 
   async removeFromCart(
@@ -457,32 +451,36 @@ class HybridCartManager implements CartManager {
     return this.getActiveManager().getTotalItems();
   }
 
-  // Migration method to sync client cart to server when user logs in
-  async syncClientCartToServer(): Promise<{
+  // Migration method to sync old localStorage cart items to server
+  // Called once on app load to migrate any items from the old client-side cart
+  async migrateLocalCartToServer(): Promise<{
     success: boolean;
+    migratedCount: number;
     error?: string;
   }> {
-    if (!this.isAuthenticated) {
-      return { success: false, error: "User not authenticated" };
-    }
-
     try {
       const clientItems = await this.clientManager.getCartItems();
+      if (clientItems.length === 0) {
+        return { success: true, migratedCount: 0 };
+      }
 
+      let migratedCount = 0;
       for (const item of clientItems) {
         const result = await this.serverManager.addToCart(item, item.quantity);
-        if (!result.success) {
+        if (result.success) {
+          migratedCount++;
         }
       }
 
-      // Clear client cart after successful sync
+      // Clear client cart after migration
       await this.clientManager.clearCart();
 
-      return { success: true };
+      return { success: true, migratedCount };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Failed to sync cart",
+        migratedCount: 0,
+        error: error instanceof Error ? error.message : "Failed to migrate cart",
       };
     }
   }
@@ -503,6 +501,25 @@ export function getCartManager(isAuthenticated?: boolean): HybridCartManager {
 
 export function useCartManager(isAuthenticated?: boolean) {
   const queryClient = useQueryClient();
+  const migrationDone = useRef(false);
+
+  // Migrate old localStorage cart items to server on first mount
+  useEffect(() => {
+    if (migrationDone.current) return;
+    migrationDone.current = true;
+
+    if (typeof window === "undefined") return;
+    const raw = localStorage.getItem("cart");
+    if (!raw) return;
+
+    const cartManager = getCartManager(isAuthenticated);
+    cartManager.migrateLocalCartToServer().then((result) => {
+      if (result.migratedCount > 0) {
+        queryClient.invalidateQueries({ queryKey: ["cart"] });
+      }
+    });
+  }, [isAuthenticated, queryClient]);
+
   const cartQuery = useQuery({
     queryKey: ["cart", isAuthenticated],
     queryFn: async () => {

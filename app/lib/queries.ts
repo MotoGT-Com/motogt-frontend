@@ -32,8 +32,10 @@ import {
   getApiExchangeRatesCurrencies,
   getApiExchangeRates,
   postApiExchangeRatesConvert,
+  postApiCheckoutGuest,
+  getApiCheckoutGuestLookup,
 } from "./client/sdk.gen";
-import type { ProductResponse, CheckoutRequest, ProductListResponse } from "./client/types.gen";
+import type { ProductResponse, CheckoutRequest, ProductListResponse, GuestCheckoutRequest } from "./client/types.gen";
 import { toast } from "sonner";
 import { defaultParams } from "./api-client";
 import { extractErrorMessage } from "./utils";
@@ -569,7 +571,43 @@ export const checkoutMutationOptions = mutationOptions({
   },
 });
 
-// Car brands and models query options
+// Guest Checkout mutation options
+export const guestCheckoutMutationOptions = mutationOptions({
+  mutationFn: async (data: GuestCheckoutRequest) => {
+    const response = await postApiCheckoutGuest({
+      body: data,
+    });
+    
+    if (response.error) {
+      throw new Error(extractErrorMessage(response.error, 'Failed to place order'));
+    }
+    
+    return response.data;
+  },
+  onSuccess: (_, __, ___, context) => {
+    context.client.invalidateQueries({ queryKey: ["cart"] });
+  },
+  onError: (error) => {
+    toast.error("Failed to place order", {
+      description: error instanceof Error ? error.message : "Please try again.",
+    });
+  },
+});
+
+// Guest Order Lookup query options
+export const guestOrderLookupQueryOptions = (orderNumber: string, email: string) => queryOptions({
+  queryKey: ["guestOrderLookup", orderNumber, email],
+  queryFn: async () => {
+    const response = await getApiCheckoutGuestLookup({
+      query: { orderNumber, email },
+    });
+    if (response.error) {
+      throw new Error(extractErrorMessage(response.error, 'Order not found'));
+    }
+    return response.data;
+  },
+  enabled: !!orderNumber && !!email,
+});
 export const carBrandsQueryOptions = queryOptions({
   queryKey: ["carBrands"],
   queryFn: async () => {
