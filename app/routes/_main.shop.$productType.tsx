@@ -170,13 +170,13 @@ export const meta: Route.MetaFunction = ({ data }: any) => {
 
   const typeLabel = getLocalizedTranslation(data.productType.translations)?.name || data.productType.name;
   return [
-    {
-      title: `${typeLabel} - Shop - MotoGT`,
-    },
-    {
-      name: "description",
-      content: `Browse our ${typeLabel.toLowerCase()} collection`,
-    },
+    { title: `${typeLabel} - Shop - MotoGT` },
+    { name: "description", content: `Browse our ${typeLabel.toLowerCase()} collection` },
+    { property: "og:title", content: `${typeLabel} - Shop - MotoGT` },
+    { property: "og:image", content: "https://motogt.com/og-image.jpg" },
+    { property: "og:image:width", content: "1200" },
+    { property: "og:image:height", content: "630" },
+    { property: "og:type", content: "website" },
   ];
 };
 
