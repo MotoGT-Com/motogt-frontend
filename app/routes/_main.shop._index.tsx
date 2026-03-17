@@ -154,9 +154,13 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export const meta: Route.MetaFunction = () => {
   return [
-    {
-      title: "Shop - MotoGT",
-    },
+    { title: "Shop - MotoGT" },
+    { property: "og:title", content: "Shop - MotoGT" },
+    { property: "og:image", content: "https://motogt.com/og-image.jpg" },
+    { property: "og:image:width", content: "1200" },
+    { property: "og:image:height", content: "630" },
+    { property: "og:url", content: "https://motogt.com/shop" },
+    { property: "og:type", content: "website" },
   ];
 };
 
