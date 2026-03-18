@@ -246,7 +246,7 @@ export default function GuestCheckout({ loaderData }: Route.ComponentProps) {
       case "cod": return "cash_on_delivery";
       case "card_on_delivery": return "card_on_delivery";
       case "cliq": return "digital_wallet";
-      case "card": return "credit_card";
+      // case "card": return "credit_card";
       default: return "cash_on_delivery";
     }
   };
@@ -365,9 +365,10 @@ export default function GuestCheckout({ loaderData }: Route.ComponentProps) {
         checkoutData.notes = "Payment method: Pay with CliQ";
       } else if (selectedPayment === "card_on_delivery") {
         checkoutData.notes = "Payment method: Card on Delivery";
-      } else if (selectedPayment === "card") {
-        checkoutData.notes = "Payment method: Credit Card";
-      }
+      } 
+      // else if (selectedPayment === "card") {
+      //   checkoutData.notes = "Payment method: Credit Card";
+      // }
 
       if (appliedPromoCode) {
         checkoutData.promoCodes = [appliedPromoCode.code];
@@ -625,14 +626,14 @@ export default function GuestCheckout({ loaderData }: Route.ComponentProps) {
                     isSelected={selectedPayment === "cliq"}
                     onSelect={setSelectedPayment}
                   />
-                  <PaymentMethodCard
+                  {/* <PaymentMethodCard
                     id="card"
                     title={tCheckout("paymentSection.creditDebitCard")}
                     description={tCheckout("paymentSection.paySecurely")}
                     icon={<CreditCard className="size-6 text-primary" />}
                     isSelected={selectedPayment === "card"}
                     onSelect={setSelectedPayment}
-                  />
+                  /> */}
                 </RadioGroup>
               </SimpleCard>
             </div>
