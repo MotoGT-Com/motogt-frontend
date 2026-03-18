@@ -396,6 +396,7 @@ export type ProductItem = {
     isActive: boolean;
     mainImage: string | null;
     images: Array<string>;
+    secondaryImage?: string | null;
     specs?: ProductSpecs;
     /**
      * Whether the product is in authenticated user's favorites
@@ -426,6 +427,16 @@ export type ProductItem = {
         isCompatible: boolean;
         notes: string | null;
     }> | null;
+    variants?: {
+        id: string;
+        size?: string;
+        color?: string;
+        isActive?: boolean;
+        stockQuantity: number;
+        priceAdjustment?: number;
+        images?: Array<string>;
+        mainImage?: string;
+    } []
     /**
      * Full category details with translations (public endpoints only)
      */
