@@ -427,6 +427,16 @@ export type ProductItem = {
         isCompatible: boolean;
         notes: string | null;
     }> | null;
+    variants?: {
+        id: string;
+        size?: string;
+        color?: string;
+        isActive?: boolean;
+        stockQuantity: number;
+        priceAdjustment?: number;
+        images?: Array<string>;
+        mainImage?: string;
+    } []
     /**
      * Full category details with translations (public endpoints only)
      */
@@ -471,17 +481,6 @@ export type ProductItem = {
         createdAt: string;
         updatedAt: string;
     } | null;
-
-    variants?: {
-        id: string;
-        size?: string;
-        color?: string;
-        isActive?: boolean;
-        stockQuantity: number;
-        priceAdjustment?: number;
-        images?: Array<string>;
-        mainImage?: string;
-    } []
 };
 
 export type ProductResponse = {
@@ -1003,6 +1002,174 @@ export type StockValidationError = {
     };
 };
 
+/**
+ * Inline address provided during guest checkout (not stored in user_addresses table)
+ */
+export type GuestAddress = {
+    /**
+     * Address label (e.g., "Home", "Work")
+     */
+    title: string;
+    /**
+     * Country name
+     */
+    country: string;
+    /**
+     * City name
+     */
+    city: string;
+    /**
+     * Primary address line
+     */
+    addressLine1: string;
+    /**
+     * Secondary address line (optional)
+     */
+    addressLine2?: string | null;
+    /**
+     * Postal/ZIP code (optional)
+     */
+    postalCode?: string | null;
+};
+
+/**
+ * Guest checkout request. Requires contact info and inline addresses instead of address IDs.
+ */
+export type GuestCheckoutRequest = {
+    /**
+     * Store to checkout from
+     */
+    storeId: string;
+    /**
+     * Guest email for order communication
+     */
+    email: string;
+    /**
+     * Guest phone number
+     */
+    phone: string;
+    /**
+     * Guest first name
+     */
+    firstName: string;
+    /**
+     * Guest last name
+     */
+    lastName: string;
+    shippingAddress: GuestAddress;
+    /**
+     * Billing address (defaults to shipping address if not provided)
+     */
+    billingAddress?: GuestAddress | null;
+    /**
+     * Currency for payment
+     */
+    paymentCurrency: 'JOD' | 'AED' | 'USD' | 'EUR' | 'SAR' | 'KWD' | 'QAR' | 'BHD' | 'OMR';
+    /**
+     * Payment method
+     */
+    paymentMethod?: 'cash_on_delivery' | 'card_on_delivery' | 'bank_transfer' | 'credit_card' | 'digital_wallet';
+    /**
+     * Order notes (optional)
+     */
+    notes?: string;
+    /**
+     * Language ID for order content
+     */
+    languageId?: string;
+    /**
+     * Whether to validate stock availability. Set to false for pre-orders.
+     */
+    validateStock?: boolean;
+    /**
+     * Shipping method
+     */
+    shippingMethod?: 'standard' | 'express';
+    /**
+     * Promo codes to apply. Use "test123" for 50% discount.
+     */
+    promoCodes?: Array<string>;
+};
+
+export type GuestCheckoutResponse = {
+    success: boolean;
+    data: {
+        orderId: string;
+        orderNumber: string;
+        status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';
+        storeId: string;
+        storeCode: string;
+        storeName: string;
+        guestEmail: string;
+        guestPhone: string;
+        guestFirstName: string;
+        guestLastName: string;
+        items: Array<{
+            id?: string;
+            productId?: string;
+            productCode?: string;
+            productName?: string;
+            productImage?: string | null;
+            quantity?: number;
+            unitPrice?: number;
+            totalPrice?: number;
+            currency?: 'JOD' | 'AED' | 'USD' | 'EUR' | 'SAR' | 'KWD' | 'QAR' | 'BHD' | 'OMR';
+        }>;
+        subtotal: number;
+        taxAmount: number;
+        shippingAmount: number;
+        discountAmount: number;
+        totalAmount: number;
+        currency: 'JOD' | 'AED' | 'USD' | 'EUR' | 'SAR' | 'KWD' | 'QAR' | 'BHD' | 'OMR';
+        shippingAddress: GuestAddress | null;
+        billingAddress: GuestAddress | null;
+        notes: string | null;
+        paymentMethod: string;
+        createdAt: string;
+        itemCount: number;
+        totalQuantity: number;
+    };
+};
+
+/**
+ * Response for guest order lookup by order number and email
+ */
+export type GuestOrderLookupResponse = {
+    success: boolean;
+    data: {
+        orderId: string;
+        orderNumber: string;
+        status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';
+        storeId: string;
+        storeName: string;
+        guestEmail: string;
+        guestFirstName: string;
+        guestLastName: string;
+        items: Array<{
+            productId?: string;
+            productCode?: string;
+            productName?: string;
+            productImage?: string | null;
+            quantity?: number;
+            unitPrice?: number;
+            totalPrice?: number;
+            currency?: string;
+        }>;
+        subtotal: number;
+        taxAmount: number;
+        shippingAmount: number;
+        discountAmount: number;
+        totalAmount: number;
+        currency: 'JOD' | 'AED' | 'USD' | 'EUR' | 'SAR' | 'KWD' | 'QAR' | 'BHD' | 'OMR';
+        shippingAddress: GuestAddress | null;
+        billingAddress: GuestAddress | null;
+        notes: string | null;
+        paymentMethod: string;
+        createdAt: string;
+        updatedAt: string;
+    };
+};
+
 export type UserCarResponse = {
     success: boolean;
     data: {
@@ -1036,9 +1203,8 @@ export type UserCarsResponse = {
             carDetails: {
                 brand: string;
                 model: string;
-                year: number | null;
-                yearTo: number | null;
                 yearFrom: number | null;
+                yearTo: number | null;
                 engineSize: string | null;
                 fuelType: string | null;
                 transmission: string | null;
@@ -2935,7 +3101,7 @@ export type GetApiCategoriesPublicData = {
         /**
          * ⚠️ REQUIRED: Language for category translations
          */
-        languageId?: string;
+        languageId: string;
         /**
          * Filter by product type ID (recommended)
          */
@@ -3178,7 +3344,7 @@ export type GetApiAdminProductTypesData = {
 
 export type GetApiAdminProductTypesErrors = {
     /**
-     * Unauthorized - Invalid or Missing Authentication Token
+     * Unauthorized - Authentication Required
      */
     401: ErrorResponse;
     /**
@@ -3246,7 +3412,7 @@ export type PostApiAdminProductTypesErrors = {
      */
     400: ErrorResponse;
     /**
-     * Unauthorized - Invalid or Missing Authentication Token
+     * Unauthorized - Authentication Required
      */
     401: ErrorResponse;
     /**
@@ -3295,7 +3461,7 @@ export type DeleteApiAdminProductTypesByIdErrors = {
      */
     400: ErrorResponse;
     /**
-     * Unauthorized - Invalid or Missing Authentication Token
+     * Unauthorized - Authentication Required
      */
     401: ErrorResponse;
     /**
@@ -3352,7 +3518,7 @@ export type PutApiAdminProductTypesByIdErrors = {
      */
     400: ErrorResponse;
     /**
-     * Unauthorized - Invalid or Missing Authentication Token
+     * Unauthorized - Authentication Required
      */
     401: ErrorResponse;
     /**
@@ -3394,7 +3560,7 @@ export type GetApiProductsPublicData = {
         /**
          * ⚠️ REQUIRED: Language for product translations
          */
-        languageId?: string;
+        languageId: string;
         /**
          * Filter by category. When provided alone, matches both category_id and sub_category_id. Supports single UUID or comma-separated UUIDs.
          */
@@ -4424,6 +4590,81 @@ export type GetApiCheckoutOrdersResponses = {
 };
 
 export type GetApiCheckoutOrdersResponse = GetApiCheckoutOrdersResponses[keyof GetApiCheckoutOrdersResponses];
+
+export type PostApiCheckoutGuestData = {
+    body: GuestCheckoutRequest;
+    path?: never;
+    query?: never;
+    url: '/api/checkout/guest';
+};
+
+export type PostApiCheckoutGuestErrors = {
+    /**
+     * Bad Request - Validation Error
+     */
+    400: ErrorResponse;
+    /**
+     * Stock validation failed
+     */
+    409: StockValidationError;
+    /**
+     * Internal Server Error
+     */
+    500: ErrorResponse;
+};
+
+export type PostApiCheckoutGuestError = PostApiCheckoutGuestErrors[keyof PostApiCheckoutGuestErrors];
+
+export type PostApiCheckoutGuestResponses = {
+    /**
+     * Guest order created successfully
+     */
+    201: GuestCheckoutResponse;
+};
+
+export type PostApiCheckoutGuestResponse = PostApiCheckoutGuestResponses[keyof PostApiCheckoutGuestResponses];
+
+export type GetApiCheckoutGuestLookupData = {
+    body?: never;
+    path?: never;
+    query: {
+        /**
+         * The order number received after checkout
+         */
+        orderNumber: string;
+        /**
+         * The email address used during guest checkout
+         */
+        email: string;
+    };
+    url: '/api/checkout/guest-lookup';
+};
+
+export type GetApiCheckoutGuestLookupErrors = {
+    /**
+     * Bad Request - Validation Error
+     */
+    400: ErrorResponse;
+    /**
+     * Not Found - Resource Not Found
+     */
+    404: ErrorResponse;
+    /**
+     * Internal Server Error
+     */
+    500: ErrorResponse;
+};
+
+export type GetApiCheckoutGuestLookupError = GetApiCheckoutGuestLookupErrors[keyof GetApiCheckoutGuestLookupErrors];
+
+export type GetApiCheckoutGuestLookupResponses = {
+    /**
+     * Guest order found
+     */
+    200: GuestOrderLookupResponse;
+};
+
+export type GetApiCheckoutGuestLookupResponse = GetApiCheckoutGuestLookupResponses[keyof GetApiCheckoutGuestLookupResponses];
 
 export type GetApiUsersMeGarageCarsData = {
     body?: never;

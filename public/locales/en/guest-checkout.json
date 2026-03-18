@@ -1,0 +1,58 @@
+{
+  "pageTitle": "Guest Checkout - MotoGT",
+  "title": "Guest Checkout",
+  "haveAccount": "Already have an account?",
+  "loginLink": "Log in",
+  "contact": {
+    "title": "Contact Information",
+    "firstName": "First Name",
+    "firstNamePlaceholder": "Enter your first name",
+    "lastName": "Last Name",
+    "lastNamePlaceholder": "Enter your last name",
+    "email": "Email Address",
+    "emailPlaceholder": "Enter your email address",
+    "phone": "Phone Number"
+  },
+  "shipping": {
+    "title": "Shipping Address",
+    "billingSameAsShipping": "Billing address is the same as shipping address"
+  },
+  "billing": {
+    "title": "Billing Address"
+  },
+  "address": {
+    "title": "Address Nickname",
+    "titlePlaceholder": "e.g., Home, Office, Workshop",
+    "country": "Country",
+    "countryPlaceholder": "Select Country",
+    "city": "City",
+    "cityPlaceholder": "Select City",
+    "addressLine1": "Address Line 1",
+    "addressLine1Placeholder": "Street, building, apartment number",
+    "addressLine2": "Address Line 2",
+    "addressLine2Placeholder": "Landmark, district, or floor (optional)",
+    "postalCode": "Postal Code",
+    "postalCodePlaceholder": "Postal/ZIP code (optional)"
+  },
+  "validation": {
+    "emailRequired": "Email address is required",
+    "emailInvalid": "Please enter a valid email address",
+    "phoneRequired": "Phone number is required",
+    "firstNameRequired": "First name is required",
+    "lastNameRequired": "Last name is required",
+    "titleRequired": "Address nickname is required",
+    "countryRequired": "Country is required",
+    "cityRequired": "City is required",
+    "addressRequired": "Address line 1 is required",
+    "fixErrors": "Please fix the errors before placing your order"
+  },
+  "priceChange": {
+    "title": "Price Change Notice",
+    "description": "The total has changed from {{estimated}} to {{actual}} ({{percent}}% change) due to exchange rate updates. Would you like to proceed?"
+  },
+  "messages": {
+    "orderPlaced": "Order placed successfully!",
+    "orderError": "Failed to place order. Please try again.",
+    "paymentInitiationFailed": "Payment initiation failed. Your order has been created."
+  }
+}

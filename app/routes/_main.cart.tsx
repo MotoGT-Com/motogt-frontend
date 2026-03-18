@@ -253,6 +253,19 @@ export default function Cart({ loaderData }: Route.ComponentProps) {
                           {t('summary.proceedToCheckout')}
                         </Button>
                       </Link>
+                      {!isAuthenticated && (
+                        <Link to="/guest-checkout" className="block w-full">
+                          <Button
+                            variant="outline"
+                            className="w-full h-10 font-bold"
+                            disabled={
+                              cartQuery.data && cartQuery.data.items.length === 0
+                            }
+                          >
+                            {t('summary.checkoutAsGuest')}
+                          </Button>
+                        </Link>
+                      )}
                       <WhatsAppButton
                         className="h-10 text-base font-bold font-sans normal-case"
                         items={cartQuery.data.items.map((item: any) => ({

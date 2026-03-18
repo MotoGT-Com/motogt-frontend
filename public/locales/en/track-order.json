@@ -1,0 +1,41 @@
+{
+  "pageTitle": "Track Your Order",
+  "title": "Track Your Order",
+  "subtitle": "Enter your order number and email address to check your order status.",
+  "form": {
+    "orderNumber": "Order Number",
+    "orderNumberPlaceholder": "e.g. ORD-12345",
+    "email": "Email Address",
+    "emailPlaceholder": "The email used during checkout",
+    "search": "Track Order",
+    "searching": "Searching..."
+  },
+  "error": {
+    "title": "Order Not Found",
+    "description": "We couldn't find an order with that number and email. Please double-check and try again."
+  },
+  "results": {
+    "searchAgain": "Search again",
+    "orderTitle": "Order #{{orderNumber}}",
+    "placedOn": "Placed on {{date}}",
+    "items": "Items",
+    "qty": "{{count}}×",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "shipping": "Shipping",
+    "tax": "Tax",
+    "total": "Total",
+    "paymentMethod": "Payment Method",
+    "shippingAddress": "Shipping Address",
+    "continueShopping": "Continue Shopping",
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "processing": "Processing",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled",
+      "refunded": "Refunded"
+    }
+  }
+}

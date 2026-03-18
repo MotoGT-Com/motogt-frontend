@@ -39,6 +39,12 @@ export const PENDING_PAYMENT_KEY = "motogt_pending_payment";
 export const DISMISSED_PENDING_PAYMENT_KEY = "motogt_dismissed_pending_payment";
 
 /**
+ * LocalStorage key for guest payment info (email etc.)
+ * Tells the payment callback to redirect to the guest confirmation page.
+ */
+export const GUEST_PAYMENT_INFO_KEY = "motogt_guest_payment_info";
+
+/**
  * Payment context expiry duration: 30 minutes (in milliseconds)
  */
 export const PAYMENT_CONTEXT_TTL = 30 * 60 * 1000;
@@ -82,6 +88,10 @@ export interface PaymentContext {
    * Timestamp when context was saved (for TTL validation)
    */
   timestamp: number;
+  /** True when the payment was initiated by a guest (no auth token) */
+  isGuest?: boolean;
+  /** Guest email – used to redirect to guest order confirmation */
+  guestEmail?: string;
 }
 
 /**
@@ -189,6 +199,46 @@ export function clearPaymentContext(): void {
   try {
     localStorage.removeItem(PAYMENT_CONTEXT_KEY);
   } catch (error) {
+  }
+}
+
+/**
+ * Save guest payment info so the callback can redirect to guest confirmation.
+ */
+export function saveGuestPaymentInfo(email: string, orderNumber: string): void {
+  try {
+    localStorage.setItem(
+      GUEST_PAYMENT_INFO_KEY,
+      JSON.stringify({ email, orderNumber })
+    );
+  } catch {
+    // non-blocking
+  }
+}
+
+/**
+ * Load guest payment info from localStorage.
+ */
+export function loadGuestPaymentInfo(): { email: string; orderNumber: string } | null {
+  try {
+    const raw = localStorage.getItem(GUEST_PAYMENT_INFO_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed?.email && parsed?.orderNumber) return parsed;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Clear guest payment info from localStorage.
+ */
+export function clearGuestPaymentInfo(): void {
+  try {
+    localStorage.removeItem(GUEST_PAYMENT_INFO_KEY);
+  } catch {
+    // non-blocking
   }
 }
 

@@ -73,6 +73,10 @@
       "description": "Order creation and management"
     },
     {
+      "name": "Guest Checkout",
+      "description": "Guest checkout and order tracking for non-authenticated users"
+    },
+    {
       "name": "Order Management - User",
       "description": "User order operations (retry payment, cancel)"
     },
@@ -4171,7 +4175,7 @@
             }
           },
           "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
+            "$ref": "#/components/responses/AuthError"
           },
           "403": {
             "$ref": "#/components/responses/ForbiddenError"
@@ -4292,7 +4296,7 @@
             "$ref": "#/components/responses/ValidationError"
           },
           "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
+            "$ref": "#/components/responses/AuthError"
           },
           "403": {
             "$ref": "#/components/responses/ForbiddenError"
@@ -4420,7 +4424,7 @@
             "$ref": "#/components/responses/ValidationError"
           },
           "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
+            "$ref": "#/components/responses/AuthError"
           },
           "403": {
             "$ref": "#/components/responses/ForbiddenError"
@@ -4494,7 +4498,7 @@
             }
           },
           "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
+            "$ref": "#/components/responses/AuthError"
           },
           "403": {
             "$ref": "#/components/responses/ForbiddenError"
@@ -5605,11 +5609,15 @@
           "Cart"
         ],
         "summary": "Add item to cart",
+        "description": "Add a product to the cart. Supports both authenticated users (via Bearer token) and guest sessions (via x-guest-session cookie).",
         "security": [
           {
             "bearerAuth": [
               
             ]
+          },
+          {
+            
           }
         ],
         "parameters": [
@@ -5676,11 +5684,15 @@
           "Cart"
         ],
         "summary": "Update cart item",
+        "description": "Update the quantity of a cart item. Supports both authenticated users (via Bearer token) and guest sessions (via x-guest-session cookie).",
         "security": [
           {
             "bearerAuth": [
               
             ]
+          },
+          {
+            
           }
         ],
         "parameters": [
@@ -5751,11 +5763,15 @@
           "Cart"
         ],
         "summary": "Remove item from cart",
+        "description": "Remove a product from the cart. Supports both authenticated users (via Bearer token) and guest sessions (via x-guest-session cookie).",
         "security": [
           {
             "bearerAuth": [
               
             ]
+          },
+          {
+            
           }
         ],
         "parameters": [
@@ -5804,11 +5820,15 @@
           "Cart"
         ],
         "summary": "Get cart contents",
+        "description": "Retrieve current cart contents. Supports both authenticated users (via Bearer token) and guest sessions (via x-guest-session cookie).",
         "security": [
           {
             "bearerAuth": [
               
             ]
+          },
+          {
+            
           }
         ],
         "parameters": [
@@ -5852,11 +5872,15 @@
           "Cart"
         ],
         "summary": "Clear cart",
+        "description": "Clear all items from the cart. Supports both authenticated users (via Bearer token) and guest sessions (via x-guest-session cookie).",
         "security": [
           {
             "bearerAuth": [
               
             ]
+          },
+          {
+            
           }
         ],
         "parameters": [
@@ -6552,6 +6576,178 @@
           },
           "401": {
             "$ref": "#/components/responses/AuthError"
+          }
+        }
+      }
+    },
+    "/api/checkout/guest": {
+      "post": {
+        "tags": [
+          "Guest Checkout"
+        ],
+        "summary": "Create guest order",
+        "description": "Create an order as a guest (non-authenticated) user. Requires a guest session (x-guest-session cookie).\n\n**Key Differences from Authenticated Checkout:**\n- No user account required\n- Guest contact info (email, phone, name) must be provided in the request body\n- Inline shipping/billing addresses instead of address IDs\n- Guest orders can be looked up later via order number + email\n- Guest orders can be claimed by creating an account with the same email\n\n**Guest Session:**\nThe guest session is automatically created when adding items to cart without authentication.\nThe session is tracked via the `x-guest-session` cookie.",
+        "security": [
+          
+        ],
+        "parameters": [
+          {
+            "name": "x-guest-session",
+            "in": "cookie",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Guest session ID (automatically set when adding to cart without auth)"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuestCheckoutRequest"
+              },
+              "examples": {
+                "basic_guest_checkout": {
+                  "summary": "Basic guest checkout",
+                  "value": {
+                    "storeId": "19bf2cb6-1b50-4b95-80d6-9da6560588fc",
+                    "email": "guest@example.com",
+                    "phone": "+962791234567",
+                    "firstName": "John",
+                    "lastName": "Doe",
+                    "shippingAddress": {
+                      "title": "Home",
+                      "country": "Jordan",
+                      "city": "Amman",
+                      "addressLine1": "123 Main Street",
+                      "postalCode": "11110"
+                    },
+                    "paymentCurrency": "JOD",
+                    "paymentMethod": "cash_on_delivery",
+                    "validateStock": true,
+                    "shippingMethod": "standard"
+                  }
+                },
+                "guest_checkout_with_promo": {
+                  "summary": "Guest checkout with promo code and billing address",
+                  "value": {
+                    "storeId": "19bf2cb6-1b50-4b95-80d6-9da6560588fc",
+                    "email": "guest@example.com",
+                    "phone": "+962791234567",
+                    "firstName": "Jane",
+                    "lastName": "Smith",
+                    "shippingAddress": {
+                      "title": "Home",
+                      "country": "Jordan",
+                      "city": "Amman",
+                      "addressLine1": "456 Oak Avenue",
+                      "addressLine2": "Apt 12",
+                      "postalCode": "11120"
+                    },
+                    "billingAddress": {
+                      "title": "Office",
+                      "country": "Jordan",
+                      "city": "Amman",
+                      "addressLine1": "789 Business Blvd"
+                    },
+                    "paymentCurrency": "JOD",
+                    "paymentMethod": "bank_transfer",
+                    "promoCodes": [
+                      "test123"
+                    ],
+                    "notes": "Please call before delivery",
+                    "validateStock": true,
+                    "shippingMethod": "express"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Guest order created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuestCheckoutResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "409": {
+            "description": "Stock validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockValidationError"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/api/checkout/guest-lookup": {
+      "get": {
+        "tags": [
+          "Guest Checkout"
+        ],
+        "summary": "Look up guest order",
+        "description": "Look up a guest order by order number and email address. This is a public endpoint that allows guests to track their orders without creating an account.\n\n**Security:** No authentication required, but both order number and email must match.",
+        "security": [
+          
+        ],
+        "parameters": [
+          {
+            "name": "orderNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "ORD-2024-0001"
+            },
+            "description": "The order number received after checkout"
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "email",
+              "example": "guest@example.com"
+            },
+            "description": "The email address used during guest checkout"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Guest order found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuestOrderLookupResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
           }
         }
       }
@@ -12455,6 +12651,578 @@
           "error"
         ]
       },
+      "GuestAddress": {
+        "type": "object",
+        "required": [
+          "title",
+          "country",
+          "city",
+          "addressLine1"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "example": "Home",
+            "description": "Address label (e.g., \"Home\", \"Work\")"
+          },
+          "country": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "example": "Jordan",
+            "description": "Country name"
+          },
+          "city": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "example": "Amman",
+            "description": "City name"
+          },
+          "addressLine1": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "example": "123 Main Street",
+            "description": "Primary address line"
+          },
+          "addressLine2": {
+            "type": "string",
+            "maxLength": 255,
+            "nullable": true,
+            "example": "Apt 4B",
+            "description": "Secondary address line (optional)"
+          },
+          "postalCode": {
+            "type": "string",
+            "maxLength": 20,
+            "nullable": true,
+            "example": "11110",
+            "description": "Postal/ZIP code (optional)"
+          }
+        },
+        "description": "Inline address provided during guest checkout (not stored in user_addresses table)"
+      },
+      "GuestCheckoutRequest": {
+        "type": "object",
+        "required": [
+          "storeId",
+          "email",
+          "phone",
+          "firstName",
+          "lastName",
+          "shippingAddress",
+          "paymentCurrency"
+        ],
+        "properties": {
+          "storeId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "19bf2cb6-1b50-4b95-80d6-9da6560588fc",
+            "description": "Store to checkout from"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "guest@example.com",
+            "description": "Guest email for order communication"
+          },
+          "phone": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 50,
+            "example": "+962791234567",
+            "description": "Guest phone number"
+          },
+          "firstName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "example": "John",
+            "description": "Guest first name"
+          },
+          "lastName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "example": "Doe",
+            "description": "Guest last name"
+          },
+          "shippingAddress": {
+            "$ref": "#/components/schemas/GuestAddress"
+          },
+          "billingAddress": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GuestAddress"
+              }
+            ],
+            "nullable": true,
+            "description": "Billing address (defaults to shipping address if not provided)"
+          },
+          "paymentCurrency": {
+            "type": "string",
+            "enum": [
+              "JOD",
+              "AED",
+              "USD",
+              "EUR",
+              "SAR",
+              "KWD",
+              "QAR",
+              "BHD",
+              "OMR"
+            ],
+            "example": "JOD",
+            "description": "Currency for payment"
+          },
+          "paymentMethod": {
+            "type": "string",
+            "enum": [
+              "cash_on_delivery",
+              "card_on_delivery",
+              "bank_transfer",
+              "credit_card",
+              "digital_wallet"
+            ],
+            "default": "cash_on_delivery",
+            "description": "Payment method"
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 1000,
+            "example": "Please call before delivery",
+            "description": "Order notes (optional)"
+          },
+          "languageId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Language ID for order content"
+          },
+          "validateStock": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether to validate stock availability. Set to false for pre-orders."
+          },
+          "shippingMethod": {
+            "type": "string",
+            "enum": [
+              "standard",
+              "express"
+            ],
+            "default": "standard",
+            "description": "Shipping method"
+          },
+          "promoCodes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Promo codes to apply. Use \"test123\" for 50% discount.",
+            "example": [
+              "test123"
+            ]
+          }
+        },
+        "description": "Guest checkout request. Requires contact info and inline addresses instead of address IDs."
+      },
+      "GuestCheckoutResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "orderId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "orderNumber": {
+                "type": "string",
+                "example": "ORD-2024-0042"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "pending",
+                  "confirmed",
+                  "processing",
+                  "shipped",
+                  "delivered",
+                  "cancelled",
+                  "refunded"
+                ],
+                "example": "pending"
+              },
+              "storeId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "storeCode": {
+                "type": "string",
+                "example": "main-store"
+              },
+              "storeName": {
+                "type": "string",
+                "example": "MotoGT Main Store"
+              },
+              "guestEmail": {
+                "type": "string",
+                "format": "email",
+                "example": "guest@example.com"
+              },
+              "guestPhone": {
+                "type": "string",
+                "example": "+962791234567"
+              },
+              "guestFirstName": {
+                "type": "string",
+                "example": "John"
+              },
+              "guestLastName": {
+                "type": "string",
+                "example": "Doe"
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "productId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "productCode": {
+                      "type": "string"
+                    },
+                    "productName": {
+                      "type": "string"
+                    },
+                    "productImage": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "quantity": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "unitPrice": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "totalPrice": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "currency": {
+                      "type": "string",
+                      "enum": [
+                        "JOD",
+                        "AED",
+                        "USD",
+                        "EUR",
+                        "SAR",
+                        "KWD",
+                        "QAR",
+                        "BHD",
+                        "OMR"
+                      ]
+                    }
+                  }
+                }
+              },
+              "subtotal": {
+                "type": "number",
+                "minimum": 0
+              },
+              "taxAmount": {
+                "type": "number",
+                "minimum": 0
+              },
+              "shippingAmount": {
+                "type": "number",
+                "minimum": 0
+              },
+              "discountAmount": {
+                "type": "number",
+                "minimum": 0
+              },
+              "totalAmount": {
+                "type": "number",
+                "minimum": 0
+              },
+              "currency": {
+                "type": "string",
+                "enum": [
+                  "JOD",
+                  "AED",
+                  "USD",
+                  "EUR",
+                  "SAR",
+                  "KWD",
+                  "QAR",
+                  "BHD",
+                  "OMR"
+                ]
+              },
+              "shippingAddress": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/GuestAddress"
+                  }
+                ],
+                "nullable": true
+              },
+              "billingAddress": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/GuestAddress"
+                  }
+                ],
+                "nullable": true
+              },
+              "notes": {
+                "type": "string",
+                "nullable": true
+              },
+              "paymentMethod": {
+                "type": "string"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "itemCount": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "totalQuantity": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "orderId",
+              "orderNumber",
+              "status",
+              "storeId",
+              "storeCode",
+              "storeName",
+              "guestEmail",
+              "guestPhone",
+              "guestFirstName",
+              "guestLastName",
+              "items",
+              "subtotal",
+              "taxAmount",
+              "shippingAmount",
+              "discountAmount",
+              "totalAmount",
+              "currency",
+              "shippingAddress",
+              "billingAddress",
+              "notes",
+              "paymentMethod",
+              "createdAt",
+              "itemCount",
+              "totalQuantity"
+            ]
+          }
+        },
+        "required": [
+          "success",
+          "data"
+        ]
+      },
+      "GuestOrderLookupResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "orderId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "orderNumber": {
+                "type": "string",
+                "example": "ORD-2024-0042"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "pending",
+                  "confirmed",
+                  "processing",
+                  "shipped",
+                  "delivered",
+                  "cancelled",
+                  "refunded"
+                ],
+                "example": "pending"
+              },
+              "storeId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "storeName": {
+                "type": "string",
+                "example": "MotoGT Main Store"
+              },
+              "guestEmail": {
+                "type": "string",
+                "format": "email"
+              },
+              "guestFirstName": {
+                "type": "string"
+              },
+              "guestLastName": {
+                "type": "string"
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "productId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "productCode": {
+                      "type": "string"
+                    },
+                    "productName": {
+                      "type": "string"
+                    },
+                    "productImage": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "quantity": {
+                      "type": "integer"
+                    },
+                    "unitPrice": {
+                      "type": "number"
+                    },
+                    "totalPrice": {
+                      "type": "number"
+                    },
+                    "currency": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "subtotal": {
+                "type": "number",
+                "minimum": 0
+              },
+              "taxAmount": {
+                "type": "number",
+                "minimum": 0
+              },
+              "shippingAmount": {
+                "type": "number",
+                "minimum": 0
+              },
+              "discountAmount": {
+                "type": "number",
+                "minimum": 0
+              },
+              "totalAmount": {
+                "type": "number",
+                "minimum": 0
+              },
+              "currency": {
+                "type": "string",
+                "enum": [
+                  "JOD",
+                  "AED",
+                  "USD",
+                  "EUR",
+                  "SAR",
+                  "KWD",
+                  "QAR",
+                  "BHD",
+                  "OMR"
+                ]
+              },
+              "shippingAddress": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/GuestAddress"
+                  }
+                ],
+                "nullable": true
+              },
+              "billingAddress": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/GuestAddress"
+                  }
+                ],
+                "nullable": true
+              },
+              "notes": {
+                "type": "string",
+                "nullable": true
+              },
+              "paymentMethod": {
+                "type": "string"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "orderId",
+              "orderNumber",
+              "status",
+              "storeId",
+              "storeName",
+              "guestEmail",
+              "guestFirstName",
+              "guestLastName",
+              "items",
+              "subtotal",
+              "taxAmount",
+              "shippingAmount",
+              "discountAmount",
+              "totalAmount",
+              "currency",
+              "shippingAddress",
+              "billingAddress",
+              "notes",
+              "paymentMethod",
+              "createdAt",
+              "updatedAt"
+            ]
+          }
+        },
+        "required": [
+          "success",
+          "data"
+        ],
+        "description": "Response for guest order lookup by order number and email"
+      },
       "UserCarResponse": {
         "type": "object",
         "properties": {
@@ -13873,16 +14641,6 @@
       },
       "ConflictError": {
         "description": "Conflict - Resource Already Exists",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/ErrorResponse"
-            }
-          }
-        }
-      },
-      "UnauthorizedError": {
-        "description": "Unauthorized - Invalid or Missing Authentication Token",
         "content": {
           "application/json": {
             "schema": {

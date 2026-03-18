@@ -35,6 +35,7 @@
     },
     "buttons": {
       "viewOrders": "View Orders",
+      "viewOrder": "View Order",
       "continueShopping": "Continue Shopping",
       "retryPayment": "View Orders & Retry Payment",
       "goHome": "Go Home"

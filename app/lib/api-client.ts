@@ -49,7 +49,9 @@ client.interceptors.request.use(async (request) => {
       request.headers.set("Authorization", `Bearer ${accessToken}`);
     }
   }
-  return request;
+  // Include cookies (guest_session, etc.) in all requests.
+  // Request.credentials is read-only, so we must create a new Request.
+  return new Request(request, { credentials: "include" });
 });
 
 let refreshingToken = false;

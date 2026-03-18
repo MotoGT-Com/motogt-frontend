@@ -12,10 +12,9 @@
  */
 
 import { useEffect, useState } from "react";
-import { Link, useNavigate, redirect, type MiddlewareFunction, } from "react-router";
+import { Link, useNavigate, redirect, } from "react-router";
 import type { Route } from "./+types/_main.payment.callback";
-import { requireAuthMiddleware } from "~/lib/auth-middleware";
-import { loadPaymentContext, clearPaymentContext, clearPendingPayment, pollPaymentStatus, restoreCartFromBackup, clearCartBackup, type PaymentStatusResult, } from "~/lib/payment-utils";
+import { loadPaymentContext, clearPaymentContext, clearPendingPayment, pollPaymentStatus, restoreCartFromBackup, clearCartBackup, type PaymentStatusResult, loadGuestPaymentInfo, clearGuestPaymentInfo, } from "~/lib/payment-utils";
 import { getApiPaymentsStatusByOrderId } from "~/lib/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "~/components/ui/button";
@@ -25,7 +24,7 @@ import { CheckCircle2, XCircle, Clock, CreditCard, Package, AlertCircle, } from 
 import { usePayment } from "~/lib/use-payment";
 import { useTranslation } from "react-i18next";
 
-export const middleware: MiddlewareFunction[] = [requireAuthMiddleware];
+// No auth middleware required — guests also land here after card payment.
 
 /**
  * Action - handle POST requests from MEPS payment gateway
@@ -73,10 +72,17 @@ export default function PaymentCallback() {
     current: 0,
     max: 10,
   });
+  const [guestInfo, setGuestInfo] = useState<{ email: string; orderNumber: string } | null>(null);
 
   useEffect(() => {
     const verifyPayment = async () => {
       try {
+        // Check if this is a guest payment
+        const guest = loadGuestPaymentInfo();
+        if (guest) {
+          setGuestInfo(guest);
+        }
+
         // Load payment context from localStorage
         const context = loadPaymentContext();
 
@@ -130,6 +136,7 @@ export default function PaymentCallback() {
           clearPaymentContext();
           clearPendingPayment();
           clearCartBackup();
+          clearGuestPaymentInfo();
 
           // Invalidate cache to refresh orders and cart
           await queryClient.invalidateQueries({ queryKey: ["orders"] });
@@ -237,7 +244,10 @@ export default function PaymentCallback() {
 
           <CardFooter className="flex gap-2">
             <Button asChild className="flex-1">
-              <Link to="/profile/orders">{t('callback.buttons.viewOrders')}</Link>
+              <Link to={guestInfo
+                ? `/guest-order-confirmation?orderNumber=${encodeURIComponent(guestInfo.orderNumber)}&email=${encodeURIComponent(guestInfo.email)}`
+                : "/profile/orders"
+              }>{guestInfo ? t('callback.buttons.viewOrder') : t('callback.buttons.viewOrders')}</Link>
             </Button>
             <Button asChild variant="outline" className="flex-1">
               <Link to="/">{t('callback.buttons.continueShopping')}</Link>
@@ -275,7 +285,7 @@ export default function PaymentCallback() {
 
           <CardFooter className="flex flex-col gap-2">
             <Button asChild className="w-full">
-              <Link to="/profile/orders">{t('callback.buttons.retryPayment')}</Link>
+              <Link to={guestInfo ? "/track-order" : "/profile/orders"}>{t('callback.buttons.retryPayment')}</Link>
             </Button>
             <Button asChild variant="outline" className="w-full">
               <Link to="/">{t('callback.buttons.continueShopping')}</Link>
@@ -313,7 +323,7 @@ export default function PaymentCallback() {
 
           <CardFooter className="flex flex-col gap-2">
             <Button asChild className="w-full">
-              <Link to="/profile/orders">{t('callback.buttons.retryPayment')}</Link>
+              <Link to={guestInfo ? "/track-order" : "/profile/orders"}>{t('callback.buttons.retryPayment')}</Link>
             </Button>
             <Button asChild variant="outline" className="w-full">
               <Link to="/">{t('callback.buttons.continueShopping')}</Link>
@@ -355,7 +365,7 @@ export default function PaymentCallback() {
 
           <CardFooter className="flex gap-2">
             <Button asChild className="flex-1">
-              <Link to="/profile/orders">{t('callback.buttons.viewOrders')}</Link>
+              <Link to={guestInfo ? "/track-order" : "/profile/orders"}>{t('callback.buttons.viewOrders')}</Link>
             </Button>
             <Button asChild variant="outline" className="flex-1">
               <Link to="/">{t('callback.buttons.goHome')}</Link>

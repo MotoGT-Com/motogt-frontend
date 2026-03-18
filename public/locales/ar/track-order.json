@@ -1,0 +1,41 @@
+{
+  "pageTitle": "تتبع طلبك",
+  "title": "تتبع طلبك",
+  "subtitle": "أدخل رقم الطلب وعنوان البريد الإلكتروني للتحقق من حالة طلبك.",
+  "form": {
+    "orderNumber": "رقم الطلب",
+    "orderNumberPlaceholder": "مثال: ORD-12345",
+    "email": "البريد الإلكتروني",
+    "emailPlaceholder": "البريد الإلكتروني المستخدم أثناء الدفع",
+    "search": "تتبع الطلب",
+    "searching": "جاري البحث..."
+  },
+  "error": {
+    "title": "لم يتم العثور على الطلب",
+    "description": "لم نتمكن من العثور على طلب بهذا الرقم والبريد الإلكتروني. يرجى التحقق والمحاولة مرة أخرى."
+  },
+  "results": {
+    "searchAgain": "بحث مرة أخرى",
+    "orderTitle": "طلب #{{orderNumber}}",
+    "placedOn": "تم الطلب في {{date}}",
+    "items": "المنتجات",
+    "qty": "{{count}}×",
+    "subtotal": "المجموع الفرعي",
+    "discount": "الخصم",
+    "shipping": "الشحن",
+    "tax": "الضريبة",
+    "total": "الإجمالي",
+    "paymentMethod": "طريقة الدفع",
+    "shippingAddress": "عنوان الشحن",
+    "continueShopping": "متابعة التسوق",
+    "status": {
+      "pending": "قيد الانتظار",
+      "confirmed": "مؤكد",
+      "processing": "قيد المعالجة",
+      "shipped": "تم الشحن",
+      "delivered": "تم التوصيل",
+      "cancelled": "ملغي",
+      "refunded": "مسترد"
+    }
+  }
+}

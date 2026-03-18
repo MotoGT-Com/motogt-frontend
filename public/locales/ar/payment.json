@@ -35,6 +35,7 @@
     },
     "buttons": {
       "viewOrders": "عرض الطلبات",
+      "viewOrder": "عرض الطلب",
       "continueShopping": "متابعة التسوق",
       "retryPayment": "عرض الطلبات وإعادة المحاولة",
       "goHome": "الصفحة الرئيسية"

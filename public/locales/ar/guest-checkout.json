@@ -1,0 +1,58 @@
+{
+  "pageTitle": "الدفع كضيف - موتو جي تي",
+  "title": "الدفع كضيف",
+  "haveAccount": "هل لديك حساب بالفعل؟",
+  "loginLink": "تسجيل الدخول",
+  "contact": {
+    "title": "معلومات الاتصال",
+    "firstName": "الاسم الأول",
+    "firstNamePlaceholder": "أدخل اسمك الأول",
+    "lastName": "اسم العائلة",
+    "lastNamePlaceholder": "أدخل اسم عائلتك",
+    "email": "البريد الإلكتروني",
+    "emailPlaceholder": "أدخل بريدك الإلكتروني",
+    "phone": "رقم الهاتف"
+  },
+  "shipping": {
+    "title": "عنوان الشحن",
+    "billingSameAsShipping": "عنوان الفاتورة هو نفس عنوان الشحن"
+  },
+  "billing": {
+    "title": "عنوان الفاتورة"
+  },
+  "address": {
+    "title": "اسم العنوان",
+    "titlePlaceholder": "مثال: المنزل، المكتب، الورشة",
+    "country": "الدولة",
+    "countryPlaceholder": "اختر الدولة",
+    "city": "المدينة",
+    "cityPlaceholder": "اختر المدينة",
+    "addressLine1": "العنوان - السطر 1",
+    "addressLine1Placeholder": "الشارع، المبنى، رقم الشقة",
+    "addressLine2": "العنوان - السطر 2",
+    "addressLine2Placeholder": "معلم، حي، أو طابق (اختياري)",
+    "postalCode": "الرمز البريدي",
+    "postalCodePlaceholder": "الرمز البريدي (اختياري)"
+  },
+  "validation": {
+    "emailRequired": "البريد الإلكتروني مطلوب",
+    "emailInvalid": "يرجى إدخال بريد إلكتروني صالح",
+    "phoneRequired": "رقم الهاتف مطلوب",
+    "firstNameRequired": "الاسم الأول مطلوب",
+    "lastNameRequired": "اسم العائلة مطلوب",
+    "titleRequired": "اسم العنوان مطلوب",
+    "countryRequired": "الدولة مطلوبة",
+    "cityRequired": "المدينة مطلوبة",
+    "addressRequired": "العنوان مطلوب",
+    "fixErrors": "يرجى تصحيح الأخطاء قبل تقديم طلبك"
+  },
+  "priceChange": {
+    "title": "إشعار تغيير السعر",
+    "description": "تغير المجموع من {{estimated}} إلى {{actual}} (تغيير {{percent}}%) بسبب تحديث أسعار الصرف. هل تريد المتابعة؟"
+  },
+  "messages": {
+    "orderPlaced": "تم تقديم الطلب بنجاح!",
+    "orderError": "فشل في تقديم الطلب. يرجى المحاولة مرة أخرى.",
+    "paymentInitiationFailed": "فشل بدء عملية الدفع. تم إنشاء طلبك."
+  }
+}

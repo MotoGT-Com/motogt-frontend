@@ -1,0 +1,17 @@
+{
+  "pageTitle": "Order Confirmed",
+  "title": "Thank You For Your Order!",
+  "subtitle": "Your order has been placed successfully.",
+  "orderNumberLabel": "Order Number",
+  "copyOrderNumber": "Copy order number",
+  "saveOrderNumber": "Please save this number to track your order.",
+  "emailConfirmation": "A confirmation has been sent to {{email}}.",
+  "trackOrder": "Track Your Order",
+  "createAccount": "Create Account",
+  "continueShopping": "Continue Shopping",
+  "noOrder": {
+    "title": "No Order Found",
+    "description": "It looks like you arrived here without an order. Please place an order first.",
+    "continueShopping": "Continue Shopping"
+  }
+}
