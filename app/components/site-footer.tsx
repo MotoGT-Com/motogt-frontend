@@ -33,6 +33,7 @@ export function SiteFooter() {
   const { t, i18n } = useTranslation("common");
   const isRTL = i18n.dir() === "rtl";
   const year = new Date().getFullYear();
+  const helpPhone = t("footer.help.phone");
 
   const quickLinks: FooterLinkItem[] = [
     { key: "orders", to: href("/profile/orders") },
@@ -86,7 +87,9 @@ export function SiteFooter() {
           <section className={isRTL ? "text-right" : "text-left"}>
             <h2 className={sectionTitleClass}>{t("footer.help.title")}</h2>
             <div className={sectionBodyClass}>
-              <p>{t("footer.help.phone")}</p>
+              <p dir="ltr" style={{ unicodeBidi: "isolate" }}>
+                {helpPhone}
+              </p>
               <a
                 href={`mailto:${t("footer.help.email")}`}
                 className={listLinkClass}
