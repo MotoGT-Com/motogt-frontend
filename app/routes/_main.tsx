@@ -203,7 +203,6 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
               variant="outline"
               size="icon"
               className={cn(
-                "h-10 w-10",
                 isSearchOpen &&
                   "bg-primary text-white border-primary hover:bg-primary/90 hover:text-white"
               )}
@@ -240,7 +239,7 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
                   <Button
                     variant="outline"
                     className={cn(
-                      "relative h-10 px-3 gap-2 font-koulen",
+                      "relative h-9 px-3 gap-2 font-koulen",
                       isActive &&
                         "bg-primary text-white border-primary hover:bg-primary/95 hover:text-white"
                     )}
@@ -275,6 +274,7 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
           </div>
           {/* Mobile Header Actions - Cart and Menu Toggle */}
           <div className="flex items-center gap-2 md:hidden">
+            <LanguageSwitcher />
             <CurrencySelector />
             <NavLinkButton
               to={href("/cart")}

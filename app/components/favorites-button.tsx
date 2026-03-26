@@ -21,7 +21,7 @@ export function FavoritesButton({
   return (
     <button
       className={cn(
-        "flex items-center justify-center h-[32px] p-[8px] rounded-[2px] shrink-0",
+        "flex items-center justify-center h-[32px] p-[8px] rounded-[2px] shrink-0 cursor-pointer",
         isInFavorites
           ? "bg-[#cf172f] border-0"
           : "bg-[#f2f2f2] border border-[#e6e6e6]",
