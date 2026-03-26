@@ -77,7 +77,7 @@ export function GarageCarousel({
                       <div className="relative w-full h-full transition-all duration-300 group-hover:drop-shadow-[0_10px_30px_rgba(0,0,0,0.15)]">
                         <img
                         loading="lazy"
-                          src={car.carDetails.image ?? "/bmw.png"}
+                          src={car.carDetails.image ?? "/car-placeholder.png"}
                           alt={`${car.carDetails.brand} ${car.carDetails.model}`}
                           className="w-full h-full object-contain transition-all duration-300 group-hover:brightness-110"
                         />

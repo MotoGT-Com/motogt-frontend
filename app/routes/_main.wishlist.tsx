@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import { useInfiniteQueryWithScrollPagination } from "~/hooks/use-infinite-query-with-scroll-pagination";
 import { useRouteLoaderData } from "react-router";
 import { useTranslation } from "react-i18next";
+import { GuestBanner } from "~/components/guest-banner";
 
 export default function Wishlist() {
   const { t } = useTranslation('common');
@@ -35,6 +36,7 @@ export default function Wishlist() {
   return (
     <>
       <title>{t('wishlist.pageTitle')}</title>
+      {!isAuthenticated && <GuestBanner type="wishlist" />}
       <div className="max-w-7xl mx-auto px-6 mb-6 mt-8">
         <h1 className="text-[18px] font-black italic leading-[150%] tracking-[-0.198px] text-[#000]">
           {t('wishlist.title')}{" "}

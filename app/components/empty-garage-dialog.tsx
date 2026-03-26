@@ -35,14 +35,6 @@ export function EmptyGarageDialog({
   };
 
   const handleAddCarButtonClick = () => {
-    if (!isAuthenticated) {
-      onOpenChange(false);
-      openAuthModal("register", {
-        intent: { type: "garage", returnTo: href("/my-garage") },
-      });
-      return;
-    }
-
     // Mark that we should open the add car dialog
     shouldOpenAddCarDialog.current = true;
     // Close the empty garage dialog

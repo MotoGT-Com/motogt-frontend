@@ -8,10 +8,11 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, } from 
 import { Eye, EyeOff } from "lucide-react";
 import { Link, redirect, useSearchParams, useSubmit } from "react-router";
 import type { Route } from "./+types/_auth.login";
-import { postApiAuthLogin, postApiStoresByStoreIdCartInit } from "~/lib/client";
+import { postApiAuthLogin, postApiStoresByStoreIdCartInit, postApiUsersMeFavourites, postApiUsersMeGarageCars } from "~/lib/client";
 import { commitAuth } from "~/lib/auth-middleware";
 import { getCartManager } from "~/lib/cart-manager";
 import { getFavoritesManager } from "~/lib/favorites-manager";
+import { getGuestGarage, clearGuestGarage } from "~/lib/guest-garage-manager";
 import { defaultParams } from "~/lib/api-client";
 import { useTranslation } from "react-i18next";
 
@@ -29,6 +30,7 @@ export async function action({ request, context }: Route.ActionArgs) {
   const password = formData.get("password") as string;
   const cart = JSON.parse(formData.get("cart") as string);
   const favorites = JSON.parse(formData.get("favorites") as string);
+  const garage = JSON.parse((formData.get("garage") as string) || "[]");
 
   try {
     const loginResponse = await postApiAuthLogin({
@@ -56,21 +58,36 @@ export async function action({ request, context }: Route.ActionArgs) {
       });
     }
 
-    // TODO: Uncomment this when backend implements favorites sync endpoint
-    // Similar to cart sync, this will sync client-side favorites to server after login
-    /*
-    if (favorites.length > 0) {
-      await postApiStoresByStoreIdFavoritesInit({
-        path: { storeId: defaultParams.storeId },
-        body: {
-          items: favorites.map(f => ({ productId: f.productId })),
-        },
-        headers: {
-          Authorization: `Bearer ${loginResponse.data.data.auth.accessToken}`,
-        },
-      });
+    const authHeader = `Bearer ${loginResponse.data.data.auth.accessToken}`;
+
+    // Merge guest wishlist into account
+    for (const item of favorites) {
+      try {
+        await postApiUsersMeFavourites({
+          body: { productId: item.id },
+          headers: { Authorization: authHeader },
+        });
+      } catch {
+        // ignore duplicates / errors
+      }
     }
-    */
+
+    // Merge guest garage into account
+    for (const vehicle of garage) {
+      try {
+        await postApiUsersMeGarageCars({
+          body: {
+            carId: vehicle.carId,
+            year: vehicle.carDetails.year,
+            storeId: defaultParams.storeId,
+          },
+          headers: { Authorization: authHeader },
+        });
+      } catch {
+        // ignore duplicates / errors
+      }
+    }
+
     // Get return URL from query params
     const url = new URL(request.url);
     const returnTo = url.searchParams.get("returnTo") || "/";
@@ -114,11 +131,18 @@ export default function Login({ actionData }: Route.ComponentProps) {
     const favoritesManager = getFavoritesManager(false);
     const favorites = await favoritesManager.getFavorites();
 
+    const garage = getGuestGarage();
+
+    // Clear guest localStorage before submitting so it doesn't re-merge on retry
+    clearGuestGarage();
+    try { localStorage.removeItem("favorites"); } catch {}
+
     const formData = new FormData();
     formData.append("email", values.email);
     formData.append("password", values.password);
     formData.append("cart", JSON.stringify(cart));
     formData.append("favorites", JSON.stringify(favorites));
+    formData.append("garage", JSON.stringify(garage));
     await submit(formData, {
       method: "POST",
     });

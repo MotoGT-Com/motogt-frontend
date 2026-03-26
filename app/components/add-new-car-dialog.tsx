@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { z } from "zod";
-import { href, useRouteLoaderData } from "react-router";
+import { useRouteLoaderData } from "react-router";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -13,8 +13,8 @@ import { Loader2 } from "lucide-react";
 import { getApiCars } from "~/lib/client";
 import { carBrandsQueryOptions, addCarMutationOptions } from "~/lib/queries";
 import { useTranslation } from "react-i18next";
-import { useAuthModal } from "~/context/AuthModalContext";
 import type { Route } from "../routes/+types/_main";
+import { addToGuestGarage } from "~/lib/guest-garage-manager";
 
 const carFormSchema = z.object({
   make: z.string().min(1, { message: "Car make is required" }),
@@ -51,7 +51,6 @@ export function AddNewCarDialog({
   const mainLoaderData =
     useRouteLoaderData<Route.ComponentProps["loaderData"]>("routes/_main");
   const isAuthenticated = !!mainLoaderData?.isAuthenticated;
-  const { openAuthModal } = useAuthModal();
   const [internalOpen, setInternalOpen] = useState(false);
   
   // Use controlled state if provided, otherwise use internal state
@@ -99,6 +98,19 @@ export function AddNewCarDialog({
     const selectedCar = modelsQuery.data!.find(
       (car) => car.model === data.model
     )!;
+
+    if (!isAuthenticated) {
+      addToGuestGarage({
+        id: `guest_${Date.now()}_${selectedCar.id}`,
+        carId: selectedCar.id,
+        carDetails: { brand: data.make, model: data.model, year: data.year, image: selectedCar.car_image },
+      });
+      form.reset();
+      setOpen(false);
+      onSuccess?.();
+      return;
+    }
+
     addCarMutation.mutate(
       {
         ...data,
@@ -115,13 +127,6 @@ export function AddNewCarDialog({
   };
 
   const handleOpenChange = (newOpen: boolean) => {
-    if (newOpen && !isAuthenticated) {
-      openAuthModal("register", {
-        intent: { type: "garage", returnTo: href("/my-garage") },
-      });
-      return;
-    }
-
     setOpen(newOpen);
     if (newOpen) {
       onOpen?.();

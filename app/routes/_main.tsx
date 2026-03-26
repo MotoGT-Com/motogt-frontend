@@ -31,7 +31,7 @@ import type { Route } from "./+types/_main";
 import { cn } from "~/lib/utils";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTrigger, } from "~/components/ui/sheet";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useCartManager } from "~/lib/cart-manager";
 import { authContext } from "~/context";
 import { garageCarsQueryOptions } from "~/lib/queries";
@@ -46,6 +46,7 @@ import { LanguageSwitcher } from "~/components/language-switcher";
 import { CurrencySelector } from "~/components/currency-selector";
 import { CurrencyProvider, useCurrency } from "~/hooks/use-currency";
 import { CartHoverPopup } from "~/components/cart-hover-popup";
+import { WishlistHoverPopup } from "~/components/wishlist-hover-popup";
 import { useTranslation } from "react-i18next";
 import { SiteFooter } from "~/components/site-footer";
 import { useAuthModal } from "~/context/AuthModalContext";
@@ -162,14 +163,7 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, [isSearchOpen]);
 
-  // Hide footer on garage pages
-  const hideFooter = useMemo(
-    () =>
-      matches.some(
-        (match) => match?.pathname.includes("my-garage")
-      ),
-    [matches]
-  );
+  const hideFooter = false;
 
   const handleProtectedNavClick = (
     event: React.MouseEvent<HTMLAnchorElement>,
@@ -554,9 +548,11 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
                 >
                   {t("nav.recommendedForYou")}
                 </NavLinkButton>
-                <NavLinkButton to={href("/wishlist")} icon={WishlistNavIcon}>
-                  {t("nav.wishlist")}
-                </NavLinkButton>
+                <WishlistHoverPopup>
+                  <NavLinkButton to={href("/wishlist")} icon={WishlistNavIcon}>
+                    {t("nav.wishlist")}
+                  </NavLinkButton>
+                </WishlistHoverPopup>
               </nav>
             </div>
           </div>
