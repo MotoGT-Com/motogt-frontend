@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router";
+import { Link, useRouteLoaderData } from "react-router";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Heart, Loader2 } from "lucide-react";
 import { garageFeaturedProductsQueryOptions } from "~/lib/queries";
 import { buildProductPath } from "~/lib/product-url";
 import { getApiProductsPublic } from "~/lib/client";
@@ -10,6 +10,10 @@ import { defaultParams } from "~/lib/api-client";
 import { config } from "~/config";
 import { resolveProductSlug } from "~/lib/get-locale-translation";
 import type { UserCarsResponse, ProductItem } from "~/lib/client/types.gen";
+import { useCartManager } from "~/lib/cart-manager";
+import { useFavoritesManager } from "~/lib/favorites-manager";
+import { useCurrency } from "~/hooks/use-currency";
+import type { Route } from "../routes/+types/_main";
 
 type UserCar = UserCarsResponse["data"]["userCars"][number];
 type Props = { userCars: UserCar[] };
@@ -24,6 +28,71 @@ function shuffleArray<T>(items: T[]): T[] {
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
   return shuffled;
+}
+
+
+function BannerProductCard({ product, name }: { product: ProductItem; name: string }) {
+  const loaderData = useRouteLoaderData<Route.ComponentProps["loaderData"]>("routes/_main");
+  const { addToCartMutation } = useCartManager(loaderData?.isAuthenticated);
+  const { toggleFavoritesMutation, favoritesQuery } = useFavoritesManager(loaderData?.isAuthenticated);
+  const { selectedCurrency, convertPrice } = useCurrency();
+  const path = buildProductPath(product);
+
+  const [convertedPrice, setConvertedPrice] = useState<number | null>(null);
+  useEffect(() => {
+    const productCurrency = (product as any).currency || "JOD";
+    if (selectedCurrency === productCurrency) { setConvertedPrice(product.price); return; }
+    convertPrice(product.price, productCurrency)
+      .then(r => setConvertedPrice(r.convertedAmount))
+      .catch(() => setConvertedPrice(product.price));
+  }, [product.price, selectedCurrency]);
+
+  const isFavorite = favoritesQuery.data?.items.some((item: any) => item.id === product.id) ?? product.in_favs ?? false;
+  const image = product.mainImage ?? product.images?.[0] ?? "";
+
+  return (
+    <div className="bg-white rounded-lg shadow-xl flex flex-col overflow-hidden w-[160px] sm:w-[200px] md:w-[240px]">
+      {/* Image */}
+      <Link to={path} className="flex items-center justify-center bg-white h-[90px] sm:h-[120px] md:h-[150px] px-2 pt-2 md:px-3 md:pt-3">
+        <img src={image} alt={name} loading="lazy" className="h-full w-auto max-w-full object-contain" />
+      </Link>
+
+      {/* Bottom section */}
+      <div className="px-2 py-2 md:px-3 md:py-3 flex flex-col gap-1.5 md:gap-2.5">
+        {/* Price + heart */}
+        <div className="flex items-center justify-between">
+          <span className="font-bold text-[11px] md:text-sm text-black">
+            {selectedCurrency} {(convertedPrice ?? product.price).toFixed(2)}
+          </span>
+          <button
+            onClick={() => toggleFavoritesMutation.mutate({ ...product, isFavorite: isFavorite ?? false })}
+            className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+            aria-label="Toggle favorite"
+          >
+            <Heart className="w-3 h-3 md:w-4 md:h-4" fill={isFavorite ? "#CF172F" : "none"} stroke={isFavorite ? "#CF172F" : "#6b7280"} />
+          </button>
+        </div>
+
+        {/* Add to cart */}
+        <button
+          onClick={() => addToCartMutation.mutate({
+            productId: product.id,
+            itemCode: product.itemCode,
+            productTranslations: product.translations.map(t => ({ name: t.name, slug: t.slug, languageCode: t.languageCode })),
+            productImage: product.mainImage || "",
+            unitPrice: product.price,
+            quantity: 1,
+          })}
+          disabled={addToCartMutation.isPending || product.stockQuantity <= 0}
+          className="w-full bg-[#CF172F] disabled:opacity-50 text-white text-[9px] md:text-xs font-black uppercase tracking-widest py-1.5 md:py-2 rounded-sm hover:bg-[#b01228] transition-colors flex items-center justify-center gap-1"
+        >
+          {addToCartMutation.isPending
+            ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Adding...</>
+            : product.stockQuantity <= 0 ? "Out of Stock" : "Add to Cart"}
+        </button>
+      </div>
+    </div>
+  );
 }
 
 export function GarageFeaturedBanner({ userCars }: Props) {
@@ -230,7 +299,7 @@ export function GarageFeaturedBanner({ userCars }: Props) {
 
   if (isLoadingGarageProducts || isLoadingRandomProducts) {
     return (
-      <div className="w-full h-[500px] md:h-[300px] relative overflow-hidden">
+      <div className="w-full h-[220px] md:h-[320px] relative overflow-hidden">
         <img src="/garage/garage-banner.png" alt="" aria-hidden
              className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-white/10" aria-hidden />
@@ -252,7 +321,7 @@ export function GarageFeaturedBanner({ userCars }: Props) {
       `}</style>
 
       <section
-        className="group w-full relative overflow-hidden min-h-[500px] md:min-h-[300px]"
+        className="group w-full relative overflow-hidden min-h-[220px] md:min-h-[320px]"
         dir={isRtl ? "rtl" : "ltr"}
         aria-label={
           fallbackCar
@@ -270,7 +339,7 @@ export function GarageFeaturedBanner({ userCars }: Props) {
         <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/10 to-black/45" aria-hidden />
 
         {/* Slide stack */}
-        <div className="relative min-h-[500px] md:min-h-[300px]">
+        <div className="relative min-h-[220px] md:min-h-[320px]">
           {products.map((product, i) => {
             const trs   = product.translations ?? [];
             const tr    = trs.find(x => x.languageCode?.toLowerCase().startsWith(lang)) ?? trs[0];
@@ -297,52 +366,21 @@ export function GarageFeaturedBanner({ userCars }: Props) {
                 style={{ opacity: active ? 1 : 0, pointerEvents: active ? "auto" : "none" }}
                 aria-hidden={!active}
               >
-                <div className="w-full max-w-7xl mx-auto px-5 md:px-6 grid grid-rows-[230px_auto] md:flex min-h-[500px] md:min-h-[300px]">
-                  {image && (
-                    <div className="md:hidden row-start-1 flex items-start justify-center pt-6">
-                      <Link
-                        to={path}
-                        aria-label={name || t("featuredBanner.viewProduct")}
-                        className="inline-block"
-                      >
-                        <img
-                          src={image}
-                          alt={name}
-                          loading="lazy"
-                          className="h-[195px] w-auto max-w-[88vw] object-contain drop-shadow-2xl transition-transform duration-500 ease-out group-hover:scale-105 group-hover:-translate-y-1"
-                        />
-                      </Link>
-                    </div>
-                  )}
-
+                <div className="w-full h-full max-w-7xl mx-auto px-4 md:px-6 flex items-center gap-3 md:gap-8">
                   {/* Text */}
-                  <div className="row-start-2 flex-1 flex flex-col justify-end md:justify-center pb-20 md:py-10">
-                    <p className="text-white/75 uppercase text-[11px] md:text-base font-semibold tracking-[0.2em] mb-3 md:mb-4">
+                  <div className="flex-1 flex flex-col justify-center py-8 md:py-10 min-w-0">
+                    <p className="text-white/75 uppercase text-[10px] md:text-base font-semibold tracking-[0.2em] mb-2 md:mb-4 truncate">
                       {carLabel}
                     </p>
-                    <h2 className="text-white uppercase font-black text-[clamp(2rem,8vw,2.6rem)] md:text-4xl leading-[0.92] max-w-[95%] md:max-w-md break-words [display:-webkit-box] [-webkit-line-clamp:4] [-webkit-box-orient:vertical] overflow-hidden md:[display:block] md:[-webkit-line-clamp:unset]">
+                    <h2 className="text-white uppercase font-black text-xl sm:text-2xl md:text-4xl leading-[0.95] break-words line-clamp-3 md:line-clamp-none">
                       {name}
                     </h2>
-                    <Link to={path}
-                          className="w-fit mt-8 bg-white px-6 md:px-8 py-2.5 md:py-3 text-xs md:text-sm font-black uppercase tracking-[0.18em] hover:opacity-90 active:opacity-75 transition-opacity"
-                          style={{ color: "#CF172F" }}>
-                      {t("featuredBanner.viewProduct")}
-                    </Link>
                   </div>
 
-                  {/* Desktop product image */}
-                  {image && (
-                    <div className="hidden md:flex w-[45%] items-center justify-center">
-                      <Link
-                        to={path}
-                        aria-label={name || t("featuredBanner.viewProduct")}
-                        className="inline-block"
-                      >
-                        <img src={image} alt={name} loading="lazy"
-                             className="h-[300px] w-auto object-contain drop-shadow-2xl transition-transform duration-500 ease-out group-hover:scale-105 group-hover:-translate-y-1" />
-                      </Link>
-                    </div>
-                  )}
+                  {/* Product card — scales down on mobile */}
+                  <div className="flex-shrink-0 flex items-center justify-center">
+                    <BannerProductCard product={product} name={name} />
+                  </div>
                 </div>
               </div>
             );
@@ -365,7 +403,7 @@ export function GarageFeaturedBanner({ userCars }: Props) {
 
         {/* Progress dots */}
         {count > 1 && (
-          <div className="absolute bottom-6 md:bottom-5 left-0 right-0 flex justify-center gap-2 z-20">
+          <div className="absolute bottom-3 md:bottom-5 left-0 right-0 flex justify-center gap-2 z-20">
             {products.map((_, i) => (
               <button type="button" key={i} onClick={() => goTo(i)} aria-label={`Product ${i + 1}`}
                       className="w-8 md:w-10 h-[3px] rounded-full bg-white/30 overflow-hidden relative">

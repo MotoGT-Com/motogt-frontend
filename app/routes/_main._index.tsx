@@ -359,7 +359,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         productsResponse={cleaningProductsResponse}
       />
 
-      <section className="bg-primary py-12 mb-12">
+      <section className="bg-primary pt-12 pb-4 mb-12">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl md:text-4xl font-bold italic text-white">
