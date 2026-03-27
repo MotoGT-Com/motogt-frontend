@@ -7,16 +7,16 @@ import { GarageFeaturedBanner } from "~/components/garage-featured-banner";
 import { AddNewCarDialog } from "~/components/add-new-car-dialog";
 import { ConfirmDialog } from "~/components/confirm-dialog";
 import type { Route } from "./+types/_main.my-garage";
-import { requireAuthMiddleware } from "~/lib/auth-middleware";
-import { useRevalidator, type MiddlewareFunction } from "react-router";
+import { useRevalidator } from "react-router";
 import { authContext } from "~/context";
 import { garageCarsQueryOptions, removeFromGarageMutationOptions, } from "~/lib/queries";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, } from "~/components/ui/alert-dialog";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "~/components/ui/hover-card";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-
-export const middleware: MiddlewareFunction[] = [requireAuthMiddleware];
+import { GuestBanner } from "~/components/guest-banner";
+import { getGuestGarage, removeFromGuestGarage, type GuestCar } from "~/lib/guest-garage-manager";
+import type { UserCarResponse } from "~/lib/client/types.gen";
 
 export async function loader({ context }: Route.LoaderArgs) {
   const auth = context.get(authContext);
@@ -27,8 +27,21 @@ export default function MyGarage({ loaderData }: Route.ComponentProps) {
   const { t, i18n } = useTranslation("garage");
   const isRtl = i18n.dir(i18n.language) === "rtl";
   const revalidate = useRevalidator();
-  const garageCarsQuery = useQuery(garageCarsQueryOptions);
+  const { isAuthenticated } = loaderData;
+
+  const garageCarsQuery = useQuery({
+    ...garageCarsQueryOptions,
+    enabled: isAuthenticated,
+  });
   const removeFromGarageMutation = useMutation(removeFromGarageMutationOptions);
+
+  const [guestCars, setGuestCars] = useState<GuestCar[]>([]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setGuestCars(getGuestGarage());
+    }
+  }, [isAuthenticated]);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
     containScroll: false,
@@ -61,8 +74,13 @@ export default function MyGarage({ loaderData }: Route.ComponentProps) {
     emblaApi.on("select", onSelect);
   }, [emblaApi, onSelect]);
 
-  // Show error state if there was an error loading garage data
-  if (garageCarsQuery.error) {
+  // Derive the active car list based on auth state
+  const userCars: UserCarResponse["data"][] = isAuthenticated
+    ? (garageCarsQuery.data?.userCars ?? [])
+    : (guestCars as unknown as UserCarResponse["data"][]);
+
+  // Show error state for authenticated users
+  if (isAuthenticated && garageCarsQuery.error) {
     return (
       <>
         <title>{t("pageTitle")}</title>
@@ -116,7 +134,7 @@ export default function MyGarage({ loaderData }: Route.ComponentProps) {
     );
   }
 
-  if (garageCarsQuery.isPending) {
+  if (isAuthenticated && garageCarsQuery.isPending) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
         <Loader2 className="size-12 text-primary animate-spin" />
@@ -124,11 +142,12 @@ export default function MyGarage({ loaderData }: Route.ComponentProps) {
     );
   }
 
-  // Show empty state if user has no cars
-  if (garageCarsQuery.data.userCars.length === 0) {
+  // Show empty state
+  if (userCars.length === 0) {
     return (
       <>
         <title>{t("pageTitle")}</title>
+        {!isAuthenticated && <GuestBanner type="garage" />}
         {/* Header */}
         <div className="max-w-7xl mx-auto px-6 my-8">
           <h1 className="text-[18px] font-black italic leading-[150%] tracking-[-0.198px] text-[#000]">
@@ -153,7 +172,7 @@ export default function MyGarage({ loaderData }: Route.ComponentProps) {
                 {t("empty.noCarsDescription")}
               </div>
             </div>
-            <AddNewCarDialog />
+            <AddNewCarDialog onSuccess={() => setGuestCars(getGuestGarage())} />
           </div>
         </div>
       </>
@@ -163,6 +182,7 @@ export default function MyGarage({ loaderData }: Route.ComponentProps) {
   return (
     <>
       <title>{t("pageTitle")}</title>
+      {!isAuthenticated && <GuestBanner type="garage" />}
       <div className="py-4 md:py-5 flex-1 flex flex-col bg-background">
         <div className="max-w-7xl mx-auto w-full px-4 md:px-6 flex items-center justify-between gap-3 mb-4 md:mb-0">
           <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -191,15 +211,17 @@ export default function MyGarage({ loaderData }: Route.ComponentProps) {
             </HoverCard>
             <h1 className="text-[16px] md:text-[18px] font-black italic leading-[150%] tracking-[-0.198px] text-[#000] truncate">
               {t("title")}{" "}
-              {garageCarsQuery.data.userCars.length > 0 && (
+              {userCars.length > 0 && (
                 <span className="text-[12px] md:text-[14px] font-normal not-italic leading-[150%] tracking-[-0.154px] text-[rgba(0,0,0,0.50)]">
-                  ({t("carCount", { count: garageCarsQuery.data.userCars.length })})
+                  ({t("carCount", { count: userCars.length })})
                 </span>
               )}
             </h1>
           </div>
           <div className="shrink-0">
-            <AddNewCarDialog />
+            <AddNewCarDialog onSuccess={() => {
+              if (!isAuthenticated) setGuestCars(getGuestGarage());
+            }} />
           </div>
         </div>
 
@@ -210,12 +232,12 @@ export default function MyGarage({ loaderData }: Route.ComponentProps) {
           <GarageCarousel
             ref={emblaRef}
             selectedIndex={selectedIndex}
-            userCars={garageCarsQuery.data.userCars}
+            userCars={userCars}
           />
         </div>
 
         <div className="max-w-7xl mx-auto w-full px-4 md:px-6 mt-4 md:mt-0">
-          {garageCarsQuery.data.userCars.length > 1 && (
+          {userCars.length > 1 && (
             <div className="flex justify-between gap-3 md:gap-5 items-center max-w-md mx-auto mb-4">
               {/* Navigation Arrows */}
               <Button
@@ -231,7 +253,7 @@ export default function MyGarage({ loaderData }: Route.ComponentProps) {
                 )}
               </Button>
               <div className="flex-1 flex justify-center gap-2 min-w-0">
-                {garageCarsQuery.data.userCars.map((_, index) => (
+                {userCars.map((_, index) => (
                   <button
                     key={index}
                     className={`max-w-14 flex-1 h-1 transition-colors ${
@@ -299,8 +321,17 @@ export default function MyGarage({ loaderData }: Route.ComponentProps) {
                     <AlertDialogAction asChild>
                       <Button
                         onClick={async () => {
+                          if (!isAuthenticated) {
+                            removeFromGuestGarage(userCars[selectedIndex].id);
+                            const updated = getGuestGarage();
+                            setGuestCars(updated);
+                            if (selectedIndex >= updated.length) {
+                              setSelectedIndex(Math.max(0, updated.length - 1));
+                            }
+                            return;
+                          }
                           await removeFromGarageMutation.mutateAsync(
-                            garageCarsQuery.data.userCars[selectedIndex].id
+                            userCars[selectedIndex].id
                           );
                           revalidate.revalidate();
                         }}
@@ -324,7 +355,7 @@ export default function MyGarage({ loaderData }: Route.ComponentProps) {
 
       {/* Featured Parts Banner — sibling to the garage section so it's always visible below */}
       <GarageFeaturedBanner
-        currentCar={garageCarsQuery.data.userCars[selectedIndex]}
+        currentCar={userCars[selectedIndex]}
       />
     </>
   );

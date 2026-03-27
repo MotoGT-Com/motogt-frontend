@@ -722,15 +722,7 @@ function GarageLink({
     garageCarsQuery.data?.userCars && garageCarsQuery.data.userCars.length > 0;
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (!isAuthenticated) {
-      e.preventDefault();
-      openAuthModal("register", {
-        intent: { type: "garage", returnTo: "/my-garage" },
-      });
-      return;
-    }
-
-    if (garageCarsQuery.isSuccess && !hasCars) {
+    if (isAuthenticated && garageCarsQuery.isSuccess && !hasCars) {
       e.preventDefault();
       setEmptyDialogOpen(true);
     }

@@ -1,14 +1,19 @@
 import { useTranslation } from "react-i18next";
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { ProductCard } from "~/components/product-card";
 import { AddNewCarDialog } from "~/components/add-new-car-dialog";
+import { GuestBanner } from "~/components/guest-banner";
 import { accessTokenCookie } from "~/lib/auth-middleware";
 import { defaultParams } from "~/lib/api-client";
 import { getApiProductsPublic, getApiProductTypes, getApiUsersMeGarageCars, } from "~/lib/client";
 import type { Route } from "./+types/_main.recommended";
-import { redirect, useRevalidator } from "react-router";
+import { useRevalidator } from "react-router";
 import { getLocaleFromRequest } from "~/lib/i18n-cookie";
 import { config } from "~/config";
 import { resolveProductSlug } from "~/lib/get-locale-translation";
+import { getGuestGarage } from "~/lib/guest-garage-manager";
+import { Loader2 } from "lucide-react";
 
 const PRODUCTS_LIMIT = 12;
 const CARE_ACCESSORIES_SLUG = "car-care-accessiores";
@@ -22,7 +27,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   );
 
   if (!accessToken) {
-    throw redirect("/login");
+    return { isAuthenticated: false, hasCars: false, carProducts: [], careProducts: [] };
   }
 
   const garageResponse = await getApiUsersMeGarageCars({
@@ -184,11 +189,92 @@ export async function loader({ request }: Route.LoaderArgs) {
 export default function Recommended({ loaderData }: Route.ComponentProps) {
   const { t } = useTranslation("common");
   const revalidator = useRevalidator();
+  const { isAuthenticated } = loaderData;
 
-  if (!loaderData.hasCars) {
+  // Guest: read cars from localStorage
+  const [guestCarIds, setGuestCarIds] = useState<string[]>([]);
+  useEffect(() => {
+    if (!isAuthenticated) {
+      const cars = getGuestGarage();
+      setGuestCarIds(cars.map((c) => c.carId));
+    }
+  }, [isAuthenticated]);
+
+  const guestQuery = useQuery({
+    queryKey: ["guest-recommended", guestCarIds],
+    queryFn: async () => {
+      const productTypesResponse = await getApiProductTypes();
+      const productTypes = productTypesResponse.data?.data ?? [];
+      const careType = productTypes.find((t) => t.slug === CARE_ACCESSORIES_SLUG);
+
+      const [carProductsResponses, careProductsResponse] = await Promise.all([
+        Promise.all(
+          guestCarIds.map((carId) =>
+            getApiProductsPublic({
+              query: {
+                storeId: defaultParams.storeId,
+                languageId: defaultParams.languageId,
+                carId,
+                limit: PRODUCTS_LIMIT,
+                page: 1,
+                sortBy: "createdAt",
+                sortOrder: "desc",
+              },
+            })
+          )
+        ),
+        careType
+          ? getApiProductsPublic({
+              query: {
+                storeId: defaultParams.storeId,
+                languageId: defaultParams.languageId,
+                productTypeId: careType.id,
+                limit: PRODUCTS_LIMIT,
+                page: 1,
+                sortBy: "createdAt",
+                sortOrder: "desc",
+              },
+            })
+          : Promise.resolve({ data: { data: [] as any[] } }),
+      ]);
+
+      const uniqueCarProducts = new Map<string, any>();
+      carProductsResponses.forEach((response) => {
+        response.data?.data?.forEach((product: any) => {
+          if (!uniqueCarProducts.has(product.id)) {
+            uniqueCarProducts.set(product.id, product);
+          }
+        });
+      });
+
+      return {
+        carProducts: Array.from(uniqueCarProducts.values()),
+        careProducts: (careProductsResponse as any).data?.data ?? [],
+      };
+    },
+    enabled: !isAuthenticated && guestCarIds.length > 0,
+  });
+
+  // Resolve data source
+  const isGuest = !isAuthenticated;
+  const hasCars = isGuest ? guestCarIds.length > 0 : loaderData.hasCars;
+  const isLoading = isGuest && guestQuery.isPending && guestCarIds.length > 0;
+  const carProducts = isGuest ? (guestQuery.data?.carProducts ?? []) : loaderData.carProducts;
+  const careProducts = isGuest ? (guestQuery.data?.careProducts ?? []) : loaderData.careProducts;
+
+  if (isLoading) {
+    return (
+      <div className="flex-1 flex items-center justify-center py-20">
+        <Loader2 className="size-10 text-primary animate-spin" />
+      </div>
+    );
+  }
+
+  if (!hasCars) {
     return (
       <>
         <title>{t("nav.recommendedForYou")} - MotoGT</title>
+        {isGuest && <GuestBanner type="garage" />}
         <div className="max-w-7xl mx-auto px-6 py-8">
           <h1 className="text-2xl font-black italic mb-6">
             {t("nav.recommendedForYou")}
@@ -204,14 +290,16 @@ export default function Recommended({ loaderData }: Route.ComponentProps) {
             />
             <div className="text-muted-foreground space-y-2 mb-6">
               <div className="font-bold">
-                It looks like you haven't added any cars to your garage yet!
+                {t("garage.empty.noCarsTitle", { defaultValue: "It looks like you haven't added any cars to your garage yet!" })}
               </div>
               <div>
-                Adding your car will help us make your shopping experience even
-                better.
+                {t("garage.empty.noCarsDescription", { defaultValue: "Adding your car will help us make your shopping experience even better." })}
               </div>
             </div>
-            <AddNewCarDialog onSuccess={() => revalidator.revalidate()} />
+            <AddNewCarDialog onSuccess={() => {
+              if (isGuest) setGuestCarIds(getGuestGarage().map((c) => c.carId));
+              else revalidator.revalidate();
+            }} />
           </div>
         </div>
       </>
@@ -221,35 +309,47 @@ export default function Recommended({ loaderData }: Route.ComponentProps) {
   return (
     <>
       <title>{t("nav.recommendedForYou")} - MotoGT</title>
+      {isGuest && <GuestBanner type="garage" />}
       <div className="max-w-7xl mx-auto px-6 py-8">
         <h1 className="text-2xl font-black italic mb-6">
           {t("nav.recommendedForYou")}
         </h1>
 
-        {loaderData.carProducts.length > 0 && (
+        {carProducts.length > 0 && (
           <section className="mb-10">
             <h2 className="text-lg font-bold italic mb-4">
               {t("nav.carParts")}
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {loaderData.carProducts.map((product) => (
+              {carProducts.map((product: any) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
           </section>
         )}
 
-        {loaderData.careProducts.length > 0 && (
+        {careProducts.length > 0 && (
           <section className="mb-6">
             <h2 className="text-lg font-bold italic mb-4">
               {t("nav.carCareAccessories")}
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {loaderData.careProducts.map((product) => (
+              {careProducts.map((product: any) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
           </section>
+        )}
+
+        {carProducts.length === 0 && careProducts.length === 0 && (
+          <div className="text-center py-16 text-muted-foreground">
+            <p className="font-bold mb-2">
+              {t("recommended.noProducts", { defaultValue: "No recommendations found for your car yet." })}
+            </p>
+            <p>
+              {t("recommended.checkBack", { defaultValue: "Check back soon as we're always adding new products." })}
+            </p>
+          </div>
         )}
       </div>
     </>

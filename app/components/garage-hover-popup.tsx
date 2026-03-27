@@ -48,23 +48,16 @@ export function GarageHoverPopupContent({
     >
       <div className="flex items-start justify-between gap-4 mb-4">
         <div>
-          <h3 className="text-lg font-black text-black leading-[1.2] tracking-[-0.176px]">
+          <h3 className="text-sm font-semibold text-black">
             {strings.title}
           </h3>
-          <p className="text-sm text-[rgba(0,0,0,0.6)]">
+          <p className="text-sm text-black/50">
             {hasCars ? strings.carCount(userCars.length) : strings.noCars}
           </p>
         </div>
         <Link
           to="/my-garage"
-          className="text-sm font-medium text-[rgba(0,0,0,0.6)] hover:text-black underline"
-          onClick={(event) => {
-            if (isAuthenticated) return;
-            event.preventDefault();
-            openAuthModal("register", {
-              intent: { type: "garage", returnTo: href("/my-garage") },
-            });
-          }}
+          className="text-sm text-black/50 hover:text-black underline"
         >
           {strings.viewGarage}
         </Link>
@@ -104,11 +97,11 @@ export function GarageHoverPopupContent({
                     loading="lazy"
                   />
                   <div className="min-w-0">
-                    <div className="text-sm font-bold text-black uppercase truncate">
+                    <div className="text-sm font-semibold text-black truncate">
                       {car.carDetails.brand} - {car.carDetails.model}
                     </div>
                     {year && (
-                      <div className="text-sm text-[rgba(0,0,0,0.6)]">
+                      <div className="text-sm text-black/50">
                         {year}
                       </div>
                     )}
@@ -132,10 +125,10 @@ export function GarageHoverPopupContent({
                 className="h-12 w-24 object-contain"
               />
               <div className="flex-1">
-                <p className="text-sm font-bold text-black">
+                <p className="text-sm font-semibold text-black">
                   {strings.emptyTitle}
                 </p>
-                <p className="text-sm text-[rgba(0,0,0,0.6)]">
+                <p className="text-sm text-black/50">
                   {strings.emptyDesc}
                 </p>
               </div>

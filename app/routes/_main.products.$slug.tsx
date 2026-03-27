@@ -3,7 +3,7 @@ import { Button } from "~/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, } from "~/components/ui/carousel";
 import { ProductCard } from "~/components/product-card";
 import { Minus, Plus, ChevronLeft, ChevronRight, Loader2, CheckIcon, XIcon } from "lucide-react";
-import { getApiProductsPublic, getApiProductsPublicByProductId, getApiProductsPublicSlugBySlug, } from "~/lib/client";
+import { getApiProductsPublic, getApiProductsPublicByProductId, getApiProductsPublicSlugBySlug, getApiProductTypes, } from "~/lib/client";
 import { useCartManager } from "~/lib/cart-manager";
 import { useFavoritesManager } from "~/lib/favorites-manager";
 import { defaultParams } from "~/lib/api-client";
@@ -29,6 +29,9 @@ import { getLocaleFromRequest } from "~/lib/i18n-cookie";
 import { config } from "~/config";
 import { buildProductPath, buildProductSlugSegment, extractProductIdFromSlugSegment } from "~/lib/product-url";
 import { useCurrency } from "~/hooks/use-currency";
+import { AddNewCarDialog } from "~/components/add-new-car-dialog";
+import { getGuestGarage } from "~/lib/guest-garage-manager";
+import { CarFront } from "lucide-react";
 
 export async function loader({ params, request, context }: Route.LoaderArgs) {
   try {
@@ -95,26 +98,57 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
       throw redirect(`/shop/product/${canonicalSlugSegment}${url.search}`);
     }
 
-    const relatedProductsResponse = await getApiProductsPublic({
-      query: {
-        storeId: defaultParams.storeId,
-        languageId,
-        page: 1,
-        limit: 10,
-        sortBy: "createdAt",
-        sortOrder: "desc",
-        carId: productResponse.data.data.carCompatibility?.[0]?.carId,
-      },
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+    const [relatedProductsResponse, productTypesResponse] = await Promise.all([
+      getApiProductsPublic({
+        query: {
+          storeId: defaultParams.storeId,
+          languageId,
+          page: 1,
+          limit: 10,
+          sortBy: "createdAt",
+          sortOrder: "desc",
+          carId: productResponse.data.data.carCompatibility?.[0]?.carId,
+        },
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }),
+      getApiProductTypes(),
+    ]);
+
+    const product = productResponse.data.data;
+    const productTypes = productTypesResponse.data?.data ?? [];
+
+    // product.productType.id is always correct even when name/slug are corrupt ("unknown").
+    // Cross-reference with the product types list to get reliable name and slug.
+    const resolvedProductType = product.productType?.id
+      ? (productTypes.find((t) => t.id === product.productType!.id) ?? null)
+      : null;
+
+    const categoryName =
+      product.category?.translations?.find((t) => t.languageCode === locale)?.name ||
+      product.category?.translations?.find((t) => t.languageCode === "en")?.name ||
+      null;
+
+    const subCategoryName =
+      product.subCategory?.translations?.find((t) => t.languageCode === locale)?.name ||
+      product.subCategory?.translations?.find((t) => t.languageCode === "en")?.name ||
+      null;
 
     return {
-      product: productResponse.data.data,
+      product,
       englishProductName,
       relatedProductsResponse,
       isAuthenticated: !!accessToken,
+      breadcrumb: {
+        productType: resolvedProductType
+          ? { name: resolvedProductType.name, slug: resolvedProductType.slug }
+          : null,
+        categoryName,
+        categoryId: product.categoryId,
+        subCategoryName,
+        subCategoryId: product.subCategoryId,
+      },
     };
   } catch (error) {
     throw new Response("Product not found", { status: 404 });
@@ -202,7 +236,7 @@ export const meta: Route.MetaFunction = (args) => {
 };
 
 export default function ProductPage({ loaderData }: Route.ComponentProps) {
-  const { product, relatedProductsResponse, isAuthenticated } = loaderData;
+  const { product, relatedProductsResponse, isAuthenticated, breadcrumb } = loaderData;
   const state = useLocation().state;
   const revalidator = useRevalidator();
   const { addToCartMutation } = useCartManager(isAuthenticated);
@@ -314,8 +348,34 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
 
   const userCars = garageCarsQuery.data?.userCars ?? [];
 
+  // Guest garage support
+  const [guestCars, setGuestCars] = useState(() =>
+    !isAuthenticated ? getGuestGarage() : []
+  );
+
+  // Unique compatible cars (deduplicated by brand+model) that are NOT in the garage
+  const unaddedCompatibleCars = (() => {
+    if (!product.carCompatibility || product.carCompatibility.length === 0) return [];
+    const allGarageCars = isAuthenticated
+      ? userCars.map((c) => `${c.carDetails.brand}|||${c.carDetails.model}`)
+      : guestCars.map((c) => `${c.carDetails.brand}|||${c.carDetails.model}`);
+
+    const seen = new Set<string>();
+    const result: { brand: string; model: string; carId: string }[] = [];
+    for (const compat of product.carCompatibility) {
+      const key = `${compat.carBrand}|||${compat.carModel}`;
+      if (!seen.has(key) && !allGarageCars.includes(key)) {
+        seen.add(key);
+        result.push({ brand: compat.carBrand, model: compat.carModel, carId: compat.carId });
+      }
+    }
+    return result;
+  })();
+
+  const [addGarageDialogCar, setAddGarageDialogCar] = useState<{ make: string; model: string } | null>(null);
+
   const fitmentBadge = (product: ProductItem) => {
-    if (!loaderData || product.productType?.code !== "car_parts") return null;
+    if (!loaderData || !product.carCompatibility || product.carCompatibility.length === 0) return null;
 
     if (userCars.length === 0) {
       return (
@@ -463,22 +523,22 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
                   <Link to={href("/")} className="flex items-center gap-2">
                     {t("product:breadcrumbs.home")}
                   </Link>
-                  <ChevronIcon className="size-3 text-primary" />
-                  {product.productType && (
+                  {breadcrumb.categoryName && breadcrumb.categoryId && (
                     <>
-                      <Link to={href("/shop/:productType", { productType: product.productType.slug })}>
-                        {product.productType.name}
-                      </Link>
                       <ChevronIcon className="size-3 text-primary" />
+                      <Link to={serializeShopURL({ categories: [breadcrumb.categoryId] })}>
+                        {breadcrumb.categoryName}
+                      </Link>
                     </>
                   )}
-                  <Link
-                    to={serializeShopURL({
-                      categories: [product.categoryId!],
-                    })}
-                  >
-                    {getLocalizedTranslation(product?.category?.translations)?.name || "Category"}
-                  </Link>
+                  {breadcrumb.subCategoryName && breadcrumb.subCategoryId && (
+                    <>
+                      <ChevronIcon className="size-3 text-primary" />
+                      <Link to={serializeShopURL({ categories: [breadcrumb.subCategoryId] })}>
+                        {breadcrumb.subCategoryName}
+                      </Link>
+                    </>
+                  )}
                 </div>
                 <h1 className="text-2xl font-extrabold italic capitalize">
                   {getLocalizedTranslation(product.translations)?.name}
@@ -611,6 +671,32 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
             )}
 
             <hr className="border-gray-300 order-6 md:order-4" />
+
+            {/* Add Compatible Car to Garage */}
+            {unaddedCompatibleCars.length > 0 && (
+              <div className="order-6 md:order-4b space-y-2">
+                {unaddedCompatibleCars.map((car) => (
+                  <div
+                    key={`${car.brand}-${car.model}`}
+                    className="flex items-center gap-3 rounded-[4px] border border-[#e6e6e6] bg-[#f9f9f9] px-3 py-2.5"
+                  >
+                    <CarFront className="size-4 text-black/30 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-black/50 leading-snug">
+                        Fits <span className="font-medium text-black/70">{car.brand} {car.model}</span> 
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setAddGarageDialogCar({ make: car.brand, model: car.model })}
+                      className="shrink-0 text-xs font-medium text-black/50 hover:text-black transition-colors duration-150 cursor-pointer whitespace-nowrap underline underline-offset-2"
+                    >
+                      Add to Garage
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Variant Selection */}
             {product.variants && product.variants.length > 0 && (
@@ -885,6 +971,20 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
           <Faq />
         </div>
       </div>
+
+      {/* Controlled Add-to-Garage dialog triggered from compatible cars */}
+      {addGarageDialogCar && (
+        <AddNewCarDialog
+          open={!!addGarageDialogCar}
+          onOpenChange={(open) => { if (!open) setAddGarageDialogCar(null); }}
+          prefilledCar={addGarageDialogCar}
+          lockPrefilledFields
+          onSuccess={() => {
+            setAddGarageDialogCar(null);
+            if (!isAuthenticated) setGuestCars(getGuestGarage());
+          }}
+        />
+      )}
     </>
   );
 }

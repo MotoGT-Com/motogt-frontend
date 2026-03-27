@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { NavLink, href, useRouteLoaderData } from "react-router";
 import { garageCarsQueryOptions } from "~/lib/queries";
@@ -8,6 +8,8 @@ import { cn } from "~/lib/utils";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "~/components/ui/hover-card";
 import { GarageHoverPopupContent } from "~/components/garage-hover-popup";
 import { useAuthModal } from "~/context/AuthModalContext";
+import { getGuestGarage, type GuestCar } from "~/lib/guest-garage-manager";
+import type { UserCarsResponse } from "~/lib/client";
 
 /**
  * GarageNavButton Component
@@ -40,19 +42,25 @@ export function GarageNavButton({
     enabled: isAuthenticated,
   });
 
-  const hasCars = garageCarsQuery.data?.userCars && garageCarsQuery.data.userCars.length > 0;
+  const [guestCars, setGuestCars] = useState<GuestCar[]>([]);
+  useEffect(() => {
+    if (!isAuthenticated) setGuestCars(getGuestGarage());
+  }, [isAuthenticated]);
+
+  const handleHoverOpen = (open: boolean) => {
+    if (open && !isAuthenticated) setGuestCars(getGuestGarage());
+  };
+
+  const userCars: UserCarsResponse["data"]["userCars"] = isAuthenticated
+    ? (garageCarsQuery.data?.userCars ?? [])
+    : (guestCars as unknown as UserCarsResponse["data"]["userCars"]);
+
+  const hasCars = userCars.length > 0;
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (!isAuthenticated) {
-      e.preventDefault();
-      openAuthModal("register", {
-        intent: { type: "garage", returnTo: href("/my-garage") },
-      });
-      return;
-    }
-
-    // Only intercept if we know the user has no cars
-    if (garageCarsQuery.isSuccess && !hasCars) {
+    // Guests can now access the garage page — no auth gate here
+    // Only intercept if the authenticated user has no cars
+    if (isAuthenticated && garageCarsQuery.isSuccess && !hasCars) {
       e.preventDefault();
       setEmptyDialogOpen(true);
     }
@@ -88,7 +96,7 @@ export function GarageNavButton({
 
   return (
     <>
-      <HoverCard openDelay={200} closeDelay={100}>
+      <HoverCard openDelay={200} closeDelay={100} onOpenChange={handleHoverOpen}>
         <HoverCardTrigger asChild>{navButton}</HoverCardTrigger>
         <HoverCardContent
           className="hidden md:block w-auto p-4 bg-[#f2f2f2] border border-[#e6e6e6] rounded-[2px] shadow-[0_4px_10px_0_rgba(0,0,0,0.10)]"
@@ -96,8 +104,8 @@ export function GarageNavButton({
           align="start"
         >
           <GarageHoverPopupContent
-            userCars={garageCarsQuery.data?.userCars ?? []}
-            isLoading={garageCarsQuery.isLoading}
+            userCars={userCars}
+            isLoading={isAuthenticated && garageCarsQuery.isLoading}
           />
         </HoverCardContent>
       </HoverCard>
