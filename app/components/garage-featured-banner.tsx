@@ -297,9 +297,9 @@ export function GarageFeaturedBanner({ userCars }: Props) {
                 style={{ opacity: active ? 1 : 0, pointerEvents: active ? "auto" : "none" }}
                 aria-hidden={!active}
               >
-                <div className="w-full max-w-7xl mx-auto px-5 md:px-6 grid grid-rows-[205px_auto] md:flex min-h-[500px] md:min-h-[300px]">
+                <div className="w-full max-w-7xl mx-auto px-5 md:px-6 grid grid-rows-[230px_auto] md:flex min-h-[500px] md:min-h-[300px]">
                   {image && (
-                    <div className="md:hidden row-start-1 flex items-start justify-center pt-10">
+                    <div className="md:hidden row-start-1 flex items-start justify-center pt-6">
                       <Link
                         to={path}
                         aria-label={name || t("featuredBanner.viewProduct")}
@@ -309,7 +309,7 @@ export function GarageFeaturedBanner({ userCars }: Props) {
                           src={image}
                           alt={name}
                           loading="lazy"
-                          className="h-[175px] w-auto max-w-[84vw] object-contain drop-shadow-2xl transition-transform duration-500 ease-out group-hover:scale-105 group-hover:-translate-y-1"
+                          className="h-[195px] w-auto max-w-[88vw] object-contain drop-shadow-2xl transition-transform duration-500 ease-out group-hover:scale-105 group-hover:-translate-y-1"
                         />
                       </Link>
                     </div>
@@ -353,11 +353,11 @@ export function GarageFeaturedBanner({ userCars }: Props) {
         {count > 1 && (
           <>
             <button type="button" onClick={isRtl ? goNext : goPrev} aria-label="Previous"
-                    className="absolute left-3 md:left-5 top-[43%] md:top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-9 md:h-9 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center transition-colors">
+                    className="absolute left-3 md:left-5 top-[44%] md:top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-9 md:h-9 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center transition-colors">
               <ChevronLeft className="w-5 h-5 text-white" />
             </button>
             <button type="button" onClick={isRtl ? goPrev : goNext} aria-label="Next"
-                    className="absolute right-3 md:right-5 top-[43%] md:top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-9 md:h-9 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center transition-colors">
+                    className="absolute right-3 md:right-5 top-[44%] md:top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-9 md:h-9 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center transition-colors">
               <ChevronRight className="w-5 h-5 text-white" />
             </button>
           </>

@@ -17,6 +17,7 @@ import type { Route } from "../routes/+types/_main";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
 import { garageCarsQueryOptions } from "~/lib/queries";
 import { useQuery } from "@tanstack/react-query";
+import { getGuestGarage, type GuestCar } from "~/lib/guest-garage-manager";
 import { FitmentBadge } from "./fitment-badge";
 import { FavoritesButton } from "./favorites-button";
 import { WhatsAppButton } from "./whatsapp-button";
@@ -202,7 +203,17 @@ function ProductCard({
     enabled: loaderData?.isAuthenticated,
   });
 
-  const userCars = garageCarsQuery.data?.userCars ?? [];
+  // For guest users, read cars from localStorage
+  const [guestCars, setGuestCars] = useState<GuestCar[]>([]);
+  useEffect(() => {
+    if (!loaderData?.isAuthenticated) {
+      setGuestCars(getGuestGarage());
+    }
+  }, [loaderData?.isAuthenticated]);
+
+  const userCars: UserCar[] = loaderData?.isAuthenticated
+    ? (garageCarsQuery.data?.userCars ?? [])
+    : (guestCars as unknown as UserCar[]);
 
   // Check which cars from the garage are compatible with this product
   const compatibleCars = userCars.filter((userCar: UserCar) => {
@@ -417,7 +428,7 @@ function ProductCard({
       );
     }
 
-    return !loaderData?.isAuthenticated || totalGarageCars === 0 ? (
+    return totalGarageCars === 0 ? (
       <HoverCard openDelay={300}>
         <HoverCardTrigger asChild>
           <div className="z-20 relative cursor-pointer">
@@ -642,7 +653,7 @@ function ProductCard({
             </Button>
           )}
           <WhatsAppButton
-            className="w-full z-20 relative h-9 text-base"
+            className="w-full z-20 relative text-[11px] whitespace-normal leading-tight h-auto py-2 gap-1 md:text-sm md:whitespace-nowrap md:h-9 md:gap-2"
             items={[
               {
                 productName: productName || "Product",
