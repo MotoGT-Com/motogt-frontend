@@ -52,7 +52,7 @@ const loadServerResources = async (language: string) => {
 
 export async function initI18n(options: InitOptions = {}) {
   const { language, loadPath } = options;
-  const initialLanguage = language ?? "en";
+  const initialLanguage = language ?? "ar";
 
   if (!i18n.isInitialized) {
     if (isBrowser) {
@@ -65,7 +65,7 @@ export async function initI18n(options: InitOptions = {}) {
 
     await i18n.init({
       // Default language
-      fallbackLng: "en",
+      fallbackLng: "ar",
       lng: initialLanguage,
       resources,
 

@@ -10,7 +10,7 @@ import {
 
 export function LanguageSwitcher() {
   const { i18n } = useTranslation();
-  const languageLabel = (i18n.language || "en").split("-")[0].toUpperCase();
+  const languageLabel = (i18n.language || "ar").split("-")[0].toUpperCase();
 
   const changeLanguage = (lang: string) => {
     i18n.changeLanguage(lang);

@@ -104,7 +104,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     },
   }));
   const loaderData = useLoaderData<typeof loader>();
-  const currentLang = loaderData?.locale ?? "en";
+  const currentLang = loaderData?.locale ?? "ar";
   const dir = currentLang === "ar" ? "rtl" : "ltr";
 
   useEffect(() => {
