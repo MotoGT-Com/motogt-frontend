@@ -16,6 +16,7 @@ import { config } from "./config";
 import { getLocaleWithCookie } from "./lib/i18n-cookie";
 import { AuthModalProvider } from "./context/AuthModalContext";
 import { AuthModal } from "./components/auth/AuthModal";
+import { CurrencyProvider } from "~/hooks/use-currency";
 
 export const middleware: MiddlewareFunction[] = [globalAuthMiddleware];
 
@@ -188,10 +189,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body className="font-sans min-h-screen flex flex-col bg-background-secondary">
         <I18nextProvider i18n={i18n}>
           <QueryClientProvider client={queryClient}>
-            <AuthModalProvider>
-              {children}
-              <AuthModal />
-            </AuthModalProvider>
+            <CurrencyProvider>
+              <AuthModalProvider>
+                {children}
+                <AuthModal />
+              </AuthModalProvider>
+            </CurrencyProvider>
           </QueryClientProvider>
         </I18nextProvider>
         <Toaster className="hidden" />

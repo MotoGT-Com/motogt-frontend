@@ -23,7 +23,26 @@
     "carParts": "Car Parts",
     "motorcycles": "Motorcycles",
     "carCareAccessories": "Car Care & Accessories",
-    "recommendedForYou": "Recommended For You"
+    "recommendedForYou": "Recommended For You",
+    "carPartsHoverTitle": "Hottest parts",
+    "carPartsHoverNoProduct": "No product available",
+    "carPartsHoverCategoryFallback": "Category",
+    "carPartsHoverFallback": {
+      "frontSplitter": "Front splitter",
+      "vents": "Vents",
+      "frontBumper": "Front bumper",
+      "spoiler": "Spoiler",
+      "diffuser": "Diffuser",
+      "steeringTrim": "Steering trim",
+      "rims": "Rims",
+      "controlTrim": "Control trim",
+      "floorMat": "Floor mat",
+      "ladder": "Ladder"
+    },
+    "motorcyclesHoverTitle": "Motorcycle picks",
+    "motorcyclesHoverNoProduct": "No product available",
+    "motorcyclesHoverCategoryFallback": "Category",
+    "motorcyclesHoverNoCategories": "Browse all motorcycle gear in the shop."
   },
   "buttons": {
     "addToCart": "Add to Cart",
@@ -317,6 +336,10 @@
       {
         "question": "Do you ship internationally?",
         "answer": "Yes, we currently ship to UAE, Saudi Arabia, Jordan, and Qatar, with more regions coming soon. International shipping rates and delivery times are shown at checkout."
+      },
+      {
+        "question": "Do you offer installation for parts?",
+        "answer": "Yes, we do offer installation for parts. Contact our support team for details on availability, pricing, and scheduling for your order."
       }
     ]
   },

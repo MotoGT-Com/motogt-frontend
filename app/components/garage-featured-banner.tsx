@@ -48,6 +48,8 @@ function SlidePrice({ price, currency: productCurrency }: { price: number; curre
 }
 
 function BannerProductCard({ product, name }: { product: ProductItem; name: string }) {
+  const { t } = useTranslation("garage");
+  const { t: tCommon } = useTranslation("common");
   const loaderData = useRouteLoaderData<Route.ComponentProps["loaderData"]>("routes/_main");
   const { addToCartMutation } = useCartManager(loaderData?.isAuthenticated);
   const { toggleFavoritesMutation, favoritesQuery } = useFavoritesManager(loaderData?.isAuthenticated);
@@ -56,7 +58,7 @@ function BannerProductCard({ product, name }: { product: ProductItem; name: stri
   const image = product.mainImage ?? product.images?.[0] ?? "";
 
   return (
-    <div className="relative bg-white rounded-lg shadow-xl flex flex-col overflow-hidden w-[160px] sm:w-[200px] md:w-[240px]">
+    <div className="relative bg-white rounded-md shadow-xl flex flex-col overflow-hidden w-[160px] sm:w-[200px] md:w-[240px]">
       {/* Clickable overlay covering the whole card */}
       <Link to={path} className="absolute inset-0 z-10" aria-label={name} />
 
@@ -79,16 +81,16 @@ function BannerProductCard({ product, name }: { product: ProductItem; name: stri
               quantity: 1,
             })}
             disabled={addToCartMutation.isPending || product.stockQuantity <= 0}
-            className="flex-1 bg-[#CF172F] disabled:opacity-50 text-white text-[8px] font-black uppercase tracking-widest py-1.5 md:py-2 rounded-sm hover:bg-[#b01228] transition-colors flex items-center justify-center gap-1"
+            className="flex-1 bg-[#CF172F] disabled:opacity-50 text-white text-[10px] font-black uppercase tracking-widest py-1.5 md:py-2 rounded-sm hover:bg-[#b01228] transition-colors flex items-center justify-center gap-1"
           >
             {addToCartMutation.isPending
-              ? <><Loader2 className="w-3 h-3 animate-spin" /> Adding...</>
-              : product.stockQuantity <= 0 ? "Out of Stock" : "Add to Cart"}
+              ? <><Loader2 className="w-3 h-3 animate-spin" /> {t("featuredBanner.addingToCart")}</>
+              : product.stockQuantity <= 0 ? tCommon("status.outOfStock") : tCommon("buttons.addToCart")}
           </button>
           <button
             onClick={() => toggleFavoritesMutation.mutate({ ...product, isFavorite: isFavorite ?? false })}
             className="p-1.5 rounded-sm border border-gray-200 hover:bg-gray-100 transition-colors flex-shrink-0"
-            aria-label="Toggle favorite"
+            aria-label={t("featuredBanner.toggleFavorite")}
           >
             <Heart className="w-3 h-3 md:w-4 md:h-4" fill={isFavorite ? "#CF172F" : "none"} stroke={isFavorite ? "#CF172F" : "#6b7280"} />
           </button>
@@ -332,7 +334,7 @@ export function GarageFeaturedBanner({ userCars }: Props) {
                 brand: fallbackCar.brand,
                 model: fallbackCar.model,
               })
-            : "Featured products"
+            : t("featuredBanner.featuredProductsAria")
         }
       >
         {/* Fixed background */}
@@ -394,11 +396,11 @@ export function GarageFeaturedBanner({ userCars }: Props) {
         {/* Arrows */}
         {count > 1 && (
           <>
-            <button type="button" onClick={isRtl ? goNext : goPrev} aria-label="Previous"
+            <button type="button" onClick={isRtl ? goNext : goPrev} aria-label={t("featuredBanner.previousSlide")}
                     className="absolute left-3 md:left-5 top-[44%] md:top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-9 md:h-9 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center transition-colors">
               <ChevronLeft className="w-5 h-5 text-white" />
             </button>
-            <button type="button" onClick={isRtl ? goPrev : goNext} aria-label="Next"
+            <button type="button" onClick={isRtl ? goPrev : goNext} aria-label={t("featuredBanner.nextSlide")}
                     className="absolute right-3 md:right-5 top-[44%] md:top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-9 md:h-9 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center transition-colors">
               <ChevronRight className="w-5 h-5 text-white" />
             </button>
@@ -409,7 +411,7 @@ export function GarageFeaturedBanner({ userCars }: Props) {
         {count > 1 && (
           <div className="absolute bottom-3 md:bottom-5 left-0 right-0 flex justify-center gap-2 z-20">
             {products.map((_, i) => (
-              <button type="button" key={i} onClick={() => goTo(i)} aria-label={`Product ${i + 1}`}
+              <button type="button" key={i} onClick={() => goTo(i)} aria-label={t("featuredBanner.productSlide", { index: i + 1 })}
                       className="w-8 md:w-10 h-[3px] rounded-full bg-white/30 overflow-hidden relative">
                 {i === activeIndex && (
                   <span key={progressKey}

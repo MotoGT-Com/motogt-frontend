@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { ReactNode } from "react";
 import { Button } from "~/components/ui/button";
 import { buildWhatsAppUrl } from "~/lib/whatsapp";
+import { config } from "~/config";
 
 type FooterLinkItem = {
   key: string;
@@ -34,6 +35,8 @@ export function SiteFooter() {
   const isRTL = i18n.dir() === "rtl";
   const year = new Date().getFullYear();
   const helpPhone = t("footer.help.phone");
+  const supportPhoneDigits = config.supportPhoneNumber.replace(/\D/g, "");
+  const helpPhoneTelHref = supportPhoneDigits ? `tel:+${supportPhoneDigits}` : undefined;
 
   const quickLinks: FooterLinkItem[] = [
     { key: "orders", to: href("/profile/orders") },
@@ -87,9 +90,24 @@ export function SiteFooter() {
           <section className={isRTL ? "text-right" : "text-left"}>
             <h2 className={sectionTitleClass}>{t("footer.help.title")}</h2>
             <div className={sectionBodyClass}>
-              <p dir="ltr" style={{ unicodeBidi: "isolate" }}>
-                {helpPhone}
-              </p>
+              {helpPhoneTelHref ? (
+                <a
+                  href={helpPhoneTelHref}
+                  dir="ltr"
+                  className={`${listLinkClass} text-[12px] tabular-nums tracking-normal`}
+                  style={{ unicodeBidi: "bidi-override", direction: "ltr" }}
+                >
+                  {helpPhone}
+                </a>
+              ) : (
+                <p
+                  dir="ltr"
+                  className="text-[12px] tabular-nums text-white/95"
+                  style={{ unicodeBidi: "bidi-override", direction: "ltr" }}
+                >
+                  {helpPhone}
+                </p>
+              )}
               <a
                 href={`mailto:${t("footer.help.email")}`}
                 className={listLinkClass}

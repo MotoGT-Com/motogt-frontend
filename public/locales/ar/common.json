@@ -22,7 +22,26 @@
     "carParts": "قطع السيارات",
     "motorcycles": "الدراجات النارية",
     "carCareAccessories": "العناية بالسيارة والإكسسوارات",
-    "recommendedForYou": "موصى به لك"
+    "recommendedForYou": "موصى به لك",
+    "carPartsHoverTitle": "أشهر القطع",
+    "carPartsHoverNoProduct": "لا يوجد منتج متاح",
+    "carPartsHoverCategoryFallback": "تصنيف",
+    "carPartsHoverFallback": {
+      "frontSplitter": "سبلتر أمامي",
+      "vents": "فتحات التهوية",
+      "frontBumper": "المصد الأمامي",
+      "spoiler": "الجناح الخلفي",
+      "diffuser": "الناشر",
+      "steeringTrim": "زخرفة المقود",
+      "rims": "الجنوط",
+      "controlTrim": "زخرفة التحكم",
+      "floorMat": "سجاد الأرضية",
+      "ladder": "سلم"
+    },
+    "motorcyclesHoverTitle": "منتجات الدراجات",
+    "motorcyclesHoverNoProduct": "لا يوجد منتج متاح",
+    "motorcyclesHoverCategoryFallback": "تصنيف",
+    "motorcyclesHoverNoCategories": "تصفّح جميع منتجات الدراجات من المتجر."
   },
   "buttons": {
     "addToCart": "أضف إلى السلة",
@@ -317,6 +336,10 @@
       {
         "question": "هل تشحنون دوليًا؟",
         "answer": "نعم، نشحن حاليًا إلى الإمارات والسعودية والأردن وقطر، مع المزيد من المناطق قريبًا. يتم عرض أسعار الشحن الدولي وأوقات التسليم عند الدفع."
+      },
+      {
+        "question": "هل تقدمون خدمة تركيب للقطع؟",
+        "answer": "نعم، نقدم خدمة تركيب للقطع. تواصل مع فريق الدعم لمعرفة التوفر والأسعار وجدولة التركيب لطلبك."
       }
     ]
   },

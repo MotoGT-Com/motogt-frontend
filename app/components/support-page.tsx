@@ -41,6 +41,11 @@ export function SupportPage() {
       question: t("support.faqs.shippingTime.question"),
       answer: t("support.faqs.shippingTime.answer"),
     },
+    {
+      id: 6,
+      question: t("support.faqs.installation.question"),
+      answer: t("support.faqs.installation.answer"),
+    },
   ];
 
   const handleStartChat = () => {

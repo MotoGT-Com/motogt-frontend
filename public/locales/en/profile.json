@@ -235,6 +235,10 @@
       "shippingTime": {
         "question": "How long does shipping take?",
         "answer": "Standard shipping takes 3-5 business days within Jordan. Express shipping (1-2 days) is available for urgent orders. International shipping times vary by location. You'll see estimated delivery dates at checkout."
+      },
+      "installation": {
+        "question": "Do you offer installation for parts?",
+        "answer": "Yes, we do offer installation for parts. Contact our support team for details on availability, pricing, and scheduling for your order."
       }
     }
   }

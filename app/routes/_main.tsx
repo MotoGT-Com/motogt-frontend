@@ -45,9 +45,13 @@ import { ProfileHoverPopup } from "~/components/profile-hover-popup";
 import { GarageNavButton } from "~/components/garage-nav-button";
 import { LanguageSwitcher } from "~/components/language-switcher";
 import { CurrencySelector } from "~/components/currency-selector";
-import { CurrencyProvider, useCurrency } from "~/hooks/use-currency";
+import { useCurrency } from "~/hooks/use-currency";
 import { CartHoverPopup } from "~/components/cart-hover-popup";
 import { WishlistHoverPopup } from "~/components/wishlist-hover-popup";
+import { CarPartsHoverPopup } from "~/components/car-parts-hover-popup";
+import { MotorcyclesHoverPopup } from "~/components/motorcycles-hover-popup";
+import { CarCareHoverPopup } from "~/components/car-care-hover-popup";
+import { RecommendedHoverPopup } from "~/components/recommended-hover-popup";
 import { useTranslation } from "react-i18next";
 import { SiteFooter } from "~/components/site-footer";
 import { useAuthModal } from "~/context/AuthModalContext";
@@ -78,11 +82,7 @@ export async function loader({ context }: Route.LoaderArgs) {
  * Handles responsive design with separate desktop and mobile navigation.
  */
 export default function Main(props: Route.ComponentProps) {
-  return (
-    <CurrencyProvider>
-      <MainContent {...props} />
-    </CurrencyProvider>
-  );
+  return <MainContent {...props} />;
 }
 
 function MainContent({ matches, loaderData }: Route.ComponentProps) {
@@ -527,30 +527,38 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
               )}
             >
               <nav className="flex items-center justify-center gap-6">
-                <NavLinkButton
-                  to={href("/shop/:productType", { productType: "car-parts" })}
-                  icon={CarPartsNavIcon}
-                >
-                  {t("nav.carParts")}
-                </NavLinkButton>
-                <NavLinkButton
-                  to={href("/shop/:productType", { productType: "motorcycles" })}
-                  icon={RidingGearNavIcon}
-                >
-                  {t("nav.motorcycles")}
-                </NavLinkButton>
-                <NavLinkButton
-                  to={href("/shop/:productType", { productType: "car-care-accessiores" })}
-                  icon={CareNavIcon}
-                >
-                  {t("nav.carCareAccessories")}
-                </NavLinkButton>
-                <NavLinkButton
-                  to={href("/recommended")}
-                  icon={FeaturedNavIcon}
-                >
-                  {t("nav.recommendedForYou")}
-                </NavLinkButton>
+                <CarPartsHoverPopup>
+                  <NavLinkButton
+                    to={href("/shop/:productType", { productType: "car-parts" })}
+                    icon={CarPartsNavIcon}
+                  >
+                    {t("nav.carParts")}
+                  </NavLinkButton>
+                </CarPartsHoverPopup>
+                <MotorcyclesHoverPopup>
+                  <NavLinkButton
+                    to={href("/shop/:productType", { productType: "motorcycles" })}
+                    icon={RidingGearNavIcon}
+                  >
+                    {t("nav.motorcycles")}
+                  </NavLinkButton>
+                </MotorcyclesHoverPopup>
+                <CarCareHoverPopup>
+                  <NavLinkButton
+                    to={href("/shop/:productType", { productType: "car-care-accessiores" })}
+                    icon={CareNavIcon}
+                  >
+                    {t("nav.carCareAccessories")}
+                  </NavLinkButton>
+                </CarCareHoverPopup>
+                <RecommendedHoverPopup>
+                  <NavLinkButton
+                    to={href("/recommended")}
+                    icon={FeaturedNavIcon}
+                  >
+                    {t("nav.recommendedForYou")}
+                  </NavLinkButton>
+                </RecommendedHoverPopup>
                 <WishlistHoverPopup>
                   <NavLinkButton to={href("/wishlist")} icon={WishlistNavIcon}>
                     {t("nav.wishlist")}

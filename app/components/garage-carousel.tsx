@@ -98,7 +98,7 @@ export function GarageCarousel({
 }
 
 export function HomeCarousel({ isAuthenticated }: { isAuthenticated: boolean }) {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation("garage");
   const isRtl = i18n.dir(i18n.language) === "rtl";
 
   const garageCarsQuery = useQuery({
@@ -145,20 +145,22 @@ export function HomeCarousel({ isAuthenticated }: { isAuthenticated: boolean }) 
       <div className="mb-16">
         <div className="max-w-7xl mx-auto px-6 mb-4">
           <div className="flex items-center gap-2">
-          <h2 className="text-xl font-bold italic text-black">My Garage</h2>
+          <h2 className="text-xl font-bold italic text-black">{t("title")}</h2>
           <HoverCard openDelay={200}>
             <HoverCardTrigger asChild>
-              <HelpCircle className="size-4 text-muted-foreground cursor-pointer" />
+              <button type="button" className="inline-flex rounded-sm" aria-label={t("help.ariaLabel")}>
+                <HelpCircle className="size-4 text-muted-foreground cursor-pointer" />
+              </button>
             </HoverCardTrigger>
-            <HoverCardContent className="w-[280px] z-[60] p-0" side="right">
+            <HoverCardContent className="w-[280px] z-[60] p-0" side={isRtl ? "left" : "right"}>
               <div
                 className="bg-[#F2F2F2] rounded-[2px] border border-[#E6E6E6] overflow-hidden"
                 style={{ boxShadow: "0 4px 10px 0 rgba(0, 0, 0, 0.10)" }}
               >
                 <div className="px-4 pt-4 pb-4">
-                  <h4 className="text-sm font-semibold text-black leading-[1.5] mb-2">My Garage</h4>
+                  <h4 className="text-sm font-semibold text-black leading-[1.5] mb-2">{t("help.title")}</h4>
                   <p className="text-xs font-medium text-[rgba(0,0,0,0.7)] leading-[1.5]">
-                    Add your cars to your garage to instantly see which products fit your vehicles. This helps us personalize your shopping experience and show you compatible parts.
+                    {t("help.description")}
                   </p>
                 </div>
               </div>
@@ -169,22 +171,22 @@ export function HomeCarousel({ isAuthenticated }: { isAuthenticated: boolean }) 
         <div className="flex flex-col items-center justify-center py-8">
           <img
             src="/car-placeholder.png"
-            alt="No cars in garage"
+            alt={t("empty.imageAlt")}
             className="w-auto h-[150px] mb-8 opacity-30 blur-[1px]"
           />
           <div className="text-center space-y-2 mb-6">
             <p className="font-bold text-[#3d3d3d]">
-              It looks like you haven't added any cars to your garage yet!
+              {t("empty.noCarsTitle")}
             </p>
             <p className="text-muted-foreground text-sm">
-              Adding your car will help us make your shopping experience even better.
+              {t("empty.noCarsDescription")}
             </p>
           </div>
           <Button
             className="font-koulen uppercase tracking-widest px-10"
             onClick={() => setAddCarOpen(true)}
           >
-            Add New Car
+            {t("addCarDialog.addNewCar")}
           </Button>
         </div>
         <AddNewCarDialog open={addCarOpen} onOpenChange={setAddCarOpen} />
@@ -196,31 +198,43 @@ export function HomeCarousel({ isAuthenticated }: { isAuthenticated: boolean }) 
     <div className="mb-16">
       <div className="flex items-center justify-between max-w-7xl mx-auto px-6 mb-4">
         <div className="flex items-center gap-2">
-          <h2 className="text-xl font-bold italic text-black">My Garage</h2>
+          <h2 className="text-xl font-bold italic text-black">{t("title")}</h2>
           <HoverCard openDelay={200}>
             <HoverCardTrigger asChild>
-              <HelpCircle className="size-4 text-muted-foreground cursor-pointer" />
+              <button type="button" className="inline-flex rounded-sm" aria-label={t("help.ariaLabel")}>
+                <HelpCircle className="size-4 text-muted-foreground cursor-pointer" />
+              </button>
             </HoverCardTrigger>
-            <HoverCardContent className="w-[280px] z-[60] p-0" side="right">
+            <HoverCardContent className="w-[280px] z-[60] p-0" side={isRtl ? "left" : "right"}>
               <div
                 className="bg-[#F2F2F2] rounded-[2px] border border-[#E6E6E6] overflow-hidden"
                 style={{ boxShadow: "0 4px 10px 0 rgba(0, 0, 0, 0.10)" }}
               >
                 <div className="px-4 pt-4 pb-4">
-                  <h4 className="text-sm font-semibold text-black leading-[1.5] mb-2">My Garage</h4>
+                  <h4 className="text-sm font-semibold text-black leading-[1.5] mb-2">{t("help.title")}</h4>
                   <p className="text-xs font-medium text-[rgba(0,0,0,0.7)] leading-[1.5]">
-                    Add your cars to your garage to instantly see which products fit your vehicles. This helps us personalize your shopping experience and show you compatible parts.
+                    {t("help.description")}
                   </p>
                 </div>
               </div>
             </HoverCardContent>
           </HoverCard>
         </div>
-        <div className="flex gap-4">
-          <Button size="icon" onClick={scrollPrev} disabled={!emblaApi?.canScrollPrev()}>
+        <div className="flex gap-4 text-[8px]">
+          <Button
+            size="icon"
+            onClick={scrollPrev}
+            disabled={!emblaApi?.canScrollPrev()}
+            aria-label={t("featuredBanner.previousSlide")}
+          >
             {isRtl ? <ArrowRight /> : <ArrowLeft />}
           </Button>
-          <Button size="icon" onClick={scrollNext} disabled={!emblaApi?.canScrollNext()}>
+          <Button
+            size="icon"
+            onClick={scrollNext}
+            disabled={!emblaApi?.canScrollNext()}
+            aria-label={t("featuredBanner.nextSlide")}
+          >
             {isRtl ? <ArrowLeft /> : <ArrowRight />}
           </Button>
         </div>
@@ -232,7 +246,7 @@ export function HomeCarousel({ isAuthenticated }: { isAuthenticated: boolean }) 
       />
       <div className="flex justify-center mt-6">
         <Link to="/my-garage" className="text-sm font-semibold text-primary hover:underline">
-          View Garage
+          {t("homeCarousel.viewGarage")}
         </Link>
       </div>
     </div>

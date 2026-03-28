@@ -83,6 +83,15 @@
   },
   "featuredBanner": {
     "viewProduct": "VIEW PRODUCT",
-    "featuredFor": "Featured for your {{brand}} {{model}}"
+    "featuredFor": "Featured for your {{brand}} {{model}}",
+    "featuredProductsAria": "Featured products",
+    "previousSlide": "Previous",
+    "nextSlide": "Next",
+    "productSlide": "Product {{index}}",
+    "addingToCart": "Adding...",
+    "toggleFavorite": "Toggle favorite"
+  },
+  "homeCarousel": {
+    "viewGarage": "View Garage"
   }
 }

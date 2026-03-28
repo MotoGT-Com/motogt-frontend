@@ -42,7 +42,7 @@ import { extractErrorMessage } from "./utils";
 import { config } from "../config";
 import i18n from "./i18n";
 import { resolveProductSlug } from "./get-locale-translation";
-import type { Currency } from "./constants";
+import { getCurrentLanguageId, type Currency } from "./constants";
 import { saveCachedRates, loadCachedRates, getCacheKey } from "./currency-utils";
 
 export const productTypesQueryOptions = queryOptions({
@@ -827,23 +827,26 @@ export const productsQueryOptions = (filters: Omit<GetApiProductsPublicData["que
   });
 };
 
-export const homeSubcategoriesQueryOptions = queryOptions({
-  queryKey: ["subcategories", "home"],
-  queryFn: async () => {
-    const response = await getApiHomeSubcategories({
-      query: {
-        storeId: defaultParams.storeId,
-        languageId: defaultParams.languageId,
-      },
-    });
-    if (response.error) {
-      throw response.error;
-    }
-    return response.data.data;
-  },
-  staleTime: 300000, // Consider data fresh for 5 minutes
-  gcTime: 300000, // Keep in cache for 5 minutes
-});
+export function homeSubcategoriesQueryOptions() {
+  const languageId = getCurrentLanguageId();
+  return queryOptions({
+    queryKey: ["subcategories", "home", languageId],
+    queryFn: async () => {
+      const response = await getApiHomeSubcategories({
+        query: {
+          storeId: defaultParams.storeId,
+          languageId,
+        },
+      });
+      if (response.error) {
+        throw response.error;
+      }
+      return response.data.data;
+    },
+    staleTime: 300000,
+    gcTime: 300000,
+  });
+}
 
 // Payment initiation mutation options
 export const initiatePaymentMutationOptions = mutationOptions({
