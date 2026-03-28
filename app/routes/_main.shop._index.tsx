@@ -201,7 +201,7 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
           </div>
           <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
             <DrawerTrigger asChild>
-              <Button variant="outline" className="lg:hidden">
+              <Button variant="outline" className="lg:hidden bg-white rounded dark:bg-white">
                 <FilterIcon className="mr-2 h-4 w-4" />
                 {t("filters.title")}
               </Button>
@@ -231,7 +231,7 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
           <main className="flex-1 min-w-0">
             <Suspense
               fallback={
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                   {Array.from({ length: 9 }).map((_, index) => (
                     <ProductCardSkeleton key={index} />
                   ))}
@@ -435,7 +435,7 @@ function ProductsGrid() {
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4 w-full">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 w-full">
           {renderUniqueProducts()}
           <div className="col-span-full flex items-center justify-center h-20">
             {isFetchingNextPage && (

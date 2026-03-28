@@ -161,7 +161,7 @@ export default function MyGarage({ loaderData }: Route.ComponentProps) {
             <img
             loading="lazy"
               src="/car-placeholder.png"
-              className="w-auto h-[200px] mb-10"
+              className="w-auto h-[100px] mb-10"
               alt={t("empty.imageAlt")}
             />
             <div className="text-muted-foreground space-y-2 mb-6">

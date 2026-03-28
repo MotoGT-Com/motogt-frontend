@@ -204,12 +204,9 @@ function ProductCard({
   });
 
   // For guest users, read cars from localStorage
-  const [guestCars, setGuestCars] = useState<GuestCar[]>([]);
-  useEffect(() => {
-    if (!loaderData?.isAuthenticated) {
-      setGuestCars(getGuestGarage());
-    }
-  }, [loaderData?.isAuthenticated]);
+  const [guestCars] = useState<GuestCar[]>(() =>
+    !loaderData?.isAuthenticated ? getGuestGarage() : []
+  );
 
   const userCars: UserCar[] = loaderData?.isAuthenticated
     ? (garageCarsQuery.data?.userCars ?? [])
@@ -534,7 +531,7 @@ function ProductCard({
       id={`product-card-${product.id}`}
       data-card-id={product.id}
       className={cn(
-        "p-2 md:p-4 rounded-lg flex flex-col relative isolate min-w-0 h-full",
+        "p-3 rounded-lg flex flex-col relative isolate min-w-0 h-full",
         "min-h-0", // Allow card to shrink if needed
         className
       )}
@@ -548,7 +545,7 @@ function ProductCard({
           to={productPath}
           state={{ id }}
           prefetch="viewport"
-          className="absolute inset-0 z-10"
+          className="absolute right-0 bottom-0 z-10 h-full w-full"
           onClick={handleStorageSession}
         >
           <span className="sr-only">{productName || "Product"}</span>
@@ -592,7 +589,7 @@ function ProductCard({
 
       {/* Product name: reserved vertical space keeps card heights aligned
           even when some products wrap to two lines. */}
-      <div className="mb-2 min-h-[40px] md:min-h-[60px] flex items-start">
+      <div className="mb-0 h-fit flex items-start justify-start">
         <h3
           className="font-semibold capitalize text-sm md:text-lg leading-snug line-clamp-2"
           aria-hidden="true"
@@ -679,7 +676,7 @@ function ProductCardSkeleton() {
   return (
     <SimpleCard
       className={cn(
-        "flex-shrink-0 p-2 md:p-4 rounded-lg aspect-[15/17] flex flex-col relative isolate"
+        "flex-shrink-0 p-3 rounded-lg aspect-[15/17] flex flex-col relative isolate"
       )}
     >
       <div className="flex items-center justify-between mb-4 h-6">

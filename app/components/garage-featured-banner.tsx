@@ -31,65 +31,68 @@ function shuffleArray<T>(items: T[]): T[] {
 }
 
 
+function SlidePrice({ price, currency: productCurrency }: { price: number; currency: string }) {
+  const { selectedCurrency, convertPrice } = useCurrency();
+  const [displayPrice, setDisplayPrice] = useState<number>(price);
+  useEffect(() => {
+    if (selectedCurrency === productCurrency) { setDisplayPrice(price); return; }
+    convertPrice(price, productCurrency)
+      .then(r => setDisplayPrice(r.convertedAmount))
+      .catch(() => setDisplayPrice(price));
+  }, [price, selectedCurrency, productCurrency]);
+  return (
+    <span className="text-white font-bold text-base sm:text-lg md:text-2xl mt-2 md:mt-3">
+      {selectedCurrency} {displayPrice.toFixed(2)}
+    </span>
+  );
+}
+
 function BannerProductCard({ product, name }: { product: ProductItem; name: string }) {
   const loaderData = useRouteLoaderData<Route.ComponentProps["loaderData"]>("routes/_main");
   const { addToCartMutation } = useCartManager(loaderData?.isAuthenticated);
   const { toggleFavoritesMutation, favoritesQuery } = useFavoritesManager(loaderData?.isAuthenticated);
-  const { selectedCurrency, convertPrice } = useCurrency();
   const path = buildProductPath(product);
-
-  const [convertedPrice, setConvertedPrice] = useState<number | null>(null);
-  useEffect(() => {
-    const productCurrency = (product as any).currency || "JOD";
-    if (selectedCurrency === productCurrency) { setConvertedPrice(product.price); return; }
-    convertPrice(product.price, productCurrency)
-      .then(r => setConvertedPrice(r.convertedAmount))
-      .catch(() => setConvertedPrice(product.price));
-  }, [product.price, selectedCurrency]);
-
   const isFavorite = favoritesQuery.data?.items.some((item: any) => item.id === product.id) ?? product.in_favs ?? false;
   const image = product.mainImage ?? product.images?.[0] ?? "";
 
   return (
-    <div className="bg-white rounded-lg shadow-xl flex flex-col overflow-hidden w-[160px] sm:w-[200px] md:w-[240px]">
+    <div className="relative bg-white rounded-lg shadow-xl flex flex-col overflow-hidden w-[160px] sm:w-[200px] md:w-[240px]">
+      {/* Clickable overlay covering the whole card */}
+      <Link to={path} className="absolute inset-0 z-10" aria-label={name} />
+
       {/* Image */}
-      <Link to={path} className="flex items-center justify-center bg-white h-[90px] sm:h-[120px] md:h-[150px] px-2 pt-2 md:px-3 md:pt-3">
+      <div className="flex items-center justify-center bg-white h-[110px] sm:h-[140px] md:h-[180px] px-2 pt-2 md:px-3 md:pt-3">
         <img src={image} alt={name} loading="lazy" className="h-full w-auto max-w-full object-contain" />
-      </Link>
+      </div>
 
       {/* Bottom section */}
       <div className="px-2 py-2 md:px-3 md:py-3 flex flex-col gap-1.5 md:gap-2.5">
-        {/* Price + heart */}
-        <div className="flex items-center justify-between">
-          <span className="font-bold text-[11px] md:text-sm text-black">
-            {selectedCurrency} {(convertedPrice ?? product.price).toFixed(2)}
-          </span>
+        {/* Add to cart + wishlist in same row */}
+        <div className="relative z-20 flex items-center gap-1.5">
+          <button
+            onClick={() => addToCartMutation.mutate({
+              productId: product.id,
+              itemCode: product.itemCode,
+              productTranslations: product.translations.map(t => ({ name: t.name, slug: t.slug, languageCode: t.languageCode })),
+              productImage: product.mainImage || "",
+              unitPrice: product.price,
+              quantity: 1,
+            })}
+            disabled={addToCartMutation.isPending || product.stockQuantity <= 0}
+            className="flex-1 bg-[#CF172F] disabled:opacity-50 text-white text-[8px] font-black uppercase tracking-widest py-1.5 md:py-2 rounded-sm hover:bg-[#b01228] transition-colors flex items-center justify-center gap-1"
+          >
+            {addToCartMutation.isPending
+              ? <><Loader2 className="w-3 h-3 animate-spin" /> Adding...</>
+              : product.stockQuantity <= 0 ? "Out of Stock" : "Add to Cart"}
+          </button>
           <button
             onClick={() => toggleFavoritesMutation.mutate({ ...product, isFavorite: isFavorite ?? false })}
-            className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+            className="p-1.5 rounded-sm border border-gray-200 hover:bg-gray-100 transition-colors flex-shrink-0"
             aria-label="Toggle favorite"
           >
             <Heart className="w-3 h-3 md:w-4 md:h-4" fill={isFavorite ? "#CF172F" : "none"} stroke={isFavorite ? "#CF172F" : "#6b7280"} />
           </button>
         </div>
-
-        {/* Add to cart */}
-        <button
-          onClick={() => addToCartMutation.mutate({
-            productId: product.id,
-            itemCode: product.itemCode,
-            productTranslations: product.translations.map(t => ({ name: t.name, slug: t.slug, languageCode: t.languageCode })),
-            productImage: product.mainImage || "",
-            unitPrice: product.price,
-            quantity: 1,
-          })}
-          disabled={addToCartMutation.isPending || product.stockQuantity <= 0}
-          className="w-full bg-[#CF172F] disabled:opacity-50 text-white text-[9px] md:text-xs font-black uppercase tracking-widest py-1.5 md:py-2 rounded-sm hover:bg-[#b01228] transition-colors flex items-center justify-center gap-1"
-        >
-          {addToCartMutation.isPending
-            ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Adding...</>
-            : product.stockQuantity <= 0 ? "Out of Stock" : "Add to Cart"}
-        </button>
       </div>
     </div>
   );
@@ -366,15 +369,16 @@ export function GarageFeaturedBanner({ userCars }: Props) {
                 style={{ opacity: active ? 1 : 0, pointerEvents: active ? "auto" : "none" }}
                 aria-hidden={!active}
               >
-                <div className="w-full h-full max-w-7xl mx-auto px-4 md:px-6 flex items-center gap-3 md:gap-8">
+                <div className="w-full h-full max-w-7xl mx-auto px-4 md:px-6 flex items-center gap-2 md:gap-4">
                   {/* Text */}
                   <div className="flex-1 flex flex-col justify-center py-8 md:py-10 min-w-0">
-                    <p className="text-white/75 uppercase text-[10px] md:text-base font-semibold tracking-[0.2em] mb-2 md:mb-4 truncate">
+                    <p className="text-white/75 uppercase text-[10px] md:text-base font-semibold tracking-[0.2em] mb-2 md:mb-3 truncate">
                       {carLabel}
                     </p>
-                    <h2 className="text-white uppercase font-black text-xl sm:text-2xl md:text-4xl leading-[0.95] break-words line-clamp-3 md:line-clamp-none">
+                    <h2 className="w-fit text-white uppercase font-black text-xl sm:text-2xl md:text-4xl leading-[0.95] break-words line-clamp-3 md:line-clamp-none">
                       {name}
                     </h2>
+                    <SlidePrice price={product.price} currency={(product as any).currency || "JOD"} />
                   </div>
 
                   {/* Product card — scales down on mobile */}

@@ -222,7 +222,7 @@ export default function ShopByProductType({
           </Suspense>
           <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
             <DrawerTrigger asChild>
-              <Button variant="outline" className="lg:hidden">
+              <Button variant="outline" className="lg:hidden bg-white rounded dark:bg-white">
                 <FilterIcon className="mr-2 h-4 w-4" />
                 {t("filters.title")}
               </Button>
@@ -240,7 +240,7 @@ export default function ShopByProductType({
         </div>
 
         {/* Products Grid with Sidebar */}
-        <div className="flex gap-8 items-start">
+        <div className="flex gap-4 items-start">
           {/* Sidebar - Desktop */}
           <aside className="hidden lg:block">
             <FilterSidebar
@@ -253,7 +253,7 @@ export default function ShopByProductType({
           <main className="flex-1 min-w-0">
             <Suspense
               fallback={
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                   {Array.from({ length: 6 }).map((_, i) => (
                     <ProductCardSkeleton key={i} />
                   ))}
@@ -409,7 +409,7 @@ function ProductsGrid({
 
   return (
     <>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
         {allProducts
           .filter((product) =>
             product?.translations?.some(

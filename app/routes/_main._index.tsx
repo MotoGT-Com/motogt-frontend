@@ -12,6 +12,8 @@ import { HomeCarousel } from "~/components/garage-carousel";
 import { GarageFeaturedBanner } from "~/components/garage-featured-banner";
 import { garageCarsQueryOptions } from "~/lib/queries";
 import { useQuery } from "@tanstack/react-query";
+import { getGuestGarage, type GuestCar } from "~/lib/guest-garage-manager";
+import { useState, useEffect } from "react";
 import { Faq } from "~/components/faq";
 import { Logo } from "~/components/logo";
 import ProductsHorizontalScroll from "~/components/ProductsHorizontalScroll";
@@ -172,7 +174,15 @@ function HomeFeaturedBanner({ isAuthenticated }: { isAuthenticated: boolean }) {
     ...garageCarsQueryOptions,
     enabled: isAuthenticated,
   });
-  const cars = garageCarsQuery.data?.userCars ?? [];
+
+  const [guestCars] = useState<GuestCar[]>(() =>
+    !isAuthenticated ? getGuestGarage() : []
+  );
+
+  const cars = isAuthenticated
+    ? (garageCarsQuery.data?.userCars ?? [])
+    : (guestCars as any[]);
+
   return <GarageFeaturedBanner userCars={cars} />;
 }
 
@@ -351,15 +361,16 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       />
 
       {/* Car Showcase Section */}
-      {isAuthenticated ? <HomeCarousel /> : null}
+      <HomeCarousel isAuthenticated={isAuthenticated} />
       <HomeFeaturedBanner isAuthenticated={isAuthenticated} />
 
       <ProductsHorizontalScroll
         sectionTitle={t('home:sections.cleaningProducts')}
         productsResponse={cleaningProductsResponse}
+        wrapperClassName="pt-6 mb-24"
       />
 
-      <section className="bg-primary pt-12 pb-4 mb-12">
+      <section className="bg-primary py-6 mb-2">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl md:text-4xl font-bold italic text-white">
@@ -371,9 +382,11 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           </div>
         </div>
 
-        <ProductsHorizontalScroll
-          productsResponse={exteriorProductsResponse}
-        />
+        <div className="-mb-24">
+          <ProductsHorizontalScroll
+            productsResponse={exteriorProductsResponse}
+          />
+        </div>
       </section>
 
       <ProductsHorizontalScroll

@@ -401,9 +401,6 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
                       to={href("/recommended")}
                       size="lg"
                       icon={FeaturedNavIcon}
-                      navLinkOnClick={(event) =>
-                        handleProtectedNavClick(event, href("/recommended"))
-                      }
                     >
                       {t("nav.recommendedForYou")}
                     </NavLinkButton>
@@ -542,9 +539,6 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
                 <NavLinkButton
                   to={href("/recommended")}
                   icon={FeaturedNavIcon}
-                  navLinkOnClick={(event) =>
-                    handleProtectedNavClick(event, href("/recommended"))
-                  }
                 >
                   {t("nav.recommendedForYou")}
                 </NavLinkButton>
