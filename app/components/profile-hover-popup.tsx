@@ -98,7 +98,7 @@ export function ProfileHoverPopup({ children }: { children: React.ReactNode }) {
             <div className="h-px bg-[#e6e6e6]"></div>
 
             <Link
-              to={href("/profile/support")}
+              to={href("/support")}
               className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors"
             >
               <SupportNavIcon isActive={false} className="size-5" />

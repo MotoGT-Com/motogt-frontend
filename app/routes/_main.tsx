@@ -17,6 +17,7 @@
  * - Garage: "/my-garage"
  * - Wishlist: "/wishlist"
  * - Cart: "/cart"
+ * - Support / contact: "/support" (public; not under /profile)
  * - Profile: "/profile"
  *
  * Note: Shop routes use dynamic routing with the :productType parameter.
@@ -414,6 +415,14 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
                     </NavLinkButton>
                     {!user && (
                       <>
+                        <div className="h-px bg-border"></div>
+                        <NavLinkButton
+                          to={href("/support")}
+                          size="lg"
+                          icon={SupportNavIcon}
+                        >
+                          {t("nav.support")}
+                        </NavLinkButton>
                         <div className="h-px bg-border mt-auto"></div>
                         <Button
                           className="font-koulen justify-center!"
@@ -468,7 +477,7 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
                         </NavLinkButton> */}
                         <div className="h-px bg-border"></div>
                         <NavLinkButton
-                          to={href("/profile/support")}
+                          to={href("/support")}
                           size="lg"
                           icon={SupportNavIcon}
                         >

@@ -39,8 +39,8 @@ export function SiteFooter() {
     { key: "orders", to: href("/profile/orders") },
     { key: "yourGarage", to: href("/my-garage") },
     { key: "availableCars", to: href("/available-cars") },
-    { key: "contactUs", to: href("/profile/support") },
-    { key: "faqs", to: href("/profile/support") },
+    { key: "contactUs", to: href("/support") },
+    { key: "faqs", to: href("/support") },
   ];
 
   const informationLinks: FooterLinkItem[] = [

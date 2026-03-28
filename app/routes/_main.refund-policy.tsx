@@ -67,7 +67,7 @@ export default function RefundPolicy() {
             {t("refundPolicy.questions.descriptionPrefix")}{" "}
             <a href="mailto:support@motogt.com">support@motogt.com</a>{" "}
             {t("refundPolicy.questions.descriptionMiddle")}{" "}
-            <Link to={href("/profile/support")}>
+            <Link to={href("/support")}>
               {t("refundPolicy.questions.helpCenter")}
             </Link>
             .

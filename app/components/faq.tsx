@@ -1,5 +1,12 @@
+import { href, Link } from "react-router";
 import { useTranslation } from "react-i18next";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, } from "./ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "./ui/accordion";
+import { Button } from "./ui/button";
 
 export function Faq() {
   const { t } = useTranslation("common");
@@ -12,7 +19,10 @@ export function Faq() {
   const items = Array.isArray(faqItems) ? faqItems : [];
 
   return (
-    <section className="max-w-4xl mx-auto px-6 py-16">
+    <section
+      id="faqs"
+      className="max-w-4xl mx-auto scroll-mt-24 px-6 py-16"
+    >
       <div className="text-center mb-8">
         <h2 className="text-2xl md:text-5xl font-bold md:mb-2">
           {t("faq.title")}
@@ -34,6 +44,14 @@ export function Faq() {
           </AccordionItem>
         ))}
       </Accordion>
+
+      <div className="mt-10 flex justify-center">
+        <Button asChild className="font-koulen">
+          <Link to={href("/support")} prefetch="render">
+            {t("faq.supportCta")}
+          </Link>
+        </Button>
+      </div>
     </section>
   );
 }

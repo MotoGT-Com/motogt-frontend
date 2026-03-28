@@ -296,6 +296,7 @@
   "faq": {
     "title": "Still Not Convinced?",
     "subtitle": "We Got The Answers",
+    "supportCta": "Help center & more FAQs",
     "items": [
       {
         "question": "What can I find on MotoGT?",
