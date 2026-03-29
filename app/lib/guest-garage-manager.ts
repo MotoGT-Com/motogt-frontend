@@ -1,4 +1,13 @@
-const GUEST_GARAGE_KEY = "motogt_guest_garage";
+export const GUEST_GARAGE_STORAGE_KEY = "motogt_guest_garage";
+const GUEST_GARAGE_KEY = GUEST_GARAGE_STORAGE_KEY;
+
+/** Fired on the window after guest garage localStorage changes (same tab + other tabs via storage). */
+export const GUEST_GARAGE_CHANGED_EVENT = "motogt:guest-garage-changed";
+
+function notifyGuestGarageChanged() {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent(GUEST_GARAGE_CHANGED_EVENT));
+}
 
 export type GuestCar = {
   id: string;
@@ -29,6 +38,7 @@ function setGuestGarage(cars: GuestCar[]): void {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(GUEST_GARAGE_KEY, JSON.stringify(cars));
+    notifyGuestGarageChanged();
   } catch {}
 }
 
@@ -51,5 +61,6 @@ export function clearGuestGarage(): void {
   if (typeof window === "undefined") return;
   try {
     localStorage.removeItem(GUEST_GARAGE_KEY);
+    notifyGuestGarageChanged();
   } catch {}
 }

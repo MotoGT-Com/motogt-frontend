@@ -35,9 +35,7 @@ import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import { useEffect, useState, useRef } from "react";
 import { useCartManager } from "~/lib/cart-manager";
 import { authContext } from "~/context";
-import { garageCarsQueryOptions } from "~/lib/queries";
 import { getApiProductTypes } from "~/lib/client";
-import { useQuery } from "@tanstack/react-query";
 import { HeaderToast } from "~/components/header-toast";
 import { HomeNavIcon, CarPartsNavIcon, CareNavIcon, RidingGearNavIcon, GarageNavIcon, WishlistNavIcon, CartNavIcon, ProfileNavIcon, OrdersNavIcon, AddressNavIcon, SupportNavIcon, FeaturedNavIcon, } from "~/components/nav-icons";
 import { LogoutButton } from "~/components/logout-button";
@@ -90,11 +88,6 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
   const isRTL = i18n.language === "ar";
   const { isAuthenticated, user } = loaderData;
   const { openAuthModal } = useAuthModal();
-
-  const garageCarsQuery = useQuery({
-    ...garageCarsQueryOptions,
-    enabled: isAuthenticated,
-  });
 
   const { cartQuery, removeFromCartMutation } = useCartManager(isAuthenticated);
   const cartItems = cartQuery.data?.items ?? [];
@@ -194,11 +187,7 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
               to={href("/my-garage")}
               variant="outline"
               icon={GarageNavIcon}
-            >
-              {garageCarsQuery.data?.summary.primaryCar
-                ? `${garageCarsQuery.data.summary.primaryCar.carDetails.brand} ${garageCarsQuery.data.summary.primaryCar.carDetails.model}`
-                : t("nav.myGarage")}
-            </GarageNavButton>
+            />
             <Button
               type="button"
               variant="outline"
@@ -361,9 +350,7 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
                       to={href("/my-garage")}
                       className="justify-center"
                       icon={GarageNavIcon}
-                    >
-                      {t('nav.garage')}
-                    </GarageNavButton>
+                    />
                     <div className="h-px bg-border"></div>
                     <NavLinkButton
                       to={href("/")}

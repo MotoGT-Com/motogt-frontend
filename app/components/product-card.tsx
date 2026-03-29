@@ -17,7 +17,7 @@ import type { Route } from "../routes/+types/_main";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
 import { garageCarsQueryOptions } from "~/lib/queries";
 import { useQuery } from "@tanstack/react-query";
-import { getGuestGarage, type GuestCar } from "~/lib/guest-garage-manager";
+import { useGuestGarageCars } from "~/hooks/use-guest-garage-cars";
 import { FitmentBadge } from "./fitment-badge";
 import { FavoritesButton } from "./favorites-button";
 import { WhatsAppButton } from "./whatsapp-button";
@@ -203,10 +203,7 @@ function ProductCard({
     enabled: loaderData?.isAuthenticated,
   });
 
-  // For guest users, read cars from localStorage
-  const [guestCars] = useState<GuestCar[]>(() =>
-    !loaderData?.isAuthenticated ? getGuestGarage() : []
-  );
+  const guestCars = useGuestGarageCars(!loaderData?.isAuthenticated);
 
   const userCars: UserCar[] = loaderData?.isAuthenticated
     ? (garageCarsQuery.data?.userCars ?? [])

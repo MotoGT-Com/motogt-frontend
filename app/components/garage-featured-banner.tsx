@@ -58,17 +58,17 @@ function BannerProductCard({ product, name }: { product: ProductItem; name: stri
   const image = product.mainImage ?? product.images?.[0] ?? "";
 
   return (
-    <div className="relative bg-white rounded-md shadow-xl flex flex-col overflow-hidden w-[160px] sm:w-[200px] md:w-[240px]">
+    <div className="relative flex h-[170px] flex-col overflow-hidden rounded-md bg-white shadow-xl md:h-auto w-[200px] md:w-[240px]">
       {/* Clickable overlay covering the whole card */}
       <Link to={path} className="absolute inset-0 z-10" aria-label={name} />
 
-      {/* Image */}
-      <div className="flex items-center justify-center bg-white h-[110px] sm:h-[140px] md:h-[180px] px-2 pt-2 md:px-3 md:pt-3">
+      {/* Image — flex-1 fills space above actions on mobile (170px total card); fixed height on md+ */}
+      <div className="flex min-h-0 flex-1 items-center justify-center bg-white px-2 pt-2 md:h-[180px] md:flex-none md:px-3 md:pt-3">
         <img src={image} alt={name} loading="lazy" className="h-full w-auto max-w-full object-contain" />
       </div>
 
       {/* Bottom section */}
-      <div className="px-2 py-2 md:px-3 md:py-3 flex flex-col gap-1.5 md:gap-2.5">
+      <div className="flex flex-shrink-0 flex-col gap-1.5 px-2 py-2 md:gap-2.5 md:px-3 md:py-3">
         {/* Add to cart + wishlist in same row */}
         <div className="relative z-20 flex items-center gap-1.5">
           <button
@@ -81,7 +81,7 @@ function BannerProductCard({ product, name }: { product: ProductItem; name: stri
               quantity: 1,
             })}
             disabled={addToCartMutation.isPending || product.stockQuantity <= 0}
-            className="flex-1 bg-[#CF172F] disabled:opacity-50 text-white text-[10px] font-black uppercase tracking-widest py-1.5 md:py-2 rounded-sm hover:bg-[#b01228] transition-colors flex items-center justify-center gap-1"
+            className="flex-1 bg-[#CF172F] disabled:opacity-50 text-white text-[10px] font-koulen font-black uppercase tracking-widest py-1.5 md:py-2 rounded-sm hover:bg-[#b01228] transition-colors flex items-center justify-center gap-1"
           >
             {addToCartMutation.isPending
               ? <><Loader2 className="w-3 h-3 animate-spin" /> {t("featuredBanner.addingToCart")}</>
@@ -304,9 +304,13 @@ export function GarageFeaturedBanner({ userCars }: Props) {
 
   if (isLoadingGarageProducts || isLoadingRandomProducts) {
     return (
-      <div className="w-full h-[220px] md:h-[320px] relative overflow-hidden">
-        <img src="/garage/garage-banner.png" alt="" aria-hidden
-             className="absolute inset-0 w-full h-full object-cover" />
+      <div className="w-full min-h-[400px] md:min-h-0 md:h-[320px] relative overflow-hidden">
+        <img
+          src="/garage/garage-banner.png"
+          alt=""
+          aria-hidden
+          className="absolute inset-0 w-full h-full object-cover md:object-center object-[center_22%]"
+        />
         <div className="absolute inset-0 bg-white/10" aria-hidden />
         <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/10 to-black/45 animate-pulse" />
       </div>
@@ -326,7 +330,7 @@ export function GarageFeaturedBanner({ userCars }: Props) {
       `}</style>
 
       <section
-        className="group w-full relative overflow-hidden min-h-[220px] md:min-h-[320px]"
+        className="group w-full relative overflow-hidden min-h-[400px] md:min-h-[320px]"
         dir={isRtl ? "rtl" : "ltr"}
         aria-label={
           fallbackCar
@@ -337,14 +341,18 @@ export function GarageFeaturedBanner({ userCars }: Props) {
             : t("featuredBanner.featuredProductsAria")
         }
       >
-        {/* Fixed background */}
-        <img src="/garage/garage-banner.png" alt="" aria-hidden
-             className="absolute inset-0 w-full h-full object-cover" />
+        {/* Fixed background — mobile is a taller vertical frame; desktop stays wide */}
+        <img
+          src="/garage/garage-banner.png"
+          alt=""
+          aria-hidden
+          className="absolute inset-0 w-full h-full object-cover object-[center_22%] md:object-center"
+        />
         <div className="absolute inset-0 bg-white/10" aria-hidden />
         <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/10 to-black/45" aria-hidden />
 
         {/* Slide stack */}
-        <div className="relative min-h-[220px] md:min-h-[320px]">
+        <div className="relative min-h-[400px] md:min-h-[320px]">
           {products.map((product, i) => {
             const trs   = product.translations ?? [];
             const tr    = trs.find(x => x.languageCode?.toLowerCase().startsWith(lang)) ?? trs[0];
@@ -371,20 +379,20 @@ export function GarageFeaturedBanner({ userCars }: Props) {
                 style={{ opacity: active ? 1 : 0, pointerEvents: active ? "auto" : "none" }}
                 aria-hidden={!active}
               >
-                <div className="w-full h-full max-w-7xl mx-auto px-4 md:px-6 flex items-center gap-2 md:gap-4">
-                  {/* Text */}
-                  <div className="flex-1 flex flex-col justify-center py-8 md:py-10 min-w-0">
+                <div className="w-full h-full max-w-7xl mx-auto px-4 md:px-6 flex flex-col items-center justify-center gap-5 py-8 md:flex-row md:items-center md:gap-4 md:py-10">
+                  {/* Text — centered on mobile (vertical stack), start-aligned on md+ */}
+                  <div className="flex w-full flex-col justify-center min-w-0 text-center md:flex-1 md:text-start">
                     <p className="text-white/75 uppercase text-[10px] md:text-base font-semibold tracking-[0.2em] mb-2 md:mb-3 truncate">
                       {carLabel}
                     </p>
-                    <h2 className="w-fit text-white uppercase font-black text-xl sm:text-2xl md:text-4xl leading-[0.95] break-words line-clamp-3 md:line-clamp-none">
+                    <h2 className="mx-auto w-full max-w-xl text-white uppercase font-black text-xl sm:text-2xl md:text-4xl md:mx-0 md:max-w-none leading-[0.95] break-words line-clamp-3 md:line-clamp-none">
                       {name}
                     </h2>
                     <SlidePrice price={product.price} currency={(product as any).currency || "JOD"} />
                   </div>
 
-                  {/* Product card — scales down on mobile */}
-                  <div className="flex-shrink-0 flex items-center justify-center">
+                  {/* Product card — below copy on mobile, side-by-side on md+ */}
+                  <div className="flex w-full flex-shrink-0 items-center justify-center md:w-auto">
                     <BannerProductCard product={product} name={name} />
                   </div>
                 </div>
@@ -397,11 +405,11 @@ export function GarageFeaturedBanner({ userCars }: Props) {
         {count > 1 && (
           <>
             <button type="button" onClick={isRtl ? goNext : goPrev} aria-label={t("featuredBanner.previousSlide")}
-                    className="absolute left-3 md:left-5 top-[44%] md:top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-9 md:h-9 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center transition-colors">
+                    className="absolute left-3 md:left-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-9 md:h-9 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center transition-colors">
               <ChevronLeft className="w-5 h-5 text-white" />
             </button>
             <button type="button" onClick={isRtl ? goPrev : goNext} aria-label={t("featuredBanner.nextSlide")}
-                    className="absolute right-3 md:right-5 top-[44%] md:top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-9 md:h-9 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center transition-colors">
+                    className="absolute right-3 md:right-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-9 md:h-9 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center transition-colors">
               <ChevronRight className="w-5 h-5 text-white" />
             </button>
           </>

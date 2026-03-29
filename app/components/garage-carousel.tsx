@@ -9,7 +9,7 @@ import { garageCarsQueryOptions } from "~/lib/queries";
 import { Link } from "react-router";
 import { serializeShopURL } from "~/routes/_main.shop._index";
 import { useTranslation } from "react-i18next";
-import { getGuestGarage, type GuestCar } from "~/lib/guest-garage-manager";
+import { useGuestGarageCars } from "~/hooks/use-guest-garage-cars";
 import { AddNewCarDialog } from "~/components/add-new-car-dialog";
 
 export function GarageCarousel({
@@ -106,9 +106,7 @@ export function HomeCarousel({ isAuthenticated }: { isAuthenticated: boolean }) 
     enabled: isAuthenticated,
   });
 
-  const [guestCars] = useState<GuestCar[]>(() =>
-    !isAuthenticated ? getGuestGarage() : []
-  );
+  const guestCars = useGuestGarageCars(!isAuthenticated);
 
   const userCars = isAuthenticated
     ? (garageCarsQuery.data?.userCars ?? [])
@@ -172,9 +170,9 @@ export function HomeCarousel({ isAuthenticated }: { isAuthenticated: boolean }) 
           <img
             src="/car-placeholder.png"
             alt={t("empty.imageAlt")}
-            className="w-auto h-[150px] mb-8 opacity-30 blur-[1px]"
+            className="w-auto h-[100px] mb-8 mx-4 opacity-30 blur-[1px]"
           />
-          <div className="text-center space-y-2 mb-6">
+          <div className="text-center space-y-2 mb-6 mx-2">
             <p className="font-bold text-[#3d3d3d]">
               {t("empty.noCarsTitle")}
             </p>

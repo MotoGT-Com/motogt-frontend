@@ -6,6 +6,8 @@
     "quick": "سريع",
     "myGarage":"كراجك",
     "garage": "كراجك",
+    "addToGarage": "أضف إلى الكراج",
+    "myGarageWithCount": "كراجك ({{count}})",
     "cart": "السلة",
     "wishlist": "المفضلة",
     "profile": "الملف الشخصي",

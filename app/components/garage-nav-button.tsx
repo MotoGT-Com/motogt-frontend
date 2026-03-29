@@ -1,15 +1,19 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { NavLink, href, useRouteLoaderData } from "react-router";
+import { NavLink, useRouteLoaderData } from "react-router";
 import { garageCarsQueryOptions } from "~/lib/queries";
 import { EmptyGarageDialog } from "~/components/empty-garage-dialog";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "~/components/ui/hover-card";
 import { GarageHoverPopupContent } from "~/components/garage-hover-popup";
-import { useAuthModal } from "~/context/AuthModalContext";
-import { getGuestGarage, type GuestCar } from "~/lib/guest-garage-manager";
+import {
+  GUEST_GARAGE_CHANGED_EVENT,
+  getGuestGarage,
+  type GuestCar,
+} from "~/lib/guest-garage-manager";
 import type { UserCarsResponse } from "~/lib/client";
+import { useTranslation } from "react-i18next";
 
 /**
  * GarageNavButton Component
@@ -32,11 +36,11 @@ export function GarageNavButton({
     icon?: React.ComponentType<{ isActive?: boolean; className?: string }>;
   }) {
   const [emptyDialogOpen, setEmptyDialogOpen] = useState(false);
+  const { t } = useTranslation("common");
   const mainLoaderData = useRouteLoaderData("routes/_main") as
     | { isAuthenticated?: boolean }
     | undefined;
   const isAuthenticated = !!mainLoaderData?.isAuthenticated;
-  const { openAuthModal } = useAuthModal();
   const garageCarsQuery = useQuery({
     ...garageCarsQueryOptions,
     enabled: isAuthenticated,
@@ -45,6 +49,13 @@ export function GarageNavButton({
   const [guestCars, setGuestCars] = useState<GuestCar[]>([]);
   useEffect(() => {
     if (!isAuthenticated) setGuestCars(getGuestGarage());
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (isAuthenticated || typeof window === "undefined") return;
+    const sync = () => setGuestCars(getGuestGarage());
+    window.addEventListener(GUEST_GARAGE_CHANGED_EVENT, sync);
+    return () => window.removeEventListener(GUEST_GARAGE_CHANGED_EVENT, sync);
   }, [isAuthenticated]);
 
   const handleHoverOpen = (open: boolean) => {
@@ -56,6 +67,14 @@ export function GarageNavButton({
     : (guestCars as unknown as UserCarsResponse["data"]["userCars"]);
 
   const hasCars = userCars.length > 0;
+  const garageCount = userCars.length;
+
+  const garageNavLabel =
+    isAuthenticated && garageCarsQuery.isPending
+      ? t("nav.myGarage")
+      : !hasCars
+        ? t("nav.addToGarage")
+        : t("nav.myGarageWithCount", { count: garageCount });
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     // Guests can now access the garage page — no auth gate here
@@ -87,7 +106,7 @@ export function GarageNavButton({
         {({ isActive }) => (
           <>
             {Icon && <Icon isActive={isActive} />}
-            {children}
+            {children ?? garageNavLabel}
           </>
         )}
       </NavLink>

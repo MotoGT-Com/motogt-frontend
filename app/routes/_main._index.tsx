@@ -12,8 +12,7 @@ import { HomeCarousel } from "~/components/garage-carousel";
 import { GarageFeaturedBanner } from "~/components/garage-featured-banner";
 import { garageCarsQueryOptions } from "~/lib/queries";
 import { useQuery } from "@tanstack/react-query";
-import { getGuestGarage, type GuestCar } from "~/lib/guest-garage-manager";
-import { useState, useEffect } from "react";
+import { useGuestGarageCars } from "~/hooks/use-guest-garage-cars";
 import { Faq } from "~/components/faq";
 import { Logo } from "~/components/logo";
 import ProductsHorizontalScroll from "~/components/ProductsHorizontalScroll";
@@ -175,9 +174,7 @@ function HomeFeaturedBanner({ isAuthenticated }: { isAuthenticated: boolean }) {
     enabled: isAuthenticated,
   });
 
-  const [guestCars] = useState<GuestCar[]>(() =>
-    !isAuthenticated ? getGuestGarage() : []
-  );
+  const guestCars = useGuestGarageCars(!isAuthenticated);
 
   const cars = isAuthenticated
     ? (garageCarsQuery.data?.userCars ?? [])

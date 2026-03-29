@@ -1,12 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-import { href, useRouteLoaderData } from "react-router";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
 import { AddNewCarDialog } from "~/components/add-new-car-dialog";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "~/components/ui/hover-card";
 import { HelpCircle } from "lucide-react";
-import { useAuthModal } from "~/context/AuthModalContext";
-import type { Route } from "../routes/+types/_main";
 
 /**
  * EmptyGarageDialog Component
@@ -18,20 +15,22 @@ import type { Route } from "../routes/+types/_main";
 export function EmptyGarageDialog({
   open,
   onOpenChange,
+  onAfterAddCar,
+  overlayClassName,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** e.g. refresh guest local garage after adding a car */
+  onAfterAddCar?: () => void;
+  overlayClassName?: string;
 }) {
-  const mainLoaderData =
-    useRouteLoaderData<Route.ComponentProps["loaderData"]>("routes/_main");
-  const isAuthenticated = !!mainLoaderData?.isAuthenticated;
-  const { openAuthModal } = useAuthModal();
   const [addCarDialogOpen, setAddCarDialogOpen] = useState(false);
   const shouldOpenAddCarDialog = useRef(false);
 
   const handleAddCarSuccess = () => {
     setAddCarDialogOpen(false);
     onOpenChange(false);
+    onAfterAddCar?.();
   };
 
   const handleAddCarButtonClick = () => {
@@ -52,7 +51,7 @@ export function EmptyGarageDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md" overlayClassName={overlayClassName}>
           <DialogHeader>
             <div className="flex items-center gap-2">
               <HoverCard openDelay={300}>

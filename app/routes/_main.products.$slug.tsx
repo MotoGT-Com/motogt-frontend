@@ -30,7 +30,7 @@ import { config } from "~/config";
 import { buildProductPath, buildProductSlugSegment, extractProductIdFromSlugSegment } from "~/lib/product-url";
 import { useCurrency } from "~/hooks/use-currency";
 import { AddNewCarDialog } from "~/components/add-new-car-dialog";
-import { getGuestGarage } from "~/lib/guest-garage-manager";
+import { useGuestGarageCars } from "~/hooks/use-guest-garage-cars";
 import { CarFront } from "lucide-react";
 
 export async function loader({ params, request, context }: Route.LoaderArgs) {
@@ -348,10 +348,7 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
 
   const userCars = garageCarsQuery.data?.userCars ?? [];
 
-  // Guest garage support
-  const [guestCars, setGuestCars] = useState(() =>
-    !isAuthenticated ? getGuestGarage() : []
-  );
+  const guestCars = useGuestGarageCars(!isAuthenticated);
 
   // Unique compatible cars (deduplicated by brand+model) that are NOT in the garage
   const unaddedCompatibleCars = (() => {
@@ -981,7 +978,6 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
           lockPrefilledFields
           onSuccess={() => {
             setAddGarageDialogCar(null);
-            if (!isAuthenticated) setGuestCars(getGuestGarage());
           }}
         />
       )}
