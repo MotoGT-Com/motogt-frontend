@@ -1,5 +1,5 @@
 const SUPPORTED_LANGUAGES = ["en", "ar"] as const;
-const DEFAULT_LANGUAGE = "en";
+const DEFAULT_LANGUAGE = "ar";
 
 const getCookieValue = (cookieHeader: string | null, name: string) => {
   if (!cookieHeader) return null;
