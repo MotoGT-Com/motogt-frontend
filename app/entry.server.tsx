@@ -9,7 +9,8 @@ import { renderToPipeableStream } from "react-dom/server";
 import { initI18n } from "./lib/i18n";
 import { getLocaleFromRequest } from "./lib/i18n-cookie";
 
-export const streamTimeout = 5_000;
+// React Router single-fetch turbo-stream encode budget (also used for shell render abort + 1s).
+export const streamTimeout = 15_000;
 
 export default async function handleRequest(
   request: Request,

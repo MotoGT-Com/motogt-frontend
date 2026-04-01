@@ -18,6 +18,36 @@ import { Loader2 } from "lucide-react";
 const PRODUCTS_LIMIT = 12;
 const CARE_ACCESSORIES_SLUG = "car-care-accessiores";
 
+function productMatchesGarageCars(
+  product: { carCompatibility?: Array<{
+    carBrand: string;
+    carModel: string;
+    carYearFrom?: number | null;
+    carYearTo?: number | null;
+  }> | null },
+  garageCars: Array<{ carDetails: { brand: string; model: string; year?: number } }>
+): boolean {
+  if (!product.carCompatibility || product.carCompatibility.length === 0) {
+    return false;
+  }
+  return garageCars.some((userCar) =>
+    product.carCompatibility!.some((car) => {
+      const matchesCar =
+        `${car.carBrand} ${car.carModel}` ===
+        `${userCar.carDetails.brand} ${userCar.carDetails.model}`;
+      if (matchesCar && userCar.carDetails.year) {
+        const yearFrom = car.carYearFrom ?? 0;
+        const yearTo = car.carYearTo;
+        return (
+          yearFrom <= userCar.carDetails.year &&
+          (yearTo === null || yearTo === undefined || yearTo >= userCar.carDetails.year)
+        );
+      }
+      return matchesCar;
+    })
+  );
+}
+
 export async function loader({ request }: Route.LoaderArgs) {
   const locale = await getLocaleFromRequest(request);
   const languageId =
@@ -109,32 +139,8 @@ export async function loader({ request }: Route.LoaderArgs) {
     });
   });
 
-  const matchesGarageCar = (
-    product: (typeof careProductsResponse.data.data)[number]
-  ) => {
-    if (!product.carCompatibility || product.carCompatibility.length === 0) {
-      return false;
-    }
-    return userCars.some((userCar) =>
-      product.carCompatibility?.some((car) => {
-        const matchesCar =
-          `${car.carBrand} ${car.carModel}` ===
-          `${userCar.carDetails.brand} ${userCar.carDetails.model}`;
-        if (matchesCar && userCar.carDetails.year) {
-          const yearFrom = car.carYearFrom ?? 0;
-          const yearTo = car.carYearTo;
-          return (
-            yearFrom <= userCar.carDetails.year &&
-            (yearTo === null || yearTo >= userCar.carDetails.year)
-          );
-        }
-        return matchesCar;
-      })
-    );
-  };
-
-  const carProducts = Array.from(uniqueCarProducts.values()).filter(
-    matchesGarageCar
+  const carProducts = Array.from(uniqueCarProducts.values()).filter((product) =>
+    productMatchesGarageCars(product, userCars)
   );
   const careProducts = careProductsResponse.data?.data ?? [];
 
@@ -203,13 +209,21 @@ export default function Recommended({ loaderData }: Route.ComponentProps) {
   const guestQuery = useQuery({
     queryKey: ["guest-recommended", guestCarIds],
     queryFn: async () => {
+      const guestCars = getGuestGarage();
+      const carIds = [
+        ...new Set(guestCars.map((c) => c.carId).filter(Boolean)),
+      ] as string[];
+      if (carIds.length === 0) {
+        return { carProducts: [] as any[], careProducts: [] as any[] };
+      }
+
       const productTypesResponse = await getApiProductTypes();
       const productTypes = productTypesResponse.data?.data ?? [];
       const careType = productTypes.find((t) => t.slug === CARE_ACCESSORIES_SLUG);
 
       const [carProductsResponses, careProductsResponse] = await Promise.all([
         Promise.all(
-          guestCarIds.map((carId) =>
+          carIds.map((carId) =>
             getApiProductsPublic({
               query: {
                 storeId: defaultParams.storeId,
@@ -247,8 +261,12 @@ export default function Recommended({ loaderData }: Route.ComponentProps) {
         });
       });
 
+      const carProducts = Array.from(uniqueCarProducts.values()).filter(
+        (product) => productMatchesGarageCars(product, guestCars)
+      );
+
       return {
-        carProducts: Array.from(uniqueCarProducts.values()),
+        carProducts,
         careProducts: (careProductsResponse as any).data?.data ?? [],
       };
     },
@@ -285,7 +303,7 @@ export default function Recommended({ loaderData }: Route.ComponentProps) {
             <img
               loading="lazy"
               src="/car-placeholder.png"
-              className="w-auto h-[200px] mb-10"
+              className="w-auto h-[100px] mb-10"
               alt="Garage Empty"
             />
             <div className="text-muted-foreground space-y-2 mb-6">

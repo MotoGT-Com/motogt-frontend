@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router";
+import { Link, useRouteLoaderData } from "react-router";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Heart, Loader2 } from "lucide-react";
 import { garageFeaturedProductsQueryOptions } from "~/lib/queries";
 import { buildProductPath } from "~/lib/product-url";
 import { getApiProductsPublic } from "~/lib/client";
@@ -10,6 +10,10 @@ import { defaultParams } from "~/lib/api-client";
 import { config } from "~/config";
 import { resolveProductSlug } from "~/lib/get-locale-translation";
 import type { UserCarsResponse, ProductItem } from "~/lib/client/types.gen";
+import { useCartManager } from "~/lib/cart-manager";
+import { useFavoritesManager } from "~/lib/favorites-manager";
+import { useCurrency } from "~/hooks/use-currency";
+import type { Route } from "../routes/+types/_main";
 
 type UserCar = UserCarsResponse["data"]["userCars"][number];
 type Props = { userCars: UserCar[] };
@@ -24,6 +28,76 @@ function shuffleArray<T>(items: T[]): T[] {
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
   return shuffled;
+}
+
+
+function SlidePrice({ price, currency: productCurrency }: { price: number; currency: string }) {
+  const { selectedCurrency, convertPrice } = useCurrency();
+  const [displayPrice, setDisplayPrice] = useState<number>(price);
+  useEffect(() => {
+    if (selectedCurrency === productCurrency) { setDisplayPrice(price); return; }
+    convertPrice(price, productCurrency)
+      .then(r => setDisplayPrice(r.convertedAmount))
+      .catch(() => setDisplayPrice(price));
+  }, [price, selectedCurrency, productCurrency]);
+  return (
+    <span className="text-white font-bold text-base sm:text-lg md:text-2xl mt-2 md:mt-3">
+      {selectedCurrency} {displayPrice.toFixed(2)}
+    </span>
+  );
+}
+
+function BannerProductCard({ product, name }: { product: ProductItem; name: string }) {
+  const { t } = useTranslation("garage");
+  const { t: tCommon } = useTranslation("common");
+  const loaderData = useRouteLoaderData<Route.ComponentProps["loaderData"]>("routes/_main");
+  const { addToCartMutation } = useCartManager(loaderData?.isAuthenticated);
+  const { toggleFavoritesMutation, favoritesQuery } = useFavoritesManager(loaderData?.isAuthenticated);
+  const path = buildProductPath(product);
+  const isFavorite = favoritesQuery.data?.items.some((item: any) => item.id === product.id) ?? product.in_favs ?? false;
+  const image = product.mainImage ?? product.images?.[0] ?? "";
+
+  return (
+    <div className="relative flex h-[170px] flex-col overflow-hidden rounded-md bg-white shadow-xl md:h-auto w-[200px] md:w-[240px]">
+      {/* Clickable overlay covering the whole card */}
+      <Link to={path} className="absolute inset-0 z-10" aria-label={name} />
+
+      {/* Image — flex-1 fills space above actions on mobile (170px total card); fixed height on md+ */}
+      <div className="flex min-h-0 flex-1 items-center justify-center bg-white px-2 pt-2 md:h-[180px] md:flex-none md:px-3 md:pt-3">
+        <img src={image} alt={name} loading="lazy" className="h-full w-auto max-w-full object-contain" />
+      </div>
+
+      {/* Bottom section */}
+      <div className="flex flex-shrink-0 flex-col gap-1.5 px-2 py-2 md:gap-2.5 md:px-3 md:py-3">
+        {/* Add to cart + wishlist in same row */}
+        <div className="relative z-20 flex items-center gap-1.5">
+          <button
+            onClick={() => addToCartMutation.mutate({
+              productId: product.id,
+              itemCode: product.itemCode,
+              productTranslations: product.translations.map(t => ({ name: t.name, slug: t.slug, languageCode: t.languageCode })),
+              productImage: product.mainImage || "",
+              unitPrice: product.price,
+              quantity: 1,
+            })}
+            disabled={addToCartMutation.isPending || product.stockQuantity <= 0}
+            className="flex-1 bg-[#CF172F] disabled:opacity-50 text-white text-[10px] font-koulen font-black uppercase tracking-widest py-1.5 md:py-2 rounded-sm hover:bg-[#b01228] transition-colors flex items-center justify-center gap-1"
+          >
+            {addToCartMutation.isPending
+              ? <><Loader2 className="w-3 h-3 animate-spin" /> {t("featuredBanner.addingToCart")}</>
+              : product.stockQuantity <= 0 ? tCommon("status.outOfStock") : tCommon("buttons.addToCart")}
+          </button>
+          <button
+            onClick={() => toggleFavoritesMutation.mutate({ ...product, isFavorite: isFavorite ?? false })}
+            className="p-1.5 rounded-sm border border-gray-200 hover:bg-gray-100 transition-colors flex-shrink-0"
+            aria-label={t("featuredBanner.toggleFavorite")}
+          >
+            <Heart className="w-3 h-3 md:w-4 md:h-4" fill={isFavorite ? "#CF172F" : "none"} stroke={isFavorite ? "#CF172F" : "#6b7280"} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export function GarageFeaturedBanner({ userCars }: Props) {
@@ -230,9 +304,13 @@ export function GarageFeaturedBanner({ userCars }: Props) {
 
   if (isLoadingGarageProducts || isLoadingRandomProducts) {
     return (
-      <div className="w-full h-[500px] md:h-[300px] relative overflow-hidden">
-        <img src="/garage/garage-banner.png" alt="" aria-hidden
-             className="absolute inset-0 w-full h-full object-cover" />
+      <div className="w-full min-h-[400px] md:min-h-0 md:h-[320px] relative overflow-hidden">
+        <img
+          src="/garage/garage-banner.png"
+          alt=""
+          aria-hidden
+          className="absolute inset-0 w-full h-full object-cover md:object-center object-[center_22%]"
+        />
         <div className="absolute inset-0 bg-white/10" aria-hidden />
         <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/10 to-black/45 animate-pulse" />
       </div>
@@ -252,7 +330,7 @@ export function GarageFeaturedBanner({ userCars }: Props) {
       `}</style>
 
       <section
-        className="group w-full relative overflow-hidden min-h-[500px] md:min-h-[300px]"
+        className="group w-full relative overflow-hidden min-h-[400px] md:min-h-[320px]"
         dir={isRtl ? "rtl" : "ltr"}
         aria-label={
           fallbackCar
@@ -260,17 +338,21 @@ export function GarageFeaturedBanner({ userCars }: Props) {
                 brand: fallbackCar.brand,
                 model: fallbackCar.model,
               })
-            : "Featured products"
+            : t("featuredBanner.featuredProductsAria")
         }
       >
-        {/* Fixed background */}
-        <img src="/garage/garage-banner.png" alt="" aria-hidden
-             className="absolute inset-0 w-full h-full object-cover" />
+        {/* Fixed background — mobile is a taller vertical frame; desktop stays wide */}
+        <img
+          src="/garage/garage-banner.png"
+          alt=""
+          aria-hidden
+          className="absolute inset-0 w-full h-full object-cover object-[center_22%] md:object-center"
+        />
         <div className="absolute inset-0 bg-white/10" aria-hidden />
         <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/10 to-black/45" aria-hidden />
 
         {/* Slide stack */}
-        <div className="relative min-h-[500px] md:min-h-[300px]">
+        <div className="relative min-h-[400px] md:min-h-[320px]">
           {products.map((product, i) => {
             const trs   = product.translations ?? [];
             const tr    = trs.find(x => x.languageCode?.toLowerCase().startsWith(lang)) ?? trs[0];
@@ -297,52 +379,22 @@ export function GarageFeaturedBanner({ userCars }: Props) {
                 style={{ opacity: active ? 1 : 0, pointerEvents: active ? "auto" : "none" }}
                 aria-hidden={!active}
               >
-                <div className="w-full max-w-7xl mx-auto px-5 md:px-6 grid grid-rows-[205px_auto] md:flex min-h-[500px] md:min-h-[300px]">
-                  {image && (
-                    <div className="md:hidden row-start-1 flex items-start justify-center pt-10">
-                      <Link
-                        to={path}
-                        aria-label={name || t("featuredBanner.viewProduct")}
-                        className="inline-block"
-                      >
-                        <img
-                          src={image}
-                          alt={name}
-                          loading="lazy"
-                          className="h-[175px] w-auto max-w-[84vw] object-contain drop-shadow-2xl transition-transform duration-500 ease-out group-hover:scale-105 group-hover:-translate-y-1"
-                        />
-                      </Link>
-                    </div>
-                  )}
-
-                  {/* Text */}
-                  <div className="row-start-2 flex-1 flex flex-col justify-end md:justify-center pb-20 md:py-10">
-                    <p className="text-white/75 uppercase text-[11px] md:text-base font-semibold tracking-[0.2em] mb-3 md:mb-4">
+                <div className="w-full h-full max-w-7xl mx-auto px-4 md:px-6 flex flex-col items-center justify-center gap-5 py-8 md:flex-row md:items-center md:gap-4 md:py-10">
+                  {/* Text — centered on mobile (vertical stack), start-aligned on md+ */}
+                  <div className="flex w-full flex-col justify-center min-w-0 text-center md:flex-1 md:text-start">
+                    <p className="text-white/75 uppercase text-[10px] md:text-base font-semibold tracking-[0.2em] mb-2 md:mb-3 truncate">
                       {carLabel}
                     </p>
-                    <h2 className="text-white uppercase font-black text-[clamp(2rem,8vw,2.6rem)] md:text-4xl leading-[0.92] max-w-[95%] md:max-w-md break-words [display:-webkit-box] [-webkit-line-clamp:4] [-webkit-box-orient:vertical] overflow-hidden md:[display:block] md:[-webkit-line-clamp:unset]">
+                    <h2 className="mx-auto w-full max-w-xl text-white uppercase font-black text-xl sm:text-2xl md:text-4xl md:mx-0 md:max-w-none leading-[0.95] break-words line-clamp-3 md:line-clamp-none">
                       {name}
                     </h2>
-                    <Link to={path}
-                          className="w-fit mt-8 bg-white px-6 md:px-8 py-2.5 md:py-3 text-xs md:text-sm font-black uppercase tracking-[0.18em] hover:opacity-90 active:opacity-75 transition-opacity"
-                          style={{ color: "#CF172F" }}>
-                      {t("featuredBanner.viewProduct")}
-                    </Link>
+                    <SlidePrice price={product.price} currency={(product as any).currency || "JOD"} />
                   </div>
 
-                  {/* Desktop product image */}
-                  {image && (
-                    <div className="hidden md:flex w-[45%] items-center justify-center">
-                      <Link
-                        to={path}
-                        aria-label={name || t("featuredBanner.viewProduct")}
-                        className="inline-block"
-                      >
-                        <img src={image} alt={name} loading="lazy"
-                             className="h-[300px] w-auto object-contain drop-shadow-2xl transition-transform duration-500 ease-out group-hover:scale-105 group-hover:-translate-y-1" />
-                      </Link>
-                    </div>
-                  )}
+                  {/* Product card — below copy on mobile, side-by-side on md+ */}
+                  <div className="flex w-full flex-shrink-0 items-center justify-center md:w-auto">
+                    <BannerProductCard product={product} name={name} />
+                  </div>
                 </div>
               </div>
             );
@@ -352,12 +404,12 @@ export function GarageFeaturedBanner({ userCars }: Props) {
         {/* Arrows */}
         {count > 1 && (
           <>
-            <button type="button" onClick={isRtl ? goNext : goPrev} aria-label="Previous"
-                    className="absolute left-3 md:left-5 top-[43%] md:top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-9 md:h-9 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center transition-colors">
+            <button type="button" onClick={isRtl ? goNext : goPrev} aria-label={t("featuredBanner.previousSlide")}
+                    className="absolute left-3 md:left-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-9 md:h-9 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center transition-colors">
               <ChevronLeft className="w-5 h-5 text-white" />
             </button>
-            <button type="button" onClick={isRtl ? goPrev : goNext} aria-label="Next"
-                    className="absolute right-3 md:right-5 top-[43%] md:top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-9 md:h-9 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center transition-colors">
+            <button type="button" onClick={isRtl ? goPrev : goNext} aria-label={t("featuredBanner.nextSlide")}
+                    className="absolute right-3 md:right-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-9 md:h-9 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm flex items-center justify-center transition-colors">
               <ChevronRight className="w-5 h-5 text-white" />
             </button>
           </>
@@ -365,9 +417,9 @@ export function GarageFeaturedBanner({ userCars }: Props) {
 
         {/* Progress dots */}
         {count > 1 && (
-          <div className="absolute bottom-6 md:bottom-5 left-0 right-0 flex justify-center gap-2 z-20">
+          <div className="absolute bottom-3 md:bottom-5 left-0 right-0 flex justify-center gap-2 z-20">
             {products.map((_, i) => (
-              <button type="button" key={i} onClick={() => goTo(i)} aria-label={`Product ${i + 1}`}
+              <button type="button" key={i} onClick={() => goTo(i)} aria-label={t("featuredBanner.productSlide", { index: i + 1 })}
                       className="w-8 md:w-10 h-[3px] rounded-full bg-white/30 overflow-hidden relative">
                 {i === activeIndex && (
                   <span key={progressKey}

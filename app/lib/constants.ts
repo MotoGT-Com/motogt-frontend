@@ -4,11 +4,10 @@ import { config } from '../config';
 // Language ID mapping for backend API
 export const LANGUAGE_IDS = config.languageIds as const;
 
-// Get current language ID based on i18n language
+// Get current language ID based on i18n language (must stay in sync with UI locale)
 export const getCurrentLanguageId = (): string => {
-  // const currentLang = i18n.language as keyof typeof LANGUAGE_IDS;
-  // Default to Arabic if language is not set or not recognized
-  return LANGUAGE_IDS.en;
+  const raw = (i18n.language || "en").split("-")[0]?.toLowerCase() ?? "en";
+  return raw === "ar" ? LANGUAGE_IDS.ar : LANGUAGE_IDS.en;
 };
 
 export let ALLOWED_COUNTRIES = [

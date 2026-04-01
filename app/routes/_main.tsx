@@ -17,6 +17,7 @@
  * - Garage: "/my-garage"
  * - Wishlist: "/wishlist"
  * - Cart: "/cart"
+ * - Support / contact: "/support" (public; not under /profile)
  * - Profile: "/profile"
  *
  * Note: Shop routes use dynamic routing with the :productType parameter.
@@ -34,9 +35,7 @@ import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import { useEffect, useState, useRef } from "react";
 import { useCartManager } from "~/lib/cart-manager";
 import { authContext } from "~/context";
-import { garageCarsQueryOptions } from "~/lib/queries";
 import { getApiProductTypes } from "~/lib/client";
-import { useQuery } from "@tanstack/react-query";
 import { HeaderToast } from "~/components/header-toast";
 import { HomeNavIcon, CarPartsNavIcon, CareNavIcon, RidingGearNavIcon, GarageNavIcon, WishlistNavIcon, CartNavIcon, ProfileNavIcon, OrdersNavIcon, AddressNavIcon, SupportNavIcon, FeaturedNavIcon, } from "~/components/nav-icons";
 import { LogoutButton } from "~/components/logout-button";
@@ -44,9 +43,13 @@ import { ProfileHoverPopup } from "~/components/profile-hover-popup";
 import { GarageNavButton } from "~/components/garage-nav-button";
 import { LanguageSwitcher } from "~/components/language-switcher";
 import { CurrencySelector } from "~/components/currency-selector";
-import { CurrencyProvider, useCurrency } from "~/hooks/use-currency";
+import { useCurrency } from "~/hooks/use-currency";
 import { CartHoverPopup } from "~/components/cart-hover-popup";
 import { WishlistHoverPopup } from "~/components/wishlist-hover-popup";
+import { CarPartsHoverPopup } from "~/components/car-parts-hover-popup";
+import { MotorcyclesHoverPopup } from "~/components/motorcycles-hover-popup";
+import { CarCareHoverPopup } from "~/components/car-care-hover-popup";
+import { RecommendedHoverPopup } from "~/components/recommended-hover-popup";
 import { useTranslation } from "react-i18next";
 import { SiteFooter } from "~/components/site-footer";
 import { useAuthModal } from "~/context/AuthModalContext";
@@ -77,11 +80,7 @@ export async function loader({ context }: Route.LoaderArgs) {
  * Handles responsive design with separate desktop and mobile navigation.
  */
 export default function Main(props: Route.ComponentProps) {
-  return (
-    <CurrencyProvider>
-      <MainContent {...props} />
-    </CurrencyProvider>
-  );
+  return <MainContent {...props} />;
 }
 
 function MainContent({ matches, loaderData }: Route.ComponentProps) {
@@ -89,11 +88,6 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
   const isRTL = i18n.language === "ar";
   const { isAuthenticated, user } = loaderData;
   const { openAuthModal } = useAuthModal();
-
-  const garageCarsQuery = useQuery({
-    ...garageCarsQueryOptions,
-    enabled: isAuthenticated,
-  });
 
   const { cartQuery, removeFromCartMutation } = useCartManager(isAuthenticated);
   const cartItems = cartQuery.data?.items ?? [];
@@ -193,11 +187,7 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
               to={href("/my-garage")}
               variant="outline"
               icon={GarageNavIcon}
-            >
-              {garageCarsQuery.data?.summary.primaryCar
-                ? `${garageCarsQuery.data.summary.primaryCar.carDetails.brand} ${garageCarsQuery.data.summary.primaryCar.carDetails.model}`
-                : t("nav.myGarage")}
-            </GarageNavButton>
+            />
             <Button
               type="button"
               variant="outline"
@@ -360,9 +350,7 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
                       to={href("/my-garage")}
                       className="justify-center"
                       icon={GarageNavIcon}
-                    >
-                      {t('nav.garage')}
-                    </GarageNavButton>
+                    />
                     <div className="h-px bg-border"></div>
                     <NavLinkButton
                       to={href("/")}
@@ -401,9 +389,6 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
                       to={href("/recommended")}
                       size="lg"
                       icon={FeaturedNavIcon}
-                      navLinkOnClick={(event) =>
-                        handleProtectedNavClick(event, href("/recommended"))
-                      }
                     >
                       {t("nav.recommendedForYou")}
                     </NavLinkButton>
@@ -417,6 +402,14 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
                     </NavLinkButton>
                     {!user && (
                       <>
+                        <div className="h-px bg-border"></div>
+                        <NavLinkButton
+                          to={href("/support")}
+                          size="lg"
+                          icon={SupportNavIcon}
+                        >
+                          {t("nav.support")}
+                        </NavLinkButton>
                         <div className="h-px bg-border mt-auto"></div>
                         <Button
                           className="font-koulen justify-center!"
@@ -471,7 +464,7 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
                         </NavLinkButton> */}
                         <div className="h-px bg-border"></div>
                         <NavLinkButton
-                          to={href("/profile/support")}
+                          to={href("/support")}
                           size="lg"
                           icon={SupportNavIcon}
                         >
@@ -521,33 +514,38 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
               )}
             >
               <nav className="flex items-center justify-center gap-6">
-                <NavLinkButton
-                  to={href("/shop/:productType", { productType: "car-parts" })}
-                  icon={CarPartsNavIcon}
-                >
-                  {t("nav.carParts")}
-                </NavLinkButton>
-                <NavLinkButton
-                  to={href("/shop/:productType", { productType: "motorcycles" })}
-                  icon={RidingGearNavIcon}
-                >
-                  {t("nav.motorcycles")}
-                </NavLinkButton>
-                <NavLinkButton
-                  to={href("/shop/:productType", { productType: "car-care-accessiores" })}
-                  icon={CareNavIcon}
-                >
-                  {t("nav.carCareAccessories")}
-                </NavLinkButton>
-                <NavLinkButton
-                  to={href("/recommended")}
-                  icon={FeaturedNavIcon}
-                  navLinkOnClick={(event) =>
-                    handleProtectedNavClick(event, href("/recommended"))
-                  }
-                >
-                  {t("nav.recommendedForYou")}
-                </NavLinkButton>
+                <CarPartsHoverPopup>
+                  <NavLinkButton
+                    to={href("/shop/:productType", { productType: "car-parts" })}
+                    icon={CarPartsNavIcon}
+                  >
+                    {t("nav.carParts")}
+                  </NavLinkButton>
+                </CarPartsHoverPopup>
+                <MotorcyclesHoverPopup>
+                  <NavLinkButton
+                    to={href("/shop/:productType", { productType: "motorcycles" })}
+                    icon={RidingGearNavIcon}
+                  >
+                    {t("nav.motorcycles")}
+                  </NavLinkButton>
+                </MotorcyclesHoverPopup>
+                <CarCareHoverPopup>
+                  <NavLinkButton
+                    to={href("/shop/:productType", { productType: "car-care-accessiores" })}
+                    icon={CareNavIcon}
+                  >
+                    {t("nav.carCareAccessories")}
+                  </NavLinkButton>
+                </CarCareHoverPopup>
+                <RecommendedHoverPopup>
+                  <NavLinkButton
+                    to={href("/recommended")}
+                    icon={FeaturedNavIcon}
+                  >
+                    {t("nav.recommendedForYou")}
+                  </NavLinkButton>
+                </RecommendedHoverPopup>
                 <WishlistHoverPopup>
                   <NavLinkButton to={href("/wishlist")} icon={WishlistNavIcon}>
                     {t("nav.wishlist")}

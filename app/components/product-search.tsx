@@ -22,6 +22,13 @@ import { cn } from "~/lib/utils";
 
 const anyValue = "any";
 
+/** Normalize car filter fields: Radix Select can emit "" on mobile; treat like unset. */
+function normalizeCarField(val: string | undefined) {
+  const v = val?.trim();
+  if (!v || v === anyValue) return undefined;
+  return v;
+}
+
 const searchSchema = z
   .object({
     search: z
@@ -31,21 +38,48 @@ const searchSchema = z
     carBrand: z
       .string()
       .optional()
-      .transform((val) => (val === anyValue ? undefined : val)),
+      .transform(normalizeCarField),
     carModel: z
       .string()
       .optional()
-      .transform((val) => (val === anyValue ? undefined : val)),
+      .transform(normalizeCarField),
     carYear: z
       .string()
       .optional()
-      .transform((val) => (val === anyValue ? undefined : val)),
+      .transform(normalizeCarField),
   })
   .refine((data) => {
     return (
       !!data.search || !!data.carBrand || !!data.carModel || !!data.carYear
     );
   });
+
+type ProductSearchFormValues = {
+  search?: string;
+  carBrand?: string;
+  carModel?: string;
+  carYear?: string;
+};
+
+/** Merge URL state (sort, categories, …) with live form values so carModel cannot be lost to stale nuqs or "". */
+function shopParamsFromFormState<S extends Record<string, unknown>>(
+  searchParams: S,
+  formValues: ProductSearchFormValues
+) {
+  const search = (formValues.search ?? "").trim() || undefined;
+  const carBrand = normalizeCarField(formValues.carBrand);
+  const carModel = normalizeCarField(formValues.carModel);
+  const carYearRaw = normalizeCarField(formValues.carYear);
+  const carYearParsed = carYearRaw ? parseInt(carYearRaw, 10) : undefined;
+  const carYear = Number.isFinite(carYearParsed) ? carYearParsed : undefined;
+  return {
+    ...searchParams,
+    search,
+    carBrand,
+    carModel,
+    carYear,
+  };
+}
 
 function ProductSearch({
   className,
@@ -85,7 +119,9 @@ function ProductSearch({
 
   const carBrands = useQuery(carBrandsQueryOptions);
   const carBrand = form.watch("carBrand");
-  const carModels = useQuery(carModelsQueryOptions(carBrand));
+  const carModels = useQuery(
+    carModelsQueryOptions(carBrand === anyValue ? undefined : carBrand)
+  );
   
   // Optimized search with faster debounce and minimum character requirement
   const searchValue = form.watch("search") || "";
@@ -248,8 +284,11 @@ function ProductSearch({
     setShowDropdown(false);
     navigate(
       serializeShopURL({
-        ...data,
-        carYear: data.carYear ? parseInt(data.carYear) : undefined,
+        ...searchParams,
+        search: data.search,
+        carBrand: data.carBrand,
+        carModel: data.carModel,
+        carYear: data.carYear ? parseInt(String(data.carYear), 10) : undefined,
       })
     );
     onSubmitSuccess?.();
@@ -399,10 +438,9 @@ function ProductSearch({
                     })}
                     <div className="border-t border-gray-100 mt-2 pt-2">
                       <Link
-                        to={serializeShopURL({
-                          ...searchParams,
-                          search: form.watch("search"),
-                        })}
+                        to={serializeShopURL(
+                          shopParamsFromFormState(searchParams, form.getValues())
+                        )}
                         className="w-full text-start px-2 py-2 text-sm text-primary hover:bg-gray-50 rounded-md transition-colors block"
                       >
                         {t("search.viewAllResults")} "{form.watch("search")}"
@@ -434,12 +472,13 @@ function ProductSearch({
                           form.setValue("carModel", anyValue);
                           if (location.pathname === "/shop") {
                             navigate(
-                              serializeShopURL({
-                                ...searchParams,
-                                carBrand:
-                                  value === anyValue ? undefined : value,
-                                carModel: undefined,
-                              })
+                              serializeShopURL(
+                                shopParamsFromFormState(searchParams, {
+                                  ...form.getValues(),
+                                  carBrand: value,
+                                  carModel: anyValue,
+                                })
+                              )
                             );
                           }
                         }}
@@ -499,11 +538,12 @@ function ProductSearch({
                           field.onChange(value);
                           if (location.pathname === "/shop") {
                             navigate(
-                              serializeShopURL({
-                                ...searchParams,
-                                carModel:
-                                  value === anyValue ? undefined : value,
-                              })
+                              serializeShopURL(
+                                shopParamsFromFormState(searchParams, {
+                                  ...form.getValues(),
+                                  carModel: value,
+                                })
+                              )
                             );
                           }
                         }}
@@ -561,13 +601,12 @@ function ProductSearch({
                           field.onChange(value);
                           if (location.pathname === "/shop") {
                             navigate(
-                              serializeShopURL({
-                                ...searchParams,
-                                carYear:
-                                  value === anyValue
-                                    ? undefined
-                                    : parseInt(value),
-                              })
+                              serializeShopURL(
+                                shopParamsFromFormState(searchParams, {
+                                  ...form.getValues(),
+                                  carYear: value,
+                                })
+                              )
                             );
                           }
                         }}

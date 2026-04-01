@@ -244,14 +244,14 @@ export default function AvailableCars({ loaderData }: Route.ComponentProps) {
               key={car.id}
               className="h-full overflow-hidden border-border/80 p-0 transition duration-300 hover:-translate-y-1 hover:shadow-lg"
             >
-              <div className="relative h-52 w-full overflow-hidden bg-gradient-to-b from-zinc-100 via-zinc-100 to-zinc-200 sm:h-56">
+              <div className="relative h-52 w-full overflow-hidden bg-gradient-to-b from-zinc-100 via-zinc-100 to-zinc-200 px-[13px] sm:h-56">
                 <img
                   src={car.car_image || "/car-placeholder.png"}
                   alt={`${car.brand} ${car.model}`}
                   className="h-full w-full object-contain object-center transition duration-500 hover:scale-[1.02]"
                   loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent pl-[52px]" />
                 <span className="absolute right-3 top-3 inline-flex rounded-full bg-primary px-2 py-1 text-xs font-semibold text-white">
                   {car.product_count} {t("availableCarsPage.products")}
                 </span>

@@ -17,6 +17,7 @@ import type { Route } from "../routes/+types/_main";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
 import { garageCarsQueryOptions } from "~/lib/queries";
 import { useQuery } from "@tanstack/react-query";
+import { useGuestGarageCars } from "~/hooks/use-guest-garage-cars";
 import { FitmentBadge } from "./fitment-badge";
 import { FavoritesButton } from "./favorites-button";
 import { WhatsAppButton } from "./whatsapp-button";
@@ -202,7 +203,11 @@ function ProductCard({
     enabled: loaderData?.isAuthenticated,
   });
 
-  const userCars = garageCarsQuery.data?.userCars ?? [];
+  const guestCars = useGuestGarageCars(!loaderData?.isAuthenticated);
+
+  const userCars: UserCar[] = loaderData?.isAuthenticated
+    ? (garageCarsQuery.data?.userCars ?? [])
+    : (guestCars as unknown as UserCar[]);
 
   // Check which cars from the garage are compatible with this product
   const compatibleCars = userCars.filter((userCar: UserCar) => {
@@ -417,7 +422,7 @@ function ProductCard({
       );
     }
 
-    return !loaderData?.isAuthenticated || totalGarageCars === 0 ? (
+    return totalGarageCars === 0 ? (
       <HoverCard openDelay={300}>
         <HoverCardTrigger asChild>
           <div className="z-20 relative cursor-pointer">
@@ -523,7 +528,7 @@ function ProductCard({
       id={`product-card-${product.id}`}
       data-card-id={product.id}
       className={cn(
-        "p-2 md:p-4 rounded-lg flex flex-col relative isolate min-w-0 h-full",
+        "p-3 rounded-lg flex flex-col relative isolate min-w-0 h-full",
         "min-h-0", // Allow card to shrink if needed
         className
       )}
@@ -537,7 +542,7 @@ function ProductCard({
           to={productPath}
           state={{ id }}
           prefetch="viewport"
-          className="absolute inset-0 z-10"
+          className="absolute right-0 bottom-0 z-10 h-full w-full"
           onClick={handleStorageSession}
         >
           <span className="sr-only">{productName || "Product"}</span>
@@ -581,7 +586,7 @@ function ProductCard({
 
       {/* Product name: reserved vertical space keeps card heights aligned
           even when some products wrap to two lines. */}
-      <div className="mb-2 min-h-[40px] md:min-h-[60px] flex items-start">
+      <div className="mb-0 h-fit flex items-start justify-start">
         <h3
           className="font-semibold capitalize text-sm md:text-lg leading-snug line-clamp-2"
           aria-hidden="true"
@@ -642,7 +647,7 @@ function ProductCard({
             </Button>
           )}
           <WhatsAppButton
-            className="w-full z-20 relative h-9 text-base"
+            className="w-full z-20 relative text-[11px] whitespace-normal leading-tight h-auto py-2 gap-1 md:text-sm md:whitespace-nowrap md:h-9 md:gap-2"
             items={[
               {
                 productName: productName || "Product",
@@ -668,7 +673,7 @@ function ProductCardSkeleton() {
   return (
     <SimpleCard
       className={cn(
-        "flex-shrink-0 p-2 md:p-4 rounded-lg aspect-[15/17] flex flex-col relative isolate"
+        "flex-shrink-0 p-3 rounded-lg aspect-[15/17] flex flex-col relative isolate"
       )}
     >
       <div className="flex items-center justify-between mb-4 h-6">

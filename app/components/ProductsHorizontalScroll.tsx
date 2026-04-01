@@ -7,6 +7,8 @@ import styles from "./productsHorizontalScroll.module.css";
 interface ProductsHorizontalScrollProps {
   sectionTitle?: string;
   productsResponse: Promise<any> | { data?: { data: any[] } };
+  /** Outer section spacing; default matches home product rails */
+  wrapperClassName?: string;
 }
 
 function ProductCarousel({ initialData }: { initialData: any[] }) {
@@ -43,9 +45,10 @@ function ProductCarousel({ initialData }: { initialData: any[] }) {
 const ProductsHorizontalScroll = ({
   sectionTitle,
   productsResponse,
+  wrapperClassName = "pt-4 mb-24",
 }: ProductsHorizontalScrollProps) => {
   return (
-    <div className="pt-4 mb-24">
+    <div className={wrapperClassName}>
       {sectionTitle && (
         <div className="flex items-center justify-between max-w-7xl mx-auto px-6 mb-6">
           <h2 className="text-xl font-bold italic text-black">
@@ -55,9 +58,7 @@ const ProductsHorizontalScroll = ({
       )}
       <div className="ps-[calc(max(0px,(100vw-80rem)/2)+1.5rem)]">
         <div
-          className={
-            "flex overflow-x-auto gap-x-4 pb-2 " + styles.hideScrollbar
-          }
+          className={"flex overflow-x-auto gap-4 " + styles.hideScrollbar}
         >
           <Suspense
             fallback={Array.from({ length: 10 }).map((_, index) => (

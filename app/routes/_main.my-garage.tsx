@@ -15,7 +15,8 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "~/components/ui/h
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { GuestBanner } from "~/components/guest-banner";
-import { getGuestGarage, removeFromGuestGarage, type GuestCar } from "~/lib/guest-garage-manager";
+import { getGuestGarage, removeFromGuestGarage } from "~/lib/guest-garage-manager";
+import { useGuestGarageCars } from "~/hooks/use-guest-garage-cars";
 import type { UserCarResponse } from "~/lib/client/types.gen";
 
 export async function loader({ context }: Route.LoaderArgs) {
@@ -35,13 +36,7 @@ export default function MyGarage({ loaderData }: Route.ComponentProps) {
   });
   const removeFromGarageMutation = useMutation(removeFromGarageMutationOptions);
 
-  const [guestCars, setGuestCars] = useState<GuestCar[]>([]);
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      setGuestCars(getGuestGarage());
-    }
-  }, [isAuthenticated]);
+  const guestCars = useGuestGarageCars(!isAuthenticated);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
     containScroll: false,
@@ -161,7 +156,7 @@ export default function MyGarage({ loaderData }: Route.ComponentProps) {
             <img
             loading="lazy"
               src="/car-placeholder.png"
-              className="w-auto h-[200px] mb-10"
+              className="w-auto h-[100px] mb-10"
               alt={t("empty.imageAlt")}
             />
             <div className="text-muted-foreground space-y-2 mb-6">
@@ -172,7 +167,7 @@ export default function MyGarage({ loaderData }: Route.ComponentProps) {
                 {t("empty.noCarsDescription")}
               </div>
             </div>
-            <AddNewCarDialog onSuccess={() => setGuestCars(getGuestGarage())} />
+            <AddNewCarDialog />
           </div>
         </div>
       </>
@@ -219,9 +214,7 @@ export default function MyGarage({ loaderData }: Route.ComponentProps) {
             </h1>
           </div>
           <div className="shrink-0">
-            <AddNewCarDialog onSuccess={() => {
-              if (!isAuthenticated) setGuestCars(getGuestGarage());
-            }} />
+            <AddNewCarDialog />
           </div>
         </div>
 
@@ -324,7 +317,6 @@ export default function MyGarage({ loaderData }: Route.ComponentProps) {
                           if (!isAuthenticated) {
                             removeFromGuestGarage(userCars[selectedIndex].id);
                             const updated = getGuestGarage();
-                            setGuestCars(updated);
                             if (selectedIndex >= updated.length) {
                               setSelectedIndex(Math.max(0, updated.length - 1));
                             }

@@ -1,11 +1,9 @@
-import { Link, href, useRouteLoaderData } from "react-router";
+import { Link, href } from "react-router";
 import { Loader2 } from "lucide-react";
 import { AddNewCarDialog } from "~/components/add-new-car-dialog";
 import { cn } from "~/lib/utils";
 import type { UserCarsResponse } from "~/lib/client";
 import { useTranslation } from "react-i18next";
-import type { Route } from "../routes/+types/_main";
-import { useAuthModal } from "~/context/AuthModalContext";
 
 type UserCar = UserCarsResponse["data"]["userCars"][0];
 
@@ -13,16 +11,18 @@ export function GarageHoverPopupContent({
   userCars,
   isLoading,
   className,
+  /** Close parent dialog/sheet when user follows an in-popup link */
+  onNavigateAway,
+  /** Refresh car list after add (guest local storage or auth mutation) */
+  onGarageDataChanged,
 }: {
   userCars: UserCar[];
   isLoading?: boolean;
   className?: string;
+  onNavigateAway?: () => void;
+  onGarageDataChanged?: () => void;
 }) {
   const { i18n } = useTranslation();
-  const loaderData =
-    useRouteLoaderData<Route.ComponentProps["loaderData"]>("routes/_main");
-  const isAuthenticated = !!loaderData?.isAuthenticated;
-  const { openAuthModal } = useAuthModal();
   const isRTL = (i18n.language || "").startsWith("ar");
   const hasCars = userCars.length > 0;
   const strings = {
@@ -56,7 +56,8 @@ export function GarageHoverPopupContent({
           </p>
         </div>
         <Link
-          to="/my-garage"
+          to={href("/my-garage")}
+          onClick={() => onNavigateAway?.()}
           className="text-sm text-black/50 hover:text-black underline"
         >
           {strings.viewGarage}
@@ -71,22 +72,24 @@ export function GarageHoverPopupContent({
       ) : hasCars ? (
         <div className="max-h-[220px] overflow-y-auto pr-2 space-y-3">
           {userCars.map((car) => {
-            const year =
-              car.carDetails.year ??
-              car.carDetails.yearFrom ??
-              car.carDetails.yearTo ??
-              null;
+            const d = car.carDetails as {
+              year?: number;
+              yearFrom?: number | null;
+              yearTo?: number | null;
+            };
+            const year = d.year ?? d.yearFrom ?? d.yearTo ?? null;
             const params = new URLSearchParams();
             params.set("carId", car.carId);
             params.set("carBrand", car.carDetails.brand);
             params.set("carModel", car.carDetails.model);
-            if (year) {
+            if (year != null) {
               params.set("carYear", String(year));
             }
             return (
               <Link
                 key={car.id}
-                to={`/shop?${params.toString()}`}
+                to={href("/shop") + `?${params.toString()}`}
+                onClick={() => onNavigateAway?.()}
                 className="group flex items-center justify-between gap-4 rounded-[6px] border border-[#e6e6e6] bg-white px-4 py-3 hover:border-[#cf172f] hover:bg-[#fff5f6] transition-colors"
               >
                 <div className="flex items-center gap-4 min-w-0">
@@ -138,7 +141,7 @@ export function GarageHoverPopupContent({
       )}
 
       <div className="mt-4 flex justify-end">
-        <AddNewCarDialog />
+        <AddNewCarDialog onSuccess={onGarageDataChanged} />
       </div>
     </div>
   );

@@ -83,6 +83,15 @@
   },
   "featuredBanner": {
     "viewProduct": "عرض المنتج",
-    "featuredFor": "مميز لـ {{brand}} {{model}}"
+    "featuredFor": "مميز لـ {{brand}} {{model}}",
+    "featuredProductsAria": "منتجات مميزة",
+    "previousSlide": "السابق",
+    "nextSlide": "التالي",
+    "productSlide": "المنتج {{index}}",
+    "addingToCart": "جارٍ الإضافة...",
+    "toggleFavorite": "تبديل المفضلة"
+  },
+  "homeCarousel": {
+    "viewGarage": "عرض الكراج"
   }
 }

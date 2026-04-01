@@ -72,7 +72,7 @@ export default function Profile({ loaderData }: Route.ComponentProps) {
 
             <div className="h-px bg-[#e6e6e6]"></div>
 
-            <NavItem to="/profile/support" icon={SupportNavIcon}>
+            <NavItem to="/support" icon={SupportNavIcon}>
               {t('menu.support')}
             </NavItem>
 
