@@ -17,6 +17,7 @@ import { getLocaleWithCookie } from "./lib/i18n-cookie";
 import { AuthModalProvider } from "./context/AuthModalContext";
 import { AuthModal } from "./components/auth/AuthModal";
 import { CurrencyProvider } from "~/hooks/use-currency";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 export const middleware: MiddlewareFunction[] = [globalAuthMiddleware];
 
@@ -200,6 +201,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Toaster className="hidden" />
         <ScrollRestoration />
         <Scripts />
+        <SpeedInsights />
       </body>
     </html>
   );
