@@ -11,7 +11,7 @@ import type { Route } from "./+types/_main.shop._index";
 import { getApiProductsPublic, getApiCategoriesPublic, type GetApiCategoriesPublicResponse, } from "~/lib/client";
 import { defaultParams } from "~/lib/api-client";
 import { InlineAccordion, InlineAccordionContent, InlineAccordionItem, InlineAccordionTrigger, } from "~/components/ui/inline-accordion";
-import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
 import { Drawer, DrawerClose, DrawerContent, DrawerTrigger, } from "~/components/ui/drawer";
 import { Label } from "@radix-ui/react-label";
@@ -300,9 +300,12 @@ function ProductsGrid() {
   const {
     data: productsPages,
     isFetchingNextPage,
+    isFetching,
+    isPending,
     fetchNextPage,
     hasNextPage,
-  } = useSuspenseInfiniteQuery({
+    error,
+  } = useInfiniteQuery({
     queryKey: [...queryKey, currentLang],
     queryFn: async ({ pageParam }) => {
       // Use initial data only for first page when no filters are applied
@@ -375,11 +378,41 @@ function ProductsGrid() {
     initialPageParam: 1,
   });
 
+  /** First page / filter change: show skeleton. Pagination uses bottom spinner only. */
+  const showProductsSkeleton =
+    isPending || (isFetching && !productsPages);
+
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  if (error) {
+    return (
+      <div className="text-center py-16 text-muted-foreground">
+        <h3 className="text-xl font-semibold mb-4">Could not load products</h3>
+        <p className="mb-4 text-sm">{error instanceof Error ? error.message : "Something went wrong"}</p>
+        <Button asChild variant="outline">
+          <Link to={href("/shop")}>Try again</Link>
+        </Button>
+      </div>
+    );
+  }
+
+  if (showProductsSkeleton) {
+    return (
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 w-full">
+        {Array.from({ length: 9 }).map((_, index) => (
+          <ProductCardSkeleton key={index} />
+        ))}
+      </div>
+    );
+  }
+
+  if (!productsPages?.pages?.length) {
+    return null;
+  }
 
   const renderUniqueProducts = () => {
     const uniqueProducts = new Map();

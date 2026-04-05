@@ -12,7 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FormControl, FormField, FormItem, FormLabel, Form, } from "~/components/ui/form";
 import { useQuery } from "@tanstack/react-query";
 import { carBrandsQueryOptions, carModelsQueryOptions, productsQueryOptions, } from "~/lib/queries";
-import { useQueryStates } from "nuqs";
+import { createSerializer, useQueryStates } from "nuqs";
 import { serializeShopURL, shopSearchParamsSchema, } from "~/routes/_main.shop._index";
 import { useDebounce } from "use-debounce";
 import { useTranslation } from "react-i18next";
@@ -81,6 +81,21 @@ function shopParamsFromFormState<S extends Record<string, unknown>>(
   };
 }
 
+/** Build a shop URL for the current route (preserves `/shop` vs `/shop/car-parts`, etc.). */
+function shopUrlForCurrentLocation(
+  pathname: string,
+  currentSearch: string,
+  formValues: ProductSearchFormValues,
+  nuqsState: Record<string, unknown>
+) {
+  const serializer = createSerializer(shopSearchParamsSchema);
+  const base = `${pathname}${currentSearch || ""}`;
+  return serializer(
+    base,
+    shopParamsFromFormState(nuqsState, formValues) as Record<string, string | number | null | undefined>
+  );
+}
+
 function ProductSearch({
   className,
   searchPlaceholder,
@@ -103,8 +118,23 @@ function ProductSearch({
   const { t, i18n } = useTranslation("shop");
   const isRTL = i18n.language === "ar";
 
-  const [searchParams] = useQueryStates(shopSearchParamsSchema);
+  const [searchParams, setSearchParams] = useQueryStates(shopSearchParamsSchema);
+  /** Any shop listing route: `/shop`, `/shop/car-parts`, … (not only the index). */
+  const isShopRoute = location.pathname.startsWith("/shop");
   const isCompact = size === "compact";
+
+  const applyShopFiltersFromForm = useCallback(
+    (formValues: ProductSearchFormValues) => {
+      const merged = shopParamsFromFormState(searchParams, formValues);
+      setSearchParams({
+        search: merged.search ?? null,
+        carBrand: merged.carBrand ?? null,
+        carModel: merged.carModel ?? null,
+        carYear: merged.carYear ?? null,
+      });
+    },
+    [searchParams, setSearchParams]
+  );
   const compactSelectWidth = "w-full sm:w-[8rem] lg:w-[8.5rem] xl:w-36";
 
   const form = useForm({
@@ -282,15 +312,24 @@ function ProductSearch({
 
   const onSubmit = (data: z.infer<typeof searchSchema>) => {
     setShowDropdown(false);
-    navigate(
-      serializeShopURL({
-        ...searchParams,
-        search: data.search,
-        carBrand: data.carBrand,
-        carModel: data.carModel,
-        carYear: data.carYear ? parseInt(String(data.carYear), 10) : undefined,
-      })
-    );
+    if (isShopRoute) {
+      applyShopFiltersFromForm({
+        search: data.search ?? "",
+        carBrand: data.carBrand ?? anyValue,
+        carModel: data.carModel ?? anyValue,
+        carYear: data.carYear != null ? String(data.carYear) : anyValue,
+      });
+    } else {
+      navigate(
+        serializeShopURL({
+          ...searchParams,
+          search: data.search,
+          carBrand: data.carBrand,
+          carModel: data.carModel,
+          carYear: data.carYear ? parseInt(String(data.carYear), 10) : undefined,
+        })
+      );
+    }
     onSubmitSuccess?.();
   };
 
@@ -438,9 +477,18 @@ function ProductSearch({
                     })}
                     <div className="border-t border-gray-100 mt-2 pt-2">
                       <Link
-                        to={serializeShopURL(
-                          shopParamsFromFormState(searchParams, form.getValues())
-                        )}
+                        to={
+                          isShopRoute
+                            ? shopUrlForCurrentLocation(
+                                location.pathname,
+                                location.search,
+                                form.getValues(),
+                                searchParams
+                              )
+                            : serializeShopURL(
+                                shopParamsFromFormState(searchParams, form.getValues())
+                              )
+                        }
                         className="w-full text-start px-2 py-2 text-sm text-primary hover:bg-gray-50 rounded-md transition-colors block"
                       >
                         {t("search.viewAllResults")} "{form.watch("search")}"
@@ -470,16 +518,12 @@ function ProductSearch({
                         onValueChange={(value) => {
                           field.onChange(value);
                           form.setValue("carModel", anyValue);
-                          if (location.pathname === "/shop") {
-                            navigate(
-                              serializeShopURL(
-                                shopParamsFromFormState(searchParams, {
-                                  ...form.getValues(),
-                                  carBrand: value,
-                                  carModel: anyValue,
-                                })
-                              )
-                            );
+                          if (isShopRoute) {
+                            applyShopFiltersFromForm({
+                              ...form.getValues(),
+                              carBrand: value,
+                              carModel: anyValue,
+                            });
                           }
                         }}
                       >
@@ -536,15 +580,11 @@ function ProductSearch({
                         value={field.value}
                         onValueChange={(value) => {
                           field.onChange(value);
-                          if (location.pathname === "/shop") {
-                            navigate(
-                              serializeShopURL(
-                                shopParamsFromFormState(searchParams, {
-                                  ...form.getValues(),
-                                  carModel: value,
-                                })
-                              )
-                            );
+                          if (isShopRoute) {
+                            applyShopFiltersFromForm({
+                              ...form.getValues(),
+                              carModel: value,
+                            });
                           }
                         }}
                         disabled={form.watch("carBrand") === anyValue}
@@ -599,15 +639,11 @@ function ProductSearch({
                         value={field.value}
                         onValueChange={(value) => {
                           field.onChange(value);
-                          if (location.pathname === "/shop") {
-                            navigate(
-                              serializeShopURL(
-                                shopParamsFromFormState(searchParams, {
-                                  ...form.getValues(),
-                                  carYear: value,
-                                })
-                              )
-                            );
+                          if (isShopRoute) {
+                            applyShopFiltersFromForm({
+                              ...form.getValues(),
+                              carYear: value,
+                            });
                           }
                         }}
                       >

@@ -12,7 +12,7 @@ import { getApiProductsPublic, getApiCategoriesPublic, getApiProductTypes } from
 import { productsByTypeInfiniteQueryOptions } from "~/lib/queries";
 import { defaultParams } from "~/lib/api-client";
 import { InlineAccordion, InlineAccordionContent, InlineAccordionItem, InlineAccordionTrigger, } from "~/components/ui/inline-accordion";
-import { dehydrate, HydrationBoundary, QueryClient, useSuspenseInfiniteQuery } from "@tanstack/react-query";
+import { dehydrate, HydrationBoundary, QueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
 import { Drawer, DrawerContent, DrawerTrigger } from "~/components/ui/drawer";
 import { Label } from "@radix-ui/react-label";
@@ -354,18 +354,27 @@ function ProductsGrid({
     limit: LIMIT,
   });
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, error } =
-    useSuspenseInfiniteQuery({
-      ...productsQueryOptions,
-      initialData: !hasActiveFilters
-        ? safeInitialData
-          ? {
-              pages: [safeInitialData],
-              pageParams: [1],
-            }
-          : undefined
-        : undefined,
-    });
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetching,
+    isPending,
+    error,
+  } = useInfiniteQuery({
+    ...productsQueryOptions,
+    initialData: !hasActiveFilters
+      ? safeInitialData
+        ? {
+            pages: [safeInitialData],
+            pageParams: [1],
+          }
+        : undefined
+      : undefined,
+  });
+
+  const showProductsSkeleton = isPending || (isFetching && !data);
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
@@ -393,6 +402,16 @@ function ProductsGrid({
         <Button onClick={() => window.location.reload()} variant="outline">
           Retry
         </Button>
+      </div>
+    );
+  }
+
+  if (showProductsSkeleton) {
+    return (
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+        {Array.from({ length: 9 }).map((_, index) => (
+          <ProductCardSkeleton key={index} />
+        ))}
       </div>
     );
   }
