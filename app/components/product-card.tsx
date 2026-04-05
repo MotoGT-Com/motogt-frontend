@@ -12,7 +12,15 @@ import { cn } from "~/lib/utils";
 import type { GetApiHomeExteriorProductsResponse, ProductItem, UserCarsResponse, } from "~/lib/client";
 import { useCartManager } from "~/lib/cart-manager";
 import { useFavoritesManager } from "~/lib/favorites-manager";
-import { useId, useState, useEffect, useMemo, useCallback, useRef, } from "react";
+import {
+  useId,
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
 import type { Route } from "../routes/+types/_main";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
 import { garageCarsQueryOptions } from "~/lib/queries";
@@ -32,26 +40,20 @@ import { useAuthModal } from "~/context/AuthModalContext";
 type UserCar = UserCarsResponse["data"]["userCars"][0];
 type FavoriteItem = ProductItem | GetApiHomeExteriorProductsResponse["data"][0];
 
+/** Intrinsic size for layout reservation (4:3). Matches aspect-[4/3] box. */
+const PRODUCT_CARD_IMAGE_WIDTH = 800;
+const PRODUCT_CARD_IMAGE_HEIGHT = 600;
+
 /**
- * BlurUpImage Component
- *
- * An optimized image component that displays a blurred placeholder while the
- * full-quality image loads, then smoothly transitions to the sharp image.
- * This provides a better user experience by showing content immediately while
- * the high-quality image loads in the background.
- *
- * @param src - Image source URL
- * @param alt - Alt text for accessibility
- * @param className - Optional CSS classes for styling
- *
- * @example
- * ```tsx
- * <BlurUpImage
- *   src="/product-image.jpg"
- *   alt="Product name"
- *   className="w-full h-full"
- * />
- * ```
+ * Use the original asset URL. (Query-based CDN resizing is intentionally not applied here —
+ * appending w/h broke some CloudFront origins while `width`/`height` on <img> still reserve layout.)
+ */
+function productImageSrc(url: string): string {
+  return url?.trim() ?? "";
+}
+
+/**
+ * Product image: fixed aspect-ratio box + shimmer until load to minimize CLS.
  */
 function BlurUpImage({
   src,
@@ -63,40 +65,70 @@ function BlurUpImage({
   className?: string;
 }) {
   const [isLoaded, setIsLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
 
-  // Reset loaded state when src changes (for hover image switching)
-  useEffect(() => {
+  const displaySrc = src ? productImageSrc(src) : "";
+
+  const frameClass = cn(
+    "relative w-full aspect-[4/3] overflow-hidden rounded-md bg-muted/30",
+    className
+  );
+
+  // Cached / already-decoded images often fire `load` before React attaches onLoad — check `complete`.
+  useLayoutEffect(() => {
+    if (!displaySrc) return;
+
     setIsLoaded(false);
-  }, [src]);
 
-  if (!src) return null;
+    const img = imgRef.current;
+    if (!img) return;
+
+    const markLoaded = () => {
+      setIsLoaded(true);
+    };
+
+    if (img.complete) {
+      markLoaded();
+      return;
+    }
+
+    img.addEventListener("load", markLoaded, { once: true });
+    img.addEventListener("error", markLoaded, { once: true });
+    return () => {
+      img.removeEventListener("load", markLoaded);
+      img.removeEventListener("error", markLoaded);
+    };
+  }, [displaySrc]);
+
+  if (!displaySrc) {
+    return (
+      <div className={frameClass} aria-hidden>
+        <div className="absolute inset-0 skeleton-shimmer rounded-md" />
+      </div>
+    );
+  }
 
   return (
-    <div className={cn("relative overflow-hidden w-full", className)}>
-      {/* Blurred placeholder - visible while loading */}
+    <div className={frameClass}>
+      {!isLoaded && (
+        <div
+          className="absolute inset-0 z-[1] skeleton-shimmer rounded-md"
+          aria-hidden
+        />
+      )}
       <img
-      loading="lazy"
-        src={src}
-        alt=""
-        className={cn(
-          "absolute inset-0 w-full h-full object-contain transition-opacity duration-700 ease-out ",
-          isLoaded ? "opacity-0" : "opacity-100"
-        )}
-        // style={{
-        //   filter: "blur(20px)",
-        //   transform: "scale(1.1)",
-        // }}
-        aria-hidden="true"
-      />
-      {/* Full-quality image - fades in when loaded */}
-      <img
-        src={src}
+        ref={imgRef}
+        src={displaySrc}
         alt={alt}
+        width={PRODUCT_CARD_IMAGE_WIDTH}
+        height={PRODUCT_CARD_IMAGE_HEIGHT}
+        sizes="(max-width: 768px) 45vw, (max-width: 1280px) 32vw, 400px"
+        loading="lazy"
+        decoding="async"
         className={cn(
-          "relative w-full h-full object-contain transition-opacity duration-700 ease-out  md:max-h-none",
+          "absolute inset-0 h-full w-full object-contain transition-opacity duration-300 ease-out",
           isLoaded ? "opacity-100" : "opacity-0"
         )}
-        loading="lazy"
         onLoad={() => setIsLoaded(true)}
         onError={() => setIsLoaded(true)}
       />
@@ -167,7 +199,7 @@ function ProductCard({
     if (typeof window === "undefined" || !product.secondaryImage) return;
 
     const preloadImage = new Image();
-    preloadImage.src = product.secondaryImage;
+    preloadImage.src = productImageSrc(product.secondaryImage);
   }, [product.secondaryImage]);
   
   // Currency hook for price conversion
@@ -528,8 +560,7 @@ function ProductCard({
       id={`product-card-${product.id}`}
       data-card-id={product.id}
       className={cn(
-        "p-3 rounded-lg flex flex-col relative isolate min-w-0 h-full",
-        "min-h-0", // Allow card to shrink if needed
+        "p-3 rounded-lg flex flex-col relative isolate min-w-0 h-full min-h-0",
         className
       )}
       onMouseEnter={() => setIsHovered(true)}
@@ -550,53 +581,47 @@ function ProductCard({
       ) : null}
 
       {/* Header row: compatible car label + fit-check CTA / status */}
-      <div className="flex items-center justify-start md:justify-between mb-4">
-        {/* Desktop: Car label in header */}
+      <div className="flex shrink-0 items-center justify-start md:justify-between mb-3 md:mb-4">
         {displayLabel ? (
           <p className="hidden md:block text-sm capitalize font-semibold text-muted-foreground">
             {displayLabel.toLocaleLowerCase()}
           </p>
         ) : null}
-        {/* Fit badge: left-aligned on mobile, right-aligned on desktop */}
         {fitmentBadge()}
       </div>
 
-      {/* Image area: takes up remaining vertical space so all cards are equal height */}
-      <div className="rounded mb-1 md:mb-4 flex-1 ">
+      {/* Fixed aspect image — reserves space immediately; shimmer until loaded */}
+      <div className="shrink-0 w-full mb-2 md:mb-3">
         <BlurUpImage
-          key={isHovered && product.secondaryImage ? 'secondary' : 'primary'}
+          key={isHovered && product.secondaryImage ? "secondary" : "primary"}
           src={
             isHovered && product.secondaryImage
               ? product.secondaryImage
               : (product.mainImage ?? "")
           }
           alt={productName || "Product Image"}
-          className="w-full rounded object-contain"
         />
       </div>
 
-      {/* Mobile: Car label below image */}
       {displayLabel ? (
-        <div className="mb-2 md:hidden">
+        <div className="mb-2 shrink-0 md:hidden">
           <p className="text-[10px] capitalize font-semibold text-[rgba(0,0,0,0.5)] leading-[20px]">
             {displayLabel.toLocaleLowerCase()}
           </p>
         </div>
       ) : null}
 
-      {/* Product name: reserved vertical space keeps card heights aligned
-          even when some products wrap to two lines. */}
-      <div className="mb-0 h-fit flex items-start justify-start">
+      {/* Title + commerce: flex-1 keeps bottom actions aligned in grid rows */}
+      <div className="flex min-h-0 flex-1 flex-col justify-between gap-2">
         <h3
-          className="font-semibold capitalize text-sm md:text-lg leading-snug line-clamp-2"
+          className="min-h-[2.75rem] font-semibold capitalize text-sm md:text-lg leading-snug line-clamp-2 md:min-h-[3.25rem]"
           aria-hidden="true"
         >
           {(productName || "Product").toLocaleLowerCase()}
         </h3>
-      </div>
 
-      {/* Price + wishlist + add-to-cart actions */}
-      <div className="space-y-4">
+        {/* Price + wishlist + add-to-cart actions */}
+        <div className="shrink-0 space-y-4">
         <div className="flex items-center justify-between">
           <span className="font-bold text-sm">
             {isLoadingPrice ? (
@@ -661,6 +686,7 @@ function ProductCard({
           />
         </div>
       </div>
+      </div>
     </SimpleCard>
   );
 }
@@ -673,30 +699,32 @@ function ProductCardSkeleton() {
   return (
     <SimpleCard
       className={cn(
-        "flex-shrink-0 p-3 rounded-lg aspect-[15/17] flex flex-col relative isolate"
+        "flex h-full min-h-0 min-w-0 flex-shrink-0 flex-col rounded-lg p-3"
       )}
     >
-      <div className="flex items-center justify-between mb-4 h-6">
-        <h3 className="font-bold capitalize line-clamp-1" aria-hidden="true">
-          <span className="text-background-secondary bg-background-secondary animate-pulse">
-            Product Name Skeleton Loading
-          </span>
-        </h3>
+      <div className="mb-3 flex h-6 shrink-0 items-center justify-between md:mb-4">
+        <span className="skeleton-shimmer h-4 w-24 rounded-md" aria-hidden />
+        <span className="skeleton-shimmer h-8 w-16 rounded-md" aria-hidden />
       </div>
 
-      <div className="rounded mb-4 h-[100px] flex-1 bg-background-secondary animate-pulse"></div>
+      <div className="relative mb-2 aspect-[4/3] w-full shrink-0 overflow-hidden rounded-md md:mb-3">
+        <div className="absolute inset-0 skeleton-shimmer rounded-md" aria-hidden />
+      </div>
 
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <span className="font-bold text-sm">
-            <span className="text-background-secondary bg-background-secondary animate-pulse">
-              JOD XXX
-            </span>
-          </span>
-          <div className="w-8 h-8 bg-background-secondary animate-pulse"></div>
+      <div className="flex min-h-0 flex-1 flex-col justify-between gap-2">
+        <div className="min-h-[2.75rem] space-y-2 md:min-h-[3.25rem]">
+          <div className="skeleton-shimmer h-4 w-full rounded-md" aria-hidden />
+          <div className="skeleton-shimmer h-4 w-[85%] rounded-md" aria-hidden />
         </div>
 
-        <div className="w-full h-8 bg-background-secondary animate-pulse"></div>
+        <div className="shrink-0 space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="skeleton-shimmer h-4 w-20 rounded-md" aria-hidden />
+            <span className="skeleton-shimmer size-8 rounded-md" aria-hidden />
+          </div>
+          <div className="skeleton-shimmer h-9 w-full rounded-md" aria-hidden />
+          <div className="skeleton-shimmer h-9 w-full rounded-md" aria-hidden />
+        </div>
       </div>
     </SimpleCard>
   );
