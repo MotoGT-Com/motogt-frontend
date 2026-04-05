@@ -5,6 +5,22 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "~/components/ui/h
 import { useFavoritesManager } from "~/lib/favorites-manager";
 import getLocalizedTranslation from "~/lib/get-locale-translation";
 import { useCurrency } from "~/hooks/use-currency";
+import { SUPPORTED_CURRENCIES, type Currency } from "~/lib/constants";
+import type { ProductItem } from "~/lib/client/types.gen";
+
+function itemToCurrency(item: ProductItem | { currency?: string }): Currency {
+  const raw =
+    typeof item === "object" &&
+    item &&
+    "currency" in item &&
+    typeof (item as { currency?: string }).currency === "string"
+      ? (item as { currency: string }).currency
+      : "JOD";
+  const u = raw.toUpperCase();
+  return (SUPPORTED_CURRENCIES as readonly string[]).includes(u)
+    ? (u as Currency)
+    : "JOD";
+}
 import { useTranslation } from "react-i18next";
 import { buildProductPath } from "~/lib/product-url";
 import type { Route } from "../routes/+types/_main";
@@ -29,13 +45,26 @@ export function WishlistHoverPopup({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     if (!open || visible.length === 0) return;
-    const conversions: Record<string, number> = {};
-    Promise.all(
-      visible.map(async (item) => {
-        conversions[item.id] = await convertPrice(item.price);
-      })
-    ).then(() => setConvertedPrices({ ...conversions }));
-  }, [open, visible.length, selectedCurrency]);
+    let cancelled = false;
+
+    void (async () => {
+      const conversions: Record<string, number> = {};
+      for (const item of visible) {
+        const fc = itemToCurrency(item);
+        try {
+          const r = await convertPrice(item.price, fc);
+          conversions[item.id] = r.convertedAmount;
+        } catch {
+          conversions[item.id] = item.price;
+        }
+      }
+      if (!cancelled) setConvertedPrices(conversions);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [open, visible, convertPrice, selectedCurrency]);
 
   const strings = {
     title: isRTL ? "قائمة الأمنيات" : "My Wishlist",

@@ -14,17 +14,24 @@ import { useCurrency } from "~/hooks/use-currency";
 import { useEffect, useState, type MouseEvent } from "react";
 import { WhatsAppButton } from "~/components/whatsapp-button";
 import getLocalizedTranslation from "~/lib/get-locale-translation";
+import type { ProductItem } from "~/lib/client/types.gen";
 import { useAuthModal } from "~/context/AuthModalContext";
+import { getLocaleFromRequest } from "~/lib/i18n-cookie";
+import { config } from "~/config";
 
 // Loader function to fetch cart data
-export async function loader({ context }: Route.LoaderArgs) {
+export async function loader({ context, request }: Route.LoaderArgs) {
   try {
     const auth = context.get(authContext);
+    const locale = await getLocaleFromRequest(request);
+    const languageId =
+      locale === "ar" ? config.languageIds.ar : config.languageIds.en;
 
     // Fetch recommended products
     const recommendedProductsResponse = await getApiProductsPublic({
       query: {
         storeId: defaultParams.storeId,
+        languageId,
         page: 1,
         limit: 10,
         sortBy: "createdAt",
@@ -271,8 +278,10 @@ export default function Cart({ loaderData }: Route.ComponentProps) {
                         items={cartQuery.data.items.map((item: any) => ({
                           productName:
                             getLocalizedTranslation(
-                              item.product?.translations ??
-                                item.productTranslations
+                              (item.product?.translations ??
+                                item.productTranslations) as
+                                | ProductItem["translations"]
+                                | undefined
                             )?.name || "Product",
                           itemCode:
                             item.itemCode ??

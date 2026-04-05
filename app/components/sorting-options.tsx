@@ -3,37 +3,59 @@ import { Button } from "~/components/ui/button";
 import { InlineAccordion, InlineAccordionContent, InlineAccordionItem, InlineAccordionTrigger, } from "~/components/ui/inline-accordion";
 import { useTranslation } from "react-i18next";
 import { cn } from "~/lib/utils";
+import { useQueryStates } from "nuqs";
+import { shopSearchParamsSchema } from "~/lib/shop-search-params";
 import { useSearchParams } from "react-router";
 
+type SortCombo = {
+  sortBy: "name" | "price" | "createdAt" | "stockQuantity" | "carCompatibility";
+  sortOrder: "asc" | "desc";
+};
+
+type SortPresetKey =
+  | "none"
+  | "price-desc"
+  | "price-asc"
+  | "name-asc"
+  | "name-desc";
+
+const SORT_PRESETS: Record<SortPresetKey, SortCombo | null> = {
+  none: null,
+  "price-desc": { sortBy: "price", sortOrder: "desc" },
+  "price-asc": { sortBy: "price", sortOrder: "asc" },
+  "name-asc": { sortBy: "name", sortOrder: "asc" },
+  "name-desc": { sortBy: "name", sortOrder: "desc" },
+};
+
 function SortingOptions() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [params, setParams] = useQueryStates(shopSearchParamsSchema);
+  const [routerSearch, setRouterSearch] = useSearchParams();
 
   const { t } = useTranslation("shop");
 
-  const sortParam = searchParams.get("sort");
-  const sortBy = searchParams.get("sortBy");
-  const sortOrder = searchParams.get("sortOrder");
   const currentSort =
-    sortParam
-      ? sortParam.replace("_", "-")
-      : sortBy && sortOrder
-        ? `${sortBy}-${sortOrder}`
-        : "none";
+    params.sortBy && params.sortOrder
+      ? `${params.sortBy}-${params.sortOrder}`
+      : "none";
   const isAnySelected = currentSort === "none";
 
-  const handleSortChange = (value: string) => {
-    const nextParams = new URLSearchParams(searchParams);
-    if (value === "none") {
-      nextParams.delete("sort");
-      nextParams.delete("sortBy");
-      nextParams.delete("sortOrder");
-    } else {
-      const [nextSortBy, nextSortOrder] = value.split("-");
-      nextParams.set("sort", `${nextSortBy}_${nextSortOrder}`);
-      nextParams.set("sortBy", nextSortBy);
-      nextParams.set("sortOrder", nextSortOrder);
+  /** Drop legacy `sort=price_desc`-style param so it cannot override cleared nuqs state. */
+  const stripLegacySortParam = () => {
+    if (!routerSearch.has("sort")) return;
+    const next = new URLSearchParams(routerSearch);
+    next.delete("sort");
+    setRouterSearch(next, { replace: true });
+  };
+
+  const handleSortChange = (key: SortPresetKey) => {
+    const combo = SORT_PRESETS[key];
+    if (!combo) {
+      void setParams({ sortBy: null, sortOrder: null });
+      stripLegacySortParam();
+      return;
     }
-    setSearchParams(nextParams);
+    void setParams({ sortBy: combo.sortBy, sortOrder: combo.sortOrder });
+    stripLegacySortParam();
   };
 
   return (
@@ -51,6 +73,7 @@ function SortingOptions() {
               {/* First row */}
               <div className="flex gap-2">
                 <Button
+                  type="button"
                   onClick={() => handleSortChange("none")}
                   variant="ghost"
                   size="sm"
@@ -64,6 +87,7 @@ function SortingOptions() {
                   {t("sort.any")}
                 </Button>
                 <Button
+                  type="button"
                   onClick={() => handleSortChange("price-desc")}
                   variant="ghost"
                   size="sm"
@@ -80,6 +104,7 @@ function SortingOptions() {
               {/* Second row */}
               <div className="flex gap-2">
                 <Button
+                  type="button"
                   onClick={() => handleSortChange("price-asc")}
                   variant="ghost"
                   size="sm"
@@ -96,6 +121,7 @@ function SortingOptions() {
               {/* Third row */}
               <div className="flex gap-2">
                 <Button
+                  type="button"
                   onClick={() => handleSortChange("name-asc")}
                   variant="ghost"
                   size="sm"
@@ -109,6 +135,7 @@ function SortingOptions() {
                   {t("sort.nameAsc")}
                 </Button>
                 <Button
+                  type="button"
                   onClick={() => handleSortChange("name-desc")}
                   variant="ghost"
                   size="sm"

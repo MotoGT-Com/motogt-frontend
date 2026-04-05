@@ -19,7 +19,7 @@ describe("product URL utilities", () => {
       translations: [{ languageCode: "en", name: "MotoWolf Jacket" }],
     });
 
-    expect(path).toBe("/shop/product/motowolf-jacket-1025");
+    expect(path).toBe("/product/motowolf-jacket-1025");
   });
 
   it("prefers slug_en when english name is not present in current payload", () => {
@@ -30,7 +30,7 @@ describe("product URL utilities", () => {
     });
 
     expect(path).toBe(
-      "/shop/product/motowolf-fast-lock-phone-holder-e328b9f1-a857-486f-b4be-a3fa34f522af"
+      "/product/motowolf-fast-lock-phone-holder-e328b9f1-a857-486f-b4be-a3fa34f522af"
     );
   });
 

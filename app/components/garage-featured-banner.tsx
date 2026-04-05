@@ -14,6 +14,7 @@ import { useCartManager } from "~/lib/cart-manager";
 import { useFavoritesManager } from "~/lib/favorites-manager";
 import { useCurrency } from "~/hooks/use-currency";
 import type { Route } from "../routes/+types/_main";
+import { SUPPORTED_CURRENCIES, type Currency } from "~/lib/constants";
 
 type UserCar = UserCarsResponse["data"]["userCars"][number];
 type Props = { userCars: UserCar[] };
@@ -31,15 +32,23 @@ function shuffleArray<T>(items: T[]): T[] {
 }
 
 
+function toCurrencyCode(value: string): Currency {
+  const upper = (value || "JOD").toUpperCase();
+  return (SUPPORTED_CURRENCIES as readonly string[]).includes(upper)
+    ? (upper as Currency)
+    : "JOD";
+}
+
 function SlidePrice({ price, currency: productCurrency }: { price: number; currency: string }) {
   const { selectedCurrency, convertPrice } = useCurrency();
   const [displayPrice, setDisplayPrice] = useState<number>(price);
   useEffect(() => {
-    if (selectedCurrency === productCurrency) { setDisplayPrice(price); return; }
-    convertPrice(price, productCurrency)
+    const from = toCurrencyCode(productCurrency);
+    if (selectedCurrency === from) { setDisplayPrice(price); return; }
+    convertPrice(price, from)
       .then(r => setDisplayPrice(r.convertedAmount))
       .catch(() => setDisplayPrice(price));
-  }, [price, selectedCurrency, productCurrency]);
+  }, [price, selectedCurrency, productCurrency, convertPrice]);
   return (
     <span className="text-white font-bold text-base sm:text-lg md:text-2xl mt-2 md:mt-3">
       {selectedCurrency} {displayPrice.toFixed(2)}
@@ -170,8 +179,8 @@ export function GarageFeaturedBanner({ userCars }: Props) {
 
         randomPool = randomPool.map((product) => ({
           ...product,
-          slug_en: englishSlugById.get(product.id) ?? product.slug_en,
-        })) as ProductItem[];
+          slug_en: englishSlugById.get(product.id) ?? product.slug_en ?? null,
+        }));
       }
 
       return shuffleArray(randomPool).slice(0, MAX_FEATURED_PRODUCTS);

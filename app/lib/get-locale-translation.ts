@@ -21,7 +21,9 @@ const isAsciiSlug = (value: unknown): value is string =>
 /**
  * Get localized translation from translations array based on current language
  */
-function getLocalizedTranslation<T extends { languageCode: string }>(translations: T[] | undefined): T | undefined {
+function getLocalizedTranslation<
+  T extends { languageCode: string; name?: string | null },
+>(translations: T[] | undefined): T | undefined {
   if (!translations || translations.length === 0) return undefined;
   
   const currentLang = (i18n.language || "").split("-")[0]; // 'en' or 'ar'

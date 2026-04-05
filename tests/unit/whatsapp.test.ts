@@ -12,7 +12,7 @@ describe("whatsapp utilities", () => {
       code: "JOD-450-90",
       price: "34.50",
       currency: "JOD",
-      url: "https://motogt.com/shop/product/brake-pad-kit-1025",
+      url: "https://motogt.com/product/brake-pad-kit-1025",
       lang: "en",
       customerName: "Amr Halawani",
       customerPhone: "+962 7X XXX XXXX",
@@ -24,7 +24,7 @@ describe("whatsapp utilities", () => {
     expect(message).toContain("1 x Brake Pad Kit (*Code:* JOD-450-90)");
     expect(message).toContain("*Price:* 34.50 JOD");
     expect(message).toContain(
-      "*Link:* https://motogt.com/shop/product/brake-pad-kit-1025"
+      "*Link:* https://motogt.com/product/brake-pad-kit-1025"
     );
     expect(message).toContain("I am interested in ordering this item.");
     expect(message).toContain("\n");
@@ -36,7 +36,7 @@ describe("whatsapp utilities", () => {
       code: "SKU-123",
       price: 120,
       currency: "SAR",
-      url: "https://motogt.com/shop/product/test-1",
+      url: "https://motogt.com/product/test-1",
       lang: "ar",
       customerName: "عميل",
       customerPhone: "+962700000000",
@@ -47,7 +47,7 @@ describe("whatsapp utilities", () => {
     expect(message).toContain("*المنتج:*");
     expect(message).toContain("1 x فرامل (*الكود:* SKU-123)");
     expect(message).toContain("*السعر:* 120 SAR");
-    expect(message).toContain("*الرابط:* https://motogt.com/shop/product/test-1");
+    expect(message).toContain("*الرابط:* https://motogt.com/product/test-1");
     expect(message).toContain("أنا مهتم بطلب هذا المنتج.");
   });
 
@@ -57,7 +57,7 @@ describe("whatsapp utilities", () => {
       code: "SKU-123",
       price: "24.99",
       currency: "USD",
-      url: "https://motogt.com/shop/product/item-100?ref=a&color=red#specs",
+      url: "https://motogt.com/product/item-100?ref=a&color=red#specs",
       lang: "en",
     });
 
@@ -70,10 +70,10 @@ describe("whatsapp utilities", () => {
   });
 
   it("builds absolute product URLs from product paths", () => {
-    const productPath = "/shop/product/brake-pad-kit-1025";
+    const productPath = "/product/brake-pad-kit-1025";
     const absolute = new URL(productPath, "https://motogt.com").toString();
 
-    expect(absolute).toBe("https://motogt.com/shop/product/brake-pad-kit-1025");
+    expect(absolute).toBe("https://motogt.com/product/brake-pad-kit-1025");
   });
 
   it("formats cart order inquiry message for multiple products", () => {
@@ -123,7 +123,7 @@ describe("whatsapp utilities", () => {
       code: "JOD-450-90",
       price: "34.50",
       currency: "JOD",
-      url: "https://motogt.com/shop/product/brake-pad-kit-1025",
+      url: "https://motogt.com/product/brake-pad-kit-1025",
       lang: "en",
     });
 

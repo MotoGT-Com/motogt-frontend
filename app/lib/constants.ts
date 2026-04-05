@@ -2,7 +2,10 @@ import i18n from './i18n';
 import { config } from '../config';
 
 // Language ID mapping for backend API
-export const LANGUAGE_IDS = config.languageIds as const;
+export const LANGUAGE_IDS = {
+  ar: config.languageIds.ar,
+  en: config.languageIds.en,
+} as const;
 
 // Get current language ID based on i18n language (must stay in sync with UI locale)
 export const getCurrentLanguageId = (): string => {

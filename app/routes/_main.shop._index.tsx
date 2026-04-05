@@ -16,41 +16,23 @@ import { useInView } from "react-intersection-observer";
 import { Drawer, DrawerClose, DrawerContent, DrawerTrigger, } from "~/components/ui/drawer";
 import { Label } from "@radix-ui/react-label";
 import { Badge } from "~/components/ui/badge";
-import { createLoader, createSerializer, parseAsArrayOf, parseAsInteger, parseAsString, parseAsStringEnum, useQueryStates, } from "nuqs";
+import { useQueryStates } from "nuqs";
 import type { CheckedState } from "@radix-ui/react-checkbox";
 import FilterSidebar from "~/components/filter-sidebar";
 import { useTranslation } from "react-i18next";
 import { getLocaleFromRequest } from "~/lib/i18n-cookie";
 import { config } from "~/config";
 import { resolveProductSlug } from "~/lib/get-locale-translation";
+import {
+  loadShopSearchParams,
+  shopSearchParamsSchema,
+} from "~/lib/shop-search-params";
 
 const LIMIT = 30;
 
-export const shopSearchParamsSchema = {
-  sortBy: parseAsStringEnum([
-    "name",
-    "price",
-    "createdAt",
-    "stockQuantity",
-    "carCompatibility",
-  ]),
-  sortOrder: parseAsStringEnum(["asc", "desc"]),
-  categories: parseAsArrayOf(parseAsString).withDefault([]),
-  search: parseAsString,
-  productIds: parseAsArrayOf(parseAsString).withDefault([]),
-  carId: parseAsString,
-  carBrand: parseAsString,
-  carModel: parseAsString,
-  carYear: parseAsInteger,
-  productType: parseAsStringEnum(["car_parts", "riding_gear"]),
-};
+export { shopSearchParamsSchema, serializeShopURL } from "~/lib/shop-search-params";
 
-const loadSearchParams = createLoader(shopSearchParamsSchema);
-
-export const serializeShopURL = createSerializer(shopSearchParamsSchema).bind(
-  null,
-  href("/shop")
-);
+const loadSearchParams = loadShopSearchParams;
 
 const hasLocaleTranslation = (product: any, locale: string) => {
   return product?.translations?.some(
@@ -111,14 +93,16 @@ export async function loader({ request }: Route.LoaderArgs) {
       },
     });
 
-    const englishSlugById = new Map(
-      (englishProductsResponse.data?.data ?? [])
-        .map((product: any) => [
-          product.id,
-          resolveProductSlug(product, { preferEnglish: true, language: "en" }),
-        ])
-        .filter((entry) => entry[1])
-    );
+    const slugPairs = (englishProductsResponse.data?.data ?? [])
+      .map((product) => {
+        const slug = resolveProductSlug(product, {
+          preferEnglish: true,
+          language: "en",
+        });
+        return slug ? ([product.id, slug] as const) : null;
+      })
+      .filter((e): e is readonly [string, string] => e !== null);
+    const englishSlugById = new Map<string, string>(slugPairs);
 
     productsResponse = {
       ...productsResponse,
@@ -334,8 +318,14 @@ function ProductsGrid() {
           carYear: searchParams.carYear ?? undefined,
           categoryId: searchParams.categories?.join(",") ?? undefined,
           productIds: searchParams.productIds?.join(",") ?? undefined,
-          sortBy: resolvedSortBy ?? undefined,
-          sortOrder: resolvedSortOrder ?? undefined,
+          sortBy: resolvedSortBy as
+            | "name"
+            | "price"
+            | "createdAt"
+            | "stockQuantity"
+            | "carCompatibility"
+            | undefined,
+          sortOrder: resolvedSortOrder as "asc" | "desc" | undefined,
         },
       });
       if (response.error) {
@@ -355,14 +345,16 @@ function ProductsGrid() {
         },
       });
 
-      const englishSlugById = new Map(
-        (englishResponse.data?.data ?? [])
-          .map((product: any) => [
-            product.id,
-            resolveProductSlug(product, { preferEnglish: true, language: "en" }),
-          ])
-          .filter((entry) => entry[1])
-      );
+      const slugPairs = (englishResponse.data?.data ?? [])
+        .map((product) => {
+          const slug = resolveProductSlug(product, {
+            preferEnglish: true,
+            language: "en",
+          });
+          return slug ? ([product.id, slug] as const) : null;
+        })
+        .filter((e): e is readonly [string, string] => e !== null);
+      const englishSlugById = new Map<string, string>(slugPairs);
 
       return {
         ...response.data,
@@ -415,7 +407,7 @@ function ProductsGrid() {
   }
 
   const renderUniqueProducts = () => {
-    const uniqueProducts = new Map();
+    const uniqueProducts = new Map<string, (typeof productsPages.pages)[number]["data"][number]>();
 
     productsPages.pages.forEach((page) => {
       page.data.forEach((product) => {
@@ -428,10 +420,14 @@ function ProductsGrid() {
     return Array.from(uniqueProducts.values())
       .filter((product) =>
         product?.translations?.some(
-          (translation) =>
+          (translation: {
+            languageCode: string;
+            slug?: string;
+            name?: string;
+          }) =>
             translation.languageCode === currentLang &&
-            translation.slug &&
-            translation.name
+            !!translation.slug &&
+            !!translation.name
         )
       )
       .map((product) => (

@@ -13,7 +13,10 @@ import { FormControl, FormField, FormItem, FormLabel, Form, } from "~/components
 import { useQuery } from "@tanstack/react-query";
 import { carBrandsQueryOptions, carModelsQueryOptions, productsQueryOptions, } from "~/lib/queries";
 import { createSerializer, useQueryStates } from "nuqs";
-import { serializeShopURL, shopSearchParamsSchema, } from "~/routes/_main.shop._index";
+import {
+  serializeShopURL,
+  shopSearchParamsSchema,
+} from "~/lib/shop-search-params";
 import { useDebounce } from "use-debounce";
 import { useTranslation } from "react-i18next";
 import getLocalizedTranslation from "~/lib/get-locale-translation";
@@ -119,8 +122,14 @@ function ProductSearch({
   const isRTL = i18n.language === "ar";
 
   const [searchParams, setSearchParams] = useQueryStates(shopSearchParamsSchema);
-  /** Any shop listing route: `/shop`, `/shop/car-parts`, … (not only the index). */
-  const isShopRoute = location.pathname.startsWith("/shop");
+  /** Product detail: `/product/:slug` (legacy `/shop/product/` redirects here). */
+  const isShopProductPdp =
+    location.pathname.startsWith("/product/") ||
+    location.pathname.startsWith("/shop/product/") ||
+    location.pathname.startsWith("/products/");
+  /** Shop listing only: `/shop`, `/shop/car-parts`, … — safe to sync filters via nuqs on current URL. */
+  const isShopListingRoute =
+    location.pathname.startsWith("/shop") && !isShopProductPdp;
   const isCompact = size === "compact";
 
   const applyShopFiltersFromForm = useCallback(
@@ -134,6 +143,23 @@ function ProductSearch({
       });
     },
     [searchParams, setSearchParams]
+  );
+
+  /** Leave PDP (and any non-listing page) and open the main shop grid with the same filters. */
+  const navigateToShopListing = useCallback(
+    (formValues: ProductSearchFormValues) => {
+      const merged = shopParamsFromFormState(searchParams, formValues);
+      navigate(
+        serializeShopURL({
+          ...searchParams,
+          search: merged.search,
+          carBrand: merged.carBrand,
+          carModel: merged.carModel,
+          carYear: merged.carYear,
+        })
+      );
+    },
+    [navigate, searchParams]
   );
   const compactSelectWidth = "w-full sm:w-[8rem] lg:w-[8.5rem] xl:w-36";
 
@@ -312,23 +338,16 @@ function ProductSearch({
 
   const onSubmit = (data: z.infer<typeof searchSchema>) => {
     setShowDropdown(false);
-    if (isShopRoute) {
-      applyShopFiltersFromForm({
-        search: data.search ?? "",
-        carBrand: data.carBrand ?? anyValue,
-        carModel: data.carModel ?? anyValue,
-        carYear: data.carYear != null ? String(data.carYear) : anyValue,
-      });
+    const formPayload: ProductSearchFormValues = {
+      search: data.search ?? "",
+      carBrand: data.carBrand ?? anyValue,
+      carModel: data.carModel ?? anyValue,
+      carYear: data.carYear != null ? String(data.carYear) : anyValue,
+    };
+    if (isShopListingRoute) {
+      applyShopFiltersFromForm(formPayload);
     } else {
-      navigate(
-        serializeShopURL({
-          ...searchParams,
-          search: data.search,
-          carBrand: data.carBrand,
-          carModel: data.carModel,
-          carYear: data.carYear ? parseInt(String(data.carYear), 10) : undefined,
-        })
-      );
+      navigateToShopListing(formPayload);
     }
     onSubmitSuccess?.();
   };
@@ -478,7 +497,7 @@ function ProductSearch({
                     <div className="border-t border-gray-100 mt-2 pt-2">
                       <Link
                         to={
-                          isShopRoute
+                          isShopListingRoute
                             ? shopUrlForCurrentLocation(
                                 location.pathname,
                                 location.search,
@@ -518,12 +537,15 @@ function ProductSearch({
                         onValueChange={(value) => {
                           field.onChange(value);
                           form.setValue("carModel", anyValue);
-                          if (isShopRoute) {
-                            applyShopFiltersFromForm({
-                              ...form.getValues(),
-                              carBrand: value,
-                              carModel: anyValue,
-                            });
+                          const next = {
+                            ...form.getValues(),
+                            carBrand: value,
+                            carModel: anyValue,
+                          };
+                          if (isShopListingRoute) {
+                            applyShopFiltersFromForm(next);
+                          } else if (isShopProductPdp) {
+                            navigateToShopListing(next);
                           }
                         }}
                       >
@@ -580,11 +602,14 @@ function ProductSearch({
                         value={field.value}
                         onValueChange={(value) => {
                           field.onChange(value);
-                          if (isShopRoute) {
-                            applyShopFiltersFromForm({
-                              ...form.getValues(),
-                              carModel: value,
-                            });
+                          const next = {
+                            ...form.getValues(),
+                            carModel: value,
+                          };
+                          if (isShopListingRoute) {
+                            applyShopFiltersFromForm(next);
+                          } else if (isShopProductPdp) {
+                            navigateToShopListing(next);
                           }
                         }}
                         disabled={form.watch("carBrand") === anyValue}
@@ -639,11 +664,14 @@ function ProductSearch({
                         value={field.value}
                         onValueChange={(value) => {
                           field.onChange(value);
-                          if (isShopRoute) {
-                            applyShopFiltersFromForm({
-                              ...form.getValues(),
-                              carYear: value,
-                            });
+                          const next = {
+                            ...form.getValues(),
+                            carYear: value,
+                          };
+                          if (isShopListingRoute) {
+                            applyShopFiltersFromForm(next);
+                          } else if (isShopProductPdp) {
+                            navigateToShopListing(next);
                           }
                         }}
                       >

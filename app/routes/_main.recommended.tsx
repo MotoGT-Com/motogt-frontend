@@ -14,6 +14,7 @@ import { config } from "~/config";
 import { resolveProductSlug } from "~/lib/get-locale-translation";
 import { getGuestGarage } from "~/lib/guest-garage-manager";
 import { Loader2 } from "lucide-react";
+import type { ProductItem } from "~/lib/client/types.gen";
 
 const PRODUCTS_LIMIT = 12;
 const CARE_ACCESSORIES_SLUG = "car-care-accessiores";
@@ -127,10 +128,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       : Promise.resolve({ data: { data: [], meta: { total: 0 } } }),
   ]);
 
-  const uniqueCarProducts = new Map<
-    string,
-    (typeof careProductsResponse.data.data)[number]
-  >();
+  const uniqueCarProducts = new Map<string, ProductItem>();
   carProductsResponses.forEach((response) => {
     response.data?.data?.forEach((product) => {
       if (!uniqueCarProducts.has(product.id)) {

@@ -249,12 +249,13 @@ function ProductCard({
         `${userCar.carDetails.brand} ${userCar.carDetails.model}`;
 
       // Check year range compatibility if year is available
-      if (matchesCar && userCar.carDetails.year) {
+      if (matchesCar && userCar.carDetails.yearFrom) {
         const yearFrom = car.carYearFrom ?? 0;
         const yearTo = car.carYearTo;
+        const userYear = userCar.carDetails.yearFrom;
         return (
-          yearFrom <= userCar.carDetails.year &&
-          (yearTo === null || yearTo >= userCar.carDetails.year)
+          yearFrom <= userYear &&
+          (yearTo === null || yearTo >= userYear)
         );
       }
 

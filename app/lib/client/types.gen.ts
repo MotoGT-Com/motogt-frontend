@@ -400,6 +400,21 @@ export type ProductItem = {
     isActive: boolean;
     mainImage: string | null;
     images: Array<string>;
+    /** Optional secondary image for card hover (some list endpoints) */
+    secondaryImage?: string | null;
+    /** English slug hint merged client-side for Arabic sessions */
+    slug_en?: string | null;
+    /** SKU variants (public PDP) */
+    variants?: Array<{
+        id: string;
+        isActive: boolean;
+        size?: string | null;
+        color?: string | null;
+        priceAdjustment: number;
+        stockQuantity: number;
+        mainImage?: string | null;
+        images?: Array<string>;
+    }>;
     specs?: ProductSpecs;
     /**
      * Whether the product is in authenticated user's favorites
@@ -3580,6 +3595,10 @@ export type GetApiProductsPublicData = {
          */
         productIds?: string;
         /**
+         * Filter by product type UUID (store-specific)
+         */
+        productTypeId?: string;
+        /**
          * ✅ FIXED: Filter by stock availability. Now works with car filtering (true = only products with stock > 0)
          */
         inStock?: boolean;
@@ -4153,6 +4172,7 @@ export type PostApiStoresByStoreIdCartItemsData = {
     body: {
         productId: string;
         quantity: number;
+        variantId?: string;
     };
     path: {
         storeId: string;

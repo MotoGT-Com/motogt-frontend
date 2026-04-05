@@ -31,7 +31,9 @@ describe("productsByTypeInfiniteQueryOptions", () => {
 
     const next = options.getNextPageParam?.(
       { meta: { hasNext: true } } as any,
-      [{ meta: { hasNext: true } }] as any
+      [{ meta: { hasNext: true } }] as any,
+      1,
+      [1]
     );
 
     expect(next).toBe(2);

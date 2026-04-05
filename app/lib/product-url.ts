@@ -88,7 +88,7 @@ export function buildProductSlugSegment(product: ProductUrlSource): string {
 export function buildProductPath(product: ProductUrlSource): string {
   const segment = buildProductSlugSegment(product);
   if (!segment) return "/shop";
-  return `/shop/product/${segment}`;
+  return `/product/${segment}`;
 }
 
 export function extractProductIdFromSlugSegment(

@@ -335,7 +335,19 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                           className="absolute -top-10 -end-10 w-full h-full object-contain group-hover:scale-110 hover:-rotate-3 transition-all duration-500"
                         />
                         <h3 className="text-2xl max-w-20 z-10">
-                          {getLocalizedTranslation(category.translations)?.name || category.name}
+                          {(() => {
+                            const c = category as {
+                              name: string;
+                              translations?: Array<{
+                                languageCode: string;
+                                name: string;
+                              }>;
+                            };
+                            return c.translations?.length
+                              ? getLocalizedTranslation(c.translations)?.name ??
+                                  c.name
+                              : c.name;
+                          })()}
                         </h3>
                       </SimpleCard>
                     </Link>

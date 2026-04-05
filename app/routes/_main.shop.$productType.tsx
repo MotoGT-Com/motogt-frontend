@@ -18,14 +18,24 @@ import { Drawer, DrawerContent, DrawerTrigger } from "~/components/ui/drawer";
 import { Label } from "@radix-ui/react-label";
 import { createLoader, createSerializer, useQueryStates } from "nuqs";
 import type { CheckedState } from "@radix-ui/react-checkbox";
-import { shopSearchParamsSchema } from "./_main.shop._index";
+import { shopSearchParamsSchema } from "~/lib/shop-search-params";
 import { Badge } from "~/components/ui/badge";
-import getLocalizedTranslation from "~/lib/get-locale-translation";
 import { useTranslation } from "react-i18next";
 import { getLocaleFromRequest } from "~/lib/i18n-cookie";
 import FilterSidebar from "~/components/filter-sidebar";
 import { config } from "~/config";
 import { resolveProductSlug } from "~/lib/get-locale-translation";
+import type { ProductType } from "~/lib/client/types.gen";
+
+function productTypeDisplayName(pt: ProductType, langCode: string): string {
+  const code = langCode.split("-")[0];
+  return (
+    pt.translations?.[code]?.name ??
+    pt.translations?.en?.name ??
+    pt.translations?.ar?.name ??
+    pt.name
+  );
+}
 
 const LIMIT = 30;
 
@@ -100,14 +110,16 @@ export async function loader({ request, params }: Route.LoaderArgs) {
             },
           });
 
-          const englishSlugById = new Map(
-            (englishProductsResponse.data?.data ?? [])
-              .map((product: any) => [
-                product.id,
-                resolveProductSlug(product, { preferEnglish: true, language: "en" }),
-              ])
-              .filter((entry) => entry[1])
-          );
+          const slugPairs = (englishProductsResponse.data?.data ?? [])
+            .map((product) => {
+              const slug = resolveProductSlug(product, {
+                preferEnglish: true,
+                language: "en",
+              });
+              return slug ? ([product.id, slug] as const) : null;
+            })
+            .filter((e): e is readonly [string, string] => e !== null);
+          const englishSlugById = new Map<string, string>(slugPairs);
 
           return {
             ...productsResponse,
@@ -168,10 +180,19 @@ export const meta: Route.MetaFunction = ({ data }: any) => {
     return [{ title: "Shop - MotoGT" }];
   }
 
-  const typeLabel = getLocalizedTranslation(data.productType.translations)?.name || data.productType.name;
+  const nameFromApi = data.productType?.name;
+  const slug = data.productTypeSlug ?? "";
+  const typeLabel =
+    (typeof nameFromApi === "string" && nameFromApi.trim()) ||
+    (slug ? formatProductType(slugToProductType(slug)) : "") ||
+    "Shop";
+
   return [
     { title: `${typeLabel} - Shop - MotoGT` },
-    { name: "description", content: `Browse our ${typeLabel.toLowerCase()} collection` },
+    {
+      name: "description",
+      content: `Browse our ${typeLabel.toLowerCase()} collection`,
+    },
     { property: "og:title", content: `${typeLabel} - Shop - MotoGT` },
     { property: "og:image", content: "https://motogt.com/og-image.jpg" },
     { property: "og:image:width", content: "1200" },
@@ -186,7 +207,7 @@ export default function ShopByProductType({
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const { productType } = loaderData;
 
-  const { t } = useTranslation("shop");
+  const { t, i18n } = useTranslation("shop");
 
   return (
     <>
@@ -201,14 +222,17 @@ export default function ShopByProductType({
           <Suspense
             fallback={
               <h1 className="text-[18px] font-black italic leading-[150%] tracking-[-0.198px] text-[#000]">
-                {getLocalizedTranslation(productType.translations)?.name || productType.name}
+                {productTypeDisplayName(productType, i18n.language)}
               </h1>
             }
           >
             <Await resolve={loaderData.productsResponse}>
               {(data) => {
                 const totalCount = data?.data?.meta?.total ?? 0;
-                const productTypeLabel = getLocalizedTranslation(productType.translations)?.name || productType.name;
+                const productTypeLabel = productTypeDisplayName(
+                  productType,
+                  i18n.language
+                );
                 return (
                   <h1 className="text-[18px] font-black italic leading-[150%] tracking-[-0.198px] text-[#000]">
                     {productTypeLabel}{" "}

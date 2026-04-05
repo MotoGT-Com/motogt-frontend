@@ -346,9 +346,7 @@ export default function MyGarage({ loaderData }: Route.ComponentProps) {
       </div>
 
       {/* Featured Parts Banner — sibling to the garage section so it's always visible below */}
-      <GarageFeaturedBanner
-        currentCar={userCars[selectedIndex]}
-      />
+      <GarageFeaturedBanner userCars={userCars} />
     </>
   );
 }

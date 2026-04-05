@@ -24,7 +24,7 @@
  * Use href("/shop/:productType", { productType: "value" }) for type-safe navigation.
  */
 
-import { href, Link, NavLink, Outlet, useLocation } from "react-router";
+import { href, Link, NavLink, Outlet, useLocation, useNavigation } from "react-router";
 import { Logo } from "~/components/logo";
 import { Button } from "~/components/ui/button";
 import { MenuIcon, SearchIcon, XIcon } from "lucide-react";
@@ -120,6 +120,53 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
   const formatCartAmount = (amount: number) => `${selectedCurrency} ${amount.toFixed(2)}`;
   
   const location = useLocation();
+  const navigation = useNavigation();
+  const [pendingRouteChange, setPendingRouteChange] = useState(false);
+  const showRouteProgress =
+    pendingRouteChange ||
+    navigation.state === "loading" ||
+    navigation.state === "submitting";
+
+  useEffect(() => {
+    setPendingRouteChange(false);
+  }, [location.key]);
+
+  useEffect(() => {
+    if (!pendingRouteChange) return;
+    const id = window.setTimeout(() => setPendingRouteChange(false), 800);
+    return () => window.clearTimeout(id);
+  }, [pendingRouteChange]);
+
+  useEffect(() => {
+    const onClickCapture = (e: MouseEvent) => {
+      if (e.defaultPrevented) return;
+      if (e.button !== 0) return;
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const from =
+        e.target instanceof Element ? e.target.closest("a[href]") : null;
+      if (!from || !(from instanceof HTMLAnchorElement)) return;
+      if (from.hasAttribute("download")) return;
+      if (from.target && from.target !== "" && from.target !== "_self") return;
+      const hrefAttr = from.getAttribute("href");
+      if (!hrefAttr || hrefAttr.startsWith("#")) return;
+      let url: URL;
+      try {
+        url = new URL(hrefAttr, window.location.href);
+      } catch {
+        return;
+      }
+      if (url.origin !== window.location.origin) return;
+      const next = url.pathname + url.search + url.hash;
+      const cur =
+        window.location.pathname + window.location.search + window.location.hash;
+      if (next === cur) return;
+      setPendingRouteChange(true);
+    };
+
+    document.addEventListener("click", onClickCapture, true);
+    return () => document.removeEventListener("click", onClickCapture, true);
+  }, []);
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
@@ -175,6 +222,16 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
 
   return (
     <>
+      {showRouteProgress ? (
+        <div
+          className="fixed top-0 left-0 right-0 z-[100] h-[3px] overflow-hidden pointer-events-none"
+          role="progressbar"
+          aria-busy="true"
+          aria-label={t("buttons.loading")}
+        >
+          <div className="nav-route-progress-indeterminate h-full w-[38%] max-w-md bg-[#CF172F]" />
+        </div>
+      ) : null}
       {/* Main Header - Sticky navigation bar */}
       <header
         ref={headerRef}

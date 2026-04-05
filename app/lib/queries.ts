@@ -35,7 +35,13 @@ import {
   postApiCheckoutGuest,
   getApiCheckoutGuestLookup,
 } from "./client/sdk.gen";
-import type { ProductResponse, CheckoutRequest, ProductListResponse, GuestCheckoutRequest } from "./client/types.gen";
+import type {
+  ProductResponse,
+  CheckoutRequest,
+  ProductListResponse,
+  GuestCheckoutRequest,
+  GetApiProductsPublicData,
+} from "./client/types.gen";
 import { toast } from "sonner";
 import { defaultParams } from "./api-client";
 import { extractErrorMessage } from "./utils";
@@ -143,14 +149,16 @@ export const productsByTypeInfiniteQueryOptions = ({
             },
           });
 
-          const englishSlugById = new Map(
-            (englishResponse.data?.data ?? [])
-              .map((product: any) => [
-                product.id,
-                resolveProductSlug(product, { preferEnglish: true, language: "en" }),
-              ])
-              .filter((entry) => entry[1])
-          );
+          const slugPairs = (englishResponse.data?.data ?? [])
+            .map((product) => {
+              const slug = resolveProductSlug(product, {
+                preferEnglish: true,
+                language: "en",
+              });
+              return slug ? ([product.id, slug] as const) : null;
+            })
+            .filter((e): e is readonly [string, string] => e !== null);
+          const englishSlugById = new Map<string, string>(slugPairs);
 
           return {
             ...response.data,
@@ -177,8 +185,8 @@ export const productsByTypeInfiniteQueryOptions = ({
       }
     },
     initialPageParam: 1,
-    getNextPageParam: (lastPage, pages) => {
-      return lastPage.meta?.hasNext ? pages.length + 1 : undefined;
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.meta?.hasNext ? allPages.length + 1 : undefined;
     },
     staleTime,
   });
@@ -808,14 +816,16 @@ export const productsQueryOptions = (filters: Omit<GetApiProductsPublicData["que
         },
       });
 
-      const englishSlugById = new Map(
-        (englishResponse.data?.data ?? [])
-          .map((product: any) => [
-            product.id,
-            resolveProductSlug(product, { preferEnglish: true, language: "en" }),
-          ])
-          .filter((entry) => entry[1])
-      );
+      const slugPairs = (englishResponse.data?.data ?? [])
+        .map((product) => {
+          const slug = resolveProductSlug(product, {
+            preferEnglish: true,
+            language: "en",
+          });
+          return slug ? ([product.id, slug] as const) : null;
+        })
+        .filter((e): e is readonly [string, string] => e !== null);
+      const englishSlugById = new Map<string, string>(slugPairs);
 
       return response.data.data.map((product: any) => ({
         ...product,

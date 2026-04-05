@@ -113,7 +113,22 @@
   }
 }
 
+/** Top-of-screen route transition bar (MotoGT red) */
+@keyframes nav-route-indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(280%);
+  }
+}
+
 @layer components {
+  .nav-route-progress-indeterminate {
+    animation: nav-route-indeterminate 1.1s ease-in-out infinite;
+    will-change: transform;
+  }
+
   .skeleton-shimmer {
     background-image: linear-gradient(
       90deg,

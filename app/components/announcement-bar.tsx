@@ -24,7 +24,9 @@ export function AnnouncementBar({
             {message}
           </span>
           {Flag && countryCode && (
-            <Flag title={countryCode} className="w-4 h-4" />
+            <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center [&_svg]:h-4 [&_svg]:w-4">
+              <Flag title={countryCode} />
+            </span>
           )}
         </div>
       </div>

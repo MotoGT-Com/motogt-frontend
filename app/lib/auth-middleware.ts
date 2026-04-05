@@ -40,6 +40,8 @@ export const flushAuth = async ({
     isAuthenticated: false,
     user: null,
     selectedCar: null,
+    selectedCarId: null,
+    selectedCarYear: null,
   });
   return response;
 };
@@ -57,7 +59,7 @@ export const commitAuth = async ({
   accessToken: string;
   user: UserProfile;
 }) => {
-  const prevSelectedCar = context.get(authContext).selectedCar;
+  const prevAuth = context.get(authContext);
   response.headers.append(
     "Set-Cookie",
     await refreshTokenCookie.serialize(refreshToken)
@@ -69,7 +71,9 @@ export const commitAuth = async ({
   context.set(authContext, {
     isAuthenticated: true,
     user,
-    selectedCar: prevSelectedCar,
+    selectedCar: prevAuth.selectedCar,
+    selectedCarId: prevAuth.selectedCarId,
+    selectedCarYear: prevAuth.selectedCarYear,
   });
   return response;
 };

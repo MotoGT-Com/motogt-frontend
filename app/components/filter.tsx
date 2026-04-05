@@ -6,7 +6,7 @@ import { InlineAccordion, InlineAccordionContent, InlineAccordionItem, InlineAcc
 import { Label } from "@radix-ui/react-label";
 import type { CheckedState } from "@radix-ui/react-checkbox";
 import { Badge } from "~/components/ui/badge";
-import { shopSearchParamsSchema } from "~/routes/_main.shop._index";
+import { shopSearchParamsSchema } from "~/lib/shop-search-params";
 import { useTranslation } from "react-i18next";
 import { useMemo } from "react";
 import { useQueryStates } from "nuqs";
