@@ -32,6 +32,13 @@ function normalizeCarField(val: string | undefined) {
   return v;
 }
 
+function carYearQueryFromSelectValue(value: string): number | null {
+  const raw = normalizeCarField(value);
+  if (!raw) return null;
+  const y = parseInt(raw, 10);
+  return Number.isFinite(y) ? y : null;
+}
+
 const searchSchema = z
   .object({
     search: z
@@ -163,14 +170,30 @@ function ProductSearch({
   );
   const compactSelectWidth = "w-full sm:w-[8rem] lg:w-[8.5rem] xl:w-36";
 
-  const form = useForm({
-    resolver: zodResolver(searchSchema),
-    values: {
+  /** Stable object + primitive deps so RHF only resets when URL-derived filters actually change. */
+  const formValuesFromUrl = useMemo(
+    () => ({
       search: searchParams.search ?? "",
       carBrand: searchParams.carBrand || anyValue,
       carModel: searchParams.carModel || anyValue,
       carYear: searchParams.carYear?.toString() || anyValue,
-    },
+    }),
+    [
+      searchParams.search,
+      searchParams.carBrand,
+      searchParams.carModel,
+      searchParams.carYear,
+    ]
+  );
+
+  const form = useForm({
+    resolver: zodResolver(searchSchema),
+    values: formValuesFromUrl,
+    /**
+     * Without this, every URL sync calls _reset() and overwrites fields. If `carModel` is missing
+     * from the query string for a frame (or lags nuqs), the model Select is wiped before submit.
+     */
+    resetOptions: { keepDirtyValues: true },
   });
 
   const carBrands = useQuery(carBrandsQueryOptions);
@@ -336,13 +359,19 @@ function ProductSearch({
     .fill(0)
     .map((_, index) => new Date().getFullYear() - index);
 
-  const onSubmit = (data: z.infer<typeof searchSchema>) => {
+  const onSubmit = (_data: z.infer<typeof searchSchema>) => {
     setShowDropdown(false);
+    // Use live field values: resolver output can match a URL-reset state while the Select still shows
+    // the user's choice, or dirty fields must win over a stale query string.
+    const v = form.getValues();
     const formPayload: ProductSearchFormValues = {
-      search: data.search ?? "",
-      carBrand: data.carBrand ?? anyValue,
-      carModel: data.carModel ?? anyValue,
-      carYear: data.carYear != null ? String(data.carYear) : anyValue,
+      search: (v.search ?? "").trim(),
+      carBrand: v.carBrand ?? anyValue,
+      carModel: v.carModel ?? anyValue,
+      carYear:
+        v.carYear != null && String(v.carYear).trim() !== ""
+          ? String(v.carYear)
+          : anyValue,
     };
     if (isShopListingRoute) {
       applyShopFiltersFromForm(formPayload);
@@ -536,16 +565,24 @@ function ProductSearch({
                         value={field.value}
                         onValueChange={(value) => {
                           field.onChange(value);
-                          form.setValue("carModel", anyValue);
-                          const next = {
-                            ...form.getValues(),
-                            carBrand: value,
-                            carModel: anyValue,
-                          };
+                          form.setValue("carModel", anyValue, {
+                            shouldDirty: false,
+                          });
                           if (isShopListingRoute) {
-                            applyShopFiltersFromForm(next);
+                            // Partial URL update: avoid spreading stale getValues() (loses carModel after year change).
+                            setSearchParams({
+                              carBrand: normalizeCarField(value) ?? null,
+                              carModel: null,
+                            });
                           } else if (isShopProductPdp) {
-                            navigateToShopListing(next);
+                            queueMicrotask(() => {
+                              navigateToShopListing({
+                                search: form.getValues("search") ?? "",
+                                carBrand: value,
+                                carModel: anyValue,
+                                carYear: form.getValues("carYear") ?? anyValue,
+                              });
+                            });
                           }
                         }}
                       >
@@ -602,14 +639,19 @@ function ProductSearch({
                         value={field.value}
                         onValueChange={(value) => {
                           field.onChange(value);
-                          const next = {
-                            ...form.getValues(),
-                            carModel: value,
-                          };
                           if (isShopListingRoute) {
-                            applyShopFiltersFromForm(next);
+                            setSearchParams({
+                              carModel: normalizeCarField(value) ?? null,
+                            });
                           } else if (isShopProductPdp) {
-                            navigateToShopListing(next);
+                            queueMicrotask(() => {
+                              navigateToShopListing({
+                                search: form.getValues("search") ?? "",
+                                carBrand: form.getValues("carBrand") ?? anyValue,
+                                carModel: value,
+                                carYear: form.getValues("carYear") ?? anyValue,
+                              });
+                            });
                           }
                         }}
                         disabled={form.watch("carBrand") === anyValue}
@@ -664,14 +706,19 @@ function ProductSearch({
                         value={field.value}
                         onValueChange={(value) => {
                           field.onChange(value);
-                          const next = {
-                            ...form.getValues(),
-                            carYear: value,
-                          };
                           if (isShopListingRoute) {
-                            applyShopFiltersFromForm(next);
+                            setSearchParams({
+                              carYear: carYearQueryFromSelectValue(value),
+                            });
                           } else if (isShopProductPdp) {
-                            navigateToShopListing(next);
+                            queueMicrotask(() => {
+                              navigateToShopListing({
+                                search: form.getValues("search") ?? "",
+                                carBrand: form.getValues("carBrand") ?? anyValue,
+                                carModel: form.getValues("carModel") ?? anyValue,
+                                carYear: value,
+                              });
+                            });
                           }
                         }}
                       >
