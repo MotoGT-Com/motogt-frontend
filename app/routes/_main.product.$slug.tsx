@@ -33,6 +33,7 @@ import { useGuestGarageCars } from "~/hooks/use-guest-garage-cars";
 import { CarFront } from "lucide-react";
 import { ProductDetailImage, ProductDetailThumb } from "~/components/product-detail-image";
 import { productImageWithFormatPreference } from "~/lib/product-image";
+import { resolveProductSpecsByLanguage } from "~/lib/product-specs";
 
 const PDP_CACHE_CONTROL =
   "public, s-maxage=120, stale-while-revalidate=86400";
@@ -317,13 +318,13 @@ export const meta: Route.MetaFunction = (args) => {
         productID: product.id,
         sku: product.itemCode,
         additionalProperty: [
-          ...Object.entries(product.specs?.en ?? {}).map(
-            ([specKey, specData]) => ({
-              "@type": "PropertyValue",
-              name: specKey,
-              value: specData.value,
-            })
-          ),
+          ...Object.entries(
+            resolveProductSpecsByLanguage(product.specs, "en")
+          ).map(([specKey, specData]) => ({
+            "@type": "PropertyValue",
+            name: specKey,
+            value: specData.value,
+          })),
         ],
       },
     },
@@ -410,6 +411,28 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
   }, [favoritesQuery.data, toggleFavoritesMutation.isPending]);
 
   const compatibleCar = product.carCompatibility?.[0];
+
+  const carSpecSource = compatibleCar
+    ? {
+        make: compatibleCar.carBrand,
+        model: compatibleCar.carModel,
+        ...(compatibleCar.carYearFrom && {
+          year: formatYearRange(
+            compatibleCar.carYearFrom,
+            compatibleCar.carYearTo
+          ),
+        }),
+      }
+    : {};
+
+  const localizedSpecs = resolveProductSpecsByLanguage(
+    product.specs,
+    i18n.language
+  );
+
+  const showSpecificationsSection =
+    Object.keys(localizedSpecs).length > 0 ||
+    Object.keys(carSpecSource).length > 0;
 
   // Create image gallery - prioritize variant images if available
   const getImageGallery = (): string[] => {
@@ -721,24 +744,11 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
             <hr className="border-gray-300 order-4 md:order-2" />
 
             {/* Specifications */}
-            {product.specs && Object.keys(product.specs).length > 0 && (
+            {showSpecificationsSection && (
               <div className="space-y-2 order-7 md:order-3">
                 <h2 className="text-lg font-bold">{t("product:details.specifications")}</h2>
                 <div className="flex flex-wrap gap-2">
-                  {Object.entries(
-                    compatibleCar
-                      ? {
-                          make: compatibleCar.carBrand,
-                          model: compatibleCar.carModel,
-                          ...(compatibleCar.carYearFrom && {
-                            year: formatYearRange(
-                              compatibleCar.carYearFrom,
-                              compatibleCar.carYearTo
-                            ),
-                          }),
-                        }
-                      : {}
-                  ).map(([key, value]) => (
+                  {Object.entries(carSpecSource).map(([key, value]) => (
                     <div key={`car-${key}`} className="flex">
                       <div className="bg-gray-50 border border-gray-200 border-e-0 px-3 py-1.5 text-sm text-gray-500 rounded-s capitalize">
                         {key}
@@ -748,19 +758,17 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
                       </div>
                     </div>
                   ))}
-                  {Object.entries(product.specs.en).map(
-                    ([specKey, specData]) => (
-                      <div key={`spec-${specKey}`} className="flex">
-                        <div className="bg-gray-50 border border-gray-200 border-e-0 px-3 py-1.5 text-sm text-gray-500 rounded-s capitalize">
-                          {specKey}
-                        </div>
-                        <div className="bg-gray-50 border border-gray-200 px-2 py-1.5 text-sm font-medium rounded-e">
-                          {capitalizeWords(specData.value)}
-                          {specData.unit && ` ${specData.unit}`}
-                        </div>
+                  {Object.entries(localizedSpecs).map(([specKey, specData]) => (
+                    <div key={`spec-${specKey}`} className="flex">
+                      <div className="bg-gray-50 border border-gray-200 border-e-0 px-3 py-1.5 text-sm text-gray-500 rounded-s capitalize">
+                        {specKey}
                       </div>
-                    )
-                  )}
+                      <div className="bg-gray-50 border border-gray-200 px-2 py-1.5 text-sm font-medium rounded-e">
+                        {capitalizeWords(specData.value)}
+                        {specData.unit && ` ${specData.unit}`}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
