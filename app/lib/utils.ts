@@ -97,6 +97,34 @@ export function formatYearRange(yearFrom: number | null, yearTo: number | null):
   return `${yearFrom}-${yearTo}`;
 }
 
+type CarYearFields = {
+  year?: number | null;
+  yearFrom?: number | null;
+  yearTo?: number | null;
+};
+
+/** User-selected model year when present; otherwise first usable catalog year (for shop URLs). */
+export function resolveUserCarModelYear(carDetails: CarYearFields): number | undefined {
+  if (carDetails.year != null && Number.isFinite(carDetails.year)) {
+    return carDetails.year;
+  }
+  if (carDetails.yearFrom != null && Number.isFinite(carDetails.yearFrom)) {
+    return carDetails.yearFrom;
+  }
+  if (carDetails.yearTo != null && Number.isFinite(carDetails.yearTo)) {
+    return carDetails.yearTo;
+  }
+  return undefined;
+}
+
+/** Title suffix: model year, or catalog year range, or empty. */
+export function formatUserCarYearLabel(carDetails: CarYearFields): string {
+  if (carDetails.year != null && Number.isFinite(carDetails.year)) {
+    return String(carDetails.year);
+  }
+  return formatYearRange(carDetails.yearFrom ?? null, carDetails.yearTo ?? null);
+}
+
 /**
  * Format product type for display
  * @example formatProductType("car_parts") => "Car Parts"

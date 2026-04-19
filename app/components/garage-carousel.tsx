@@ -11,7 +11,7 @@ import { serializeShopURL } from "~/lib/shop-search-params";
 import { useTranslation } from "react-i18next";
 import { useGuestGarageCars } from "~/hooks/use-guest-garage-cars";
 import { AddNewCarDialog } from "~/components/add-new-car-dialog";
-import { formatYearRange } from "~/lib/utils";
+import { formatUserCarYearLabel, resolveUserCarModelYear } from "~/lib/utils";
 
 export function GarageCarousel({
   ref,
@@ -30,6 +30,7 @@ export function GarageCarousel({
             const isActive = index === selectedIndex;
             const scale = isActive ? 1 : 0.6;
             const opacity = isActive ? 1 : 0.6;
+            const yearLabel = formatUserCarYearLabel(car.carDetails);
 
             return (
               <div
@@ -39,7 +40,7 @@ export function GarageCarousel({
                 <Link
                   to={serializeShopURL({
                     carId: car.carId,
-                    carYear: car.carDetails.yearFrom ?? undefined,
+                    carYear: resolveUserCarModelYear(car.carDetails),
                   })}
                   key={car.id}
                   className="block"
@@ -53,11 +54,8 @@ export function GarageCarousel({
                   >
                     <div className="text-center mb-3 md:mb-4 transition-all duration-300 group-hover:translate-y-[-4px] px-2">
                       <h2 className="font-black text-sm md:text-lg transition-colors duration-300 group-hover:text-[#CF172F] break-words">
-                        {car.carDetails.brand} {car.carDetails.model} —{" "}
-                        {formatYearRange(
-                          car.carDetails.yearFrom,
-                          car.carDetails.yearTo
-                        )}
+                        {car.carDetails.brand} {car.carDetails.model}
+                        {yearLabel ? ` - ${yearLabel}` : ""}
                       </h2>
                     </div>
 
@@ -85,7 +83,11 @@ export function GarageCarousel({
                         <img
                         loading="lazy"
                           src={car.carDetails.image ?? "/car-placeholder.png"}
-                          alt={`${car.carDetails.brand} ${car.carDetails.model}`}
+                          alt={
+                            yearLabel
+                              ? `${car.carDetails.brand} ${car.carDetails.model} ${yearLabel}`
+                              : `${car.carDetails.brand} ${car.carDetails.model}`
+                          }
                           className="w-full h-full object-contain transition-all duration-300 group-hover:brightness-110"
                         />
                       </div>
