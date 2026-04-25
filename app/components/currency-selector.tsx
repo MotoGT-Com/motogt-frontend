@@ -25,15 +25,9 @@ import { useTranslation } from "react-i18next";
  * Currency selector component
  * Allows users to switch between supported currencies
  * Disabled on checkout page to prevent mid-flow changes
- * Shows badge when using cached/stale rates
  */
 export function CurrencySelector() {
-  const {
-    selectedCurrency,
-    setSelectedCurrency,
-    cacheAge,
-    isUsingCachedRates,
-  } = useCurrency();
+  const { selectedCurrency, setSelectedCurrency } = useCurrency();
 
   const { t } = useTranslation("common");
   const currencyHintId = useId();
@@ -45,21 +39,6 @@ export function CurrencySelector() {
     setSelectedCurrency(currency);
   };
 
-  const getCacheBadge = () => {
-    if (!isUsingCachedRates) return null;
-
-    if (cacheAge === null || cacheAge === 0) {
-      return "offline";
-    }
-
-    if (cacheAge >= 1) {
-      return `${cacheAge}h ago`;
-    }
-
-    return "cached";
-  };
-
-  const cacheBadge = getCacheBadge();
   const geoTooltip = t("currency.geoTooltip");
 
   return (
@@ -84,11 +63,6 @@ export function CurrencySelector() {
               <span className="absolute -top-1 -right-1 rounded bg-primary px-1 text-[10px] font-bold leading-[1.1] text-white">
                 {selectedCurrency}
               </span>
-              {cacheBadge ? (
-                <span className="absolute -bottom-1 -left-1 rounded bg-muted px-0.5 text-[8px] font-medium leading-none text-muted-foreground">
-                  {cacheBadge}
-                </span>
-              ) : null}
             </Button>
           </DropdownMenuTrigger>
         </TooltipTrigger>
