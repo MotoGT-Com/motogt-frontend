@@ -158,19 +158,35 @@ export type GeolocationDetectResult =
       fromCache: boolean;
     };
 
+export type DetectGeolocationOptions = {
+  /**
+   * When true, always hit the IP API first so travelers / VPN / stale localStorage
+   * do not keep the wrong currency for up to the cache TTL. On failure, falls back
+   * to valid cache, then stale cache, then JOD (same as non-bypass).
+   */
+  bypassCache?: boolean;
+};
+
 /**
- * Detects country via IP with a hard timeout. Uses valid cache first.
- * On failure, falls back to stale cache (any age) then JOD.
+ * Detects country via IP with a hard timeout.
+ * Default: uses valid cache first (fewer API calls).
+ * bypassCache: always fetch IP first, then fall back if the request fails.
  */
-export async function detectGeolocation(): Promise<GeolocationDetectResult> {
-  const valid = readValidGeolocationCache();
-  if (valid) {
-    return {
-      ok: true,
-      countryCode: valid.countryCode,
-      currency: currencyFromGeoCountry(valid.countryCode),
-      fromCache: true,
-    };
+export async function detectGeolocation(
+  options?: DetectGeolocationOptions
+): Promise<GeolocationDetectResult> {
+  const bypassCache = options?.bypassCache === true;
+
+  if (!bypassCache) {
+    const valid = readValidGeolocationCache();
+    if (valid) {
+      return {
+        ok: true,
+        countryCode: valid.countryCode,
+        currency: currencyFromGeoCountry(valid.countryCode),
+        fromCache: true,
+      };
+    }
   }
 
   const { signal, cancel } = createFetchAbortSignal(GEO_FETCH_TIMEOUT_MS);
@@ -190,6 +206,18 @@ export async function detectGeolocation(): Promise<GeolocationDetectResult> {
     // timeout / network / parse
   } finally {
     cancel();
+  }
+
+  if (bypassCache) {
+    const stillValid = readValidGeolocationCache();
+    if (stillValid) {
+      return {
+        ok: true,
+        countryCode: stillValid.countryCode,
+        currency: currencyFromGeoCountry(stillValid.countryCode),
+        fromCache: true,
+      };
+    }
   }
 
   const stale = readStaleGeolocationCache();

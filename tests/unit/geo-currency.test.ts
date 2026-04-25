@@ -6,6 +6,7 @@ import {
   readValidGeolocationCache,
   writeGeolocationCache,
   fetchCountryCodeFromIp,
+  detectGeolocation,
 } from "~/lib/geolocation";
 
 describe("currencyFromGeoCountry", () => {
@@ -127,5 +128,51 @@ describe("fetchCountryCodeFromIp", () => {
     );
     const c = new AbortController();
     await expect(fetchCountryCodeFromIp(c.signal)).resolves.toBe(null);
+  });
+});
+
+describe("detectGeolocation bypassCache", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-01-15T12:00:00.000Z"));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    localStorage.clear();
+    vi.restoreAllMocks();
+  });
+
+  it("ignores valid cache and uses fresh IP when bypassCache is true", async () => {
+    writeGeolocationCache("JO");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ country_code: "SA" }),
+      })
+    );
+
+    const result = await detectGeolocation({ bypassCache: true });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.countryCode).toBe("SA");
+      expect(result.currency).toBe("SAR");
+      expect(result.fromCache).toBe(false);
+    }
+    expect(readValidGeolocationCache()?.countryCode).toBe("SA");
+  });
+
+  it("falls back to valid cache when bypass fetch fails", async () => {
+    writeGeolocationCache("AE");
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network")));
+
+    const result = await detectGeolocation({ bypassCache: true });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.countryCode).toBe("AE");
+      expect(result.fromCache).toBe(true);
+    }
   });
 });

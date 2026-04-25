@@ -127,18 +127,17 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
         country_code: validGeo.countryCode,
         source: "geo",
       });
-      return;
+    } else {
+      setIsGeoResolved(false);
+      setDetectedCountryCode(null);
+      setDetectedCurrency(null);
+      setGeoFetchFailed(false);
     }
-
-    setIsGeoResolved(false);
-    setDetectedCountryCode(null);
-    setDetectedCurrency(null);
-    setGeoFetchFailed(false);
 
     void (async () => {
       if (localStorage.getItem(MANUAL_OVERRIDE_KEY) === "true") return;
 
-      const result = await detectGeolocation();
+      const result = await detectGeolocation({ bypassCache: true });
 
       if (localStorage.getItem(MANUAL_OVERRIDE_KEY) === "true") return;
 
@@ -147,12 +146,18 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
         setDetectedCountryCode(result.countryCode);
         setDetectedCurrency(result.currency);
         setGeoFetchFailed(false);
-        trackCurrencyContext({
-          currency: result.currency,
-          country_code: result.countryCode,
-          source: "geo",
-        });
-      } else {
+        const countryChanged =
+          !validGeo ||
+          (result.countryCode != null &&
+            result.countryCode !== validGeo.countryCode);
+        if (countryChanged) {
+          trackCurrencyContext({
+            currency: result.currency,
+            country_code: result.countryCode,
+            source: "geo",
+          });
+        }
+      } else if (!validGeo) {
         setSelectedCurrencyState("JOD");
         setDetectedCountryCode(null);
         setDetectedCurrency("JOD");

@@ -20,10 +20,11 @@ const getEnv = (key: string, fallback = ""): string => {
   // In production server-side, check process.env as well
   if (typeof window === "undefined" && typeof process !== "undefined") {
     const processEnvValue = process.env[key];
-    if (processEnvValue) return processEnvValue;
+    if (processEnvValue && processEnvValue.trim() !== "") return processEnvValue;
   }
   const value = env[key];
-  return value ?? fallback;
+  if (typeof value === "string" && value.trim() !== "") return value;
+  return fallback;
 };
 
 export const config: AppConfig = {
