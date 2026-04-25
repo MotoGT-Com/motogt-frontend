@@ -58,3 +58,30 @@ test("infinite scroll triggers exactly one next-page fetch", async ({ page }) =>
     expect(requests.length).toBeLessThanOrEqual(before + 1);
   }
 });
+
+test("new-tab home search keeps selected car model in shop URL", async ({
+  page,
+}) => {
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+
+  const searchForm = page.locator("form").first();
+  const selects = searchForm.locator('button[role="combobox"]');
+
+  await selects.nth(0).click();
+  await page.getByRole("option", { name: "BYD" }).click();
+
+  await selects.nth(1).click();
+  await page.getByRole("option", { name: "Seagull" }).click();
+
+  await selects.nth(2).click();
+  await page.getByRole("option", { name: "2024" }).click();
+
+  await Promise.all([
+    page.waitForURL((url) => url.pathname === "/shop" && url.search.length > 0),
+    searchForm.getByRole("button", { name: /search/i }).click(),
+  ]);
+
+  await expect(page).toHaveURL(/carBrand=BYD/);
+  await expect(page).toHaveURL(/carModel=Seagull/);
+  await expect(page).toHaveURL(/carYear=2024/);
+});

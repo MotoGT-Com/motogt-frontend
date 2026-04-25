@@ -552,15 +552,17 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
                   : "max-h-0 opacity-0 py-0 pointer-events-none"
               )}
             >
-              <ProductSearch
-                className="font-sans"
-                cardClassName="shadow-none"
-                searchSectionClassName="focus-within:ring-0 focus-within:ring-offset-0"
-                size="compact"
-                autoFocusSearch={isSearchOpen}
-                searchPlaceholder={isRTL ? "اكتب شيئًا" : "Type Something"}
-                onSubmitSuccess={() => setIsSearchOpen(false)}
-              />
+              {isSearchOpen ? (
+                <ProductSearch
+                  className="font-sans"
+                  cardClassName="shadow-none"
+                  searchSectionClassName="focus-within:ring-0 focus-within:ring-offset-0"
+                  size="compact"
+                  autoFocusSearch={isSearchOpen}
+                  searchPlaceholder={isRTL ? "اكتب شيئًا" : "Type Something"}
+                  onSubmitSuccess={() => setIsSearchOpen(false)}
+                />
+              ) : null}
             </div>
             <div
               className={cn(

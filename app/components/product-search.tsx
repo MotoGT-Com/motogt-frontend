@@ -138,6 +138,7 @@ function ProductSearch({
   const isShopListingRoute =
     location.pathname.startsWith("/shop") && !isShopProductPdp;
   const isCompact = size === "compact";
+  const isUrlDrivenFormState = isShopListingRoute || isShopProductPdp;
 
   const applyShopFiltersFromForm = useCallback(
     (formValues: ProductSearchFormValues) => {
@@ -188,16 +189,49 @@ function ProductSearch({
 
   const form = useForm({
     resolver: zodResolver(searchSchema),
-    values: formValuesFromUrl,
-    /**
-     * Without this, every URL sync calls _reset() and overwrites fields. If `carModel` is missing
-     * from the query string for a frame (or lags nuqs), the model Select is wiped before submit.
-     */
-    resetOptions: { keepDirtyValues: true },
+    ...(isUrlDrivenFormState
+      ? {
+          values: formValuesFromUrl,
+          /**
+           * Without this, every URL sync calls _reset() and overwrites fields. If `carModel` is missing
+           * from the query string for a frame (or lags nuqs), the model Select is wiped before submit.
+           */
+          resetOptions: { keepDirtyValues: true },
+        }
+      : {
+          defaultValues: {
+            search: "",
+            carBrand: anyValue,
+            carModel: anyValue,
+            carYear: anyValue,
+          },
+        }),
+  });
+
+  // Keep the latest select values outside RHF to avoid submit-time lag/race.
+  const latestCarFiltersRef = useRef<{
+    carBrand: string;
+    carModel: string;
+    carYear: string;
+  }>({
+    carBrand: form.getValues("carBrand") ?? anyValue,
+    carModel: form.getValues("carModel") ?? anyValue,
+    carYear: form.getValues("carYear") ?? anyValue,
   });
 
   const carBrands = useQuery(carBrandsQueryOptions);
   const carBrand = form.watch("carBrand");
+  useEffect(() => {
+    latestCarFiltersRef.current.carBrand = carBrand ?? anyValue;
+  }, [carBrand]);
+  const carModelWatch = form.watch("carModel");
+  useEffect(() => {
+    latestCarFiltersRef.current.carModel = carModelWatch ?? anyValue;
+  }, [carModelWatch]);
+  const carYearWatch = form.watch("carYear");
+  useEffect(() => {
+    latestCarFiltersRef.current.carYear = carYearWatch ?? anyValue;
+  }, [carYearWatch]);
   const carModels = useQuery(
     carModelsQueryOptions(carBrand === anyValue ? undefined : carBrand)
   );
@@ -366,10 +400,15 @@ function ProductSearch({
     const v = form.getValues();
     const formPayload: ProductSearchFormValues = {
       search: (v.search ?? "").trim(),
-      carBrand: v.carBrand ?? anyValue,
-      carModel: v.carModel ?? anyValue,
+      carBrand:
+        latestCarFiltersRef.current.carBrand || v.carBrand || anyValue,
+      carModel:
+        latestCarFiltersRef.current.carModel || v.carModel || anyValue,
       carYear:
-        v.carYear != null && String(v.carYear).trim() !== ""
+        latestCarFiltersRef.current.carYear != null &&
+        String(latestCarFiltersRef.current.carYear).trim() !== ""
+          ? String(latestCarFiltersRef.current.carYear)
+          : v.carYear != null && String(v.carYear).trim() !== ""
           ? String(v.carYear)
           : anyValue,
     };
@@ -565,6 +604,8 @@ function ProductSearch({
                         value={field.value}
                         onValueChange={(value) => {
                           field.onChange(value);
+                          latestCarFiltersRef.current.carBrand = value;
+                          latestCarFiltersRef.current.carModel = anyValue;
                           form.setValue("carModel", anyValue, {
                             shouldDirty: false,
                           });
@@ -639,6 +680,7 @@ function ProductSearch({
                         value={field.value}
                         onValueChange={(value) => {
                           field.onChange(value);
+                          latestCarFiltersRef.current.carModel = value;
                           if (isShopListingRoute) {
                             setSearchParams({
                               carModel: normalizeCarField(value) ?? null,
@@ -706,6 +748,7 @@ function ProductSearch({
                         value={field.value}
                         onValueChange={(value) => {
                           field.onChange(value);
+                          latestCarFiltersRef.current.carYear = value;
                           if (isShopListingRoute) {
                             setSearchParams({
                               carYear: carYearQueryFromSelectValue(value),
