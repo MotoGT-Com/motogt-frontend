@@ -55,6 +55,23 @@ export const COUNTRY_TO_CURRENCY: Record<typeof ALLOWED_COUNTRIES[number], Curre
   QA: "QAR",
 };
 
+/** ISO 3166-1 alpha-2 → storefront currency for IP geolocation (only these map; all others → JOD). */
+export const GEO_COUNTRY_TO_CURRENCY: Record<string, Currency> = {
+  JO: "JOD",
+  AE: "AED",
+  SA: "SAR",
+  QA: "QAR",
+  US: "USD",
+};
+
+export function currencyFromGeoCountry(
+  countryCode: string | null | undefined
+): Currency {
+  if (!countryCode) return "JOD";
+  const upper = countryCode.trim().toUpperCase();
+  return GEO_COUNTRY_TO_CURRENCY[upper] ?? "JOD";
+}
+
 export const CURRENCY_TO_FLAG: Record<Currency, string> = {
   JOD: "🇯🇴", // Jordan
   AED: "🇦🇪", // UAE

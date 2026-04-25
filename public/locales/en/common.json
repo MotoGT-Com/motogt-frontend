@@ -358,5 +358,9 @@
     "title": "Add a car to your garage",
     "desceription": "Add your car to your garage to instantly see products that fit your vehicle",
     "linkText": "To the garage"
+  },
+  "currency": {
+    "showingPricesIn": "Showing prices in {{currency}}",
+    "geoTooltip": "Prices may be shown in your local currency based on approximate location. You can change currency anytime."
   }
 }
