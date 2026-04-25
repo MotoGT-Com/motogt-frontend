@@ -168,7 +168,9 @@ describe("detectGeolocation bypassCache", () => {
     writeGeolocationCache("AE");
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network")));
 
-    const result = await detectGeolocation({ bypassCache: true });
+    const p = detectGeolocation({ bypassCache: true });
+    await vi.advanceTimersByTimeAsync(600);
+    const result = await p;
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.countryCode).toBe("AE");

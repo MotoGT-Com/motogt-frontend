@@ -1,6 +1,6 @@
 import flags from "react-phone-number-input/flags";
 import * as RPNInput from "react-phone-number-input";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useCurrency } from "~/hooks/use-currency";
 import type { Currency } from "~/lib/constants";
 
@@ -10,8 +10,6 @@ interface AnnouncementBarProps {
   className?: string;
   textClassName?: string;
 }
-
-const DETECTED_COUNTRY_STORAGE_KEY = "detected_country";
 
 type SupportedBannerCurrency = "JOD" | "AED" | "SAR" | "QAR";
 
@@ -66,51 +64,17 @@ export function AnnouncementBar({
   className = "bg-primary",
   textClassName = "text-sm md:text-base font-medium",
 }: AnnouncementBarProps) {
-  const { selectedCurrency, isManualOverride } = useCurrency();
-  const [detectedCountryCode, setDetectedCountryCode] = useState<string | null>(
-    null
-  );
-
-  useEffect(() => {
-    const fromStorage = localStorage.getItem(DETECTED_COUNTRY_STORAGE_KEY);
-    if (fromStorage) {
-      setDetectedCountryCode(fromStorage);
-      return;
-    }
-
-    let ignore = false;
-    void fetch("https://ipapi.co/json/", {
-      headers: { Accept: "application/json" },
-    })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data: { country_code?: string } | null) => {
-        if (ignore) return;
-        const code = data?.country_code?.trim().toUpperCase();
-        if (!code) {
-          setDetectedCountryCode(null);
-          return;
-        }
-        setDetectedCountryCode(code);
-        localStorage.setItem(DETECTED_COUNTRY_STORAGE_KEY, code);
-      })
-      .catch(() => {
-        if (!ignore) {
-          setDetectedCountryCode(null);
-        }
-      });
-
-    return () => {
-      ignore = true;
-    };
-  }, []);
+  const { selectedCurrency, isManualOverride, detectedCountryCode } =
+    useCurrency();
 
   const effectiveBannerCurrency = useMemo<SupportedBannerCurrency>(() => {
     if (isManualOverride && isSupportedBannerCurrency(selectedCurrency)) {
       return selectedCurrency;
     }
 
-    const fromCountry = currencyFromDetectedCountry(detectedCountryCode);
-    if (fromCountry) return fromCountry;
+    if (detectedCountryCode) {
+      return currencyFromDetectedCountry(detectedCountryCode);
+    }
 
     if (isSupportedBannerCurrency(selectedCurrency)) {
       return selectedCurrency;

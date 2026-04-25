@@ -7,7 +7,7 @@ export const LEGACY_DETECTED_COUNTRY_KEY = "detected_country";
 /** 24 hours — reduces third-party API calls */
 export const GEOLOCATION_TTL_MS = 24 * 60 * 60 * 1000;
 
-export const GEO_FETCH_TIMEOUT_MS = 2000;
+export const GEO_FETCH_TIMEOUT_MS = 4500;
 
 function createFetchAbortSignal(ms: number): {
   signal: AbortSignal;
@@ -189,10 +189,23 @@ export async function detectGeolocation(
     }
   }
 
-  const { signal, cancel } = createFetchAbortSignal(GEO_FETCH_TIMEOUT_MS);
+  const tryFetchIp = async (): Promise<string | null> => {
+    const { signal, cancel } = createFetchAbortSignal(GEO_FETCH_TIMEOUT_MS);
+    try {
+      return await fetchCountryCodeFromIp(signal);
+    } catch {
+      return null;
+    } finally {
+      cancel();
+    }
+  };
 
   try {
-    const code = await fetchCountryCodeFromIp(signal);
+    let code = await tryFetchIp();
+    if (!code && bypassCache) {
+      await new Promise((r) => setTimeout(r, 500));
+      code = await tryFetchIp();
+    }
     if (code) {
       writeGeolocationCache(code);
       return {
@@ -204,8 +217,6 @@ export async function detectGeolocation(
     }
   } catch {
     // timeout / network / parse
-  } finally {
-    cancel();
   }
 
   if (bypassCache) {
