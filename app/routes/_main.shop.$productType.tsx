@@ -208,6 +208,11 @@ export default function ShopByProductType({
   const { productType } = loaderData;
 
   const { t, i18n } = useTranslation("shop");
+  const [totalCount, setTotalCount] = useState(0);
+
+  useEffect(() => {
+    setTotalCount(loaderData.productsResponse?.data?.meta?.total ?? 0);
+  }, [loaderData.productsResponse]);
 
   return (
     <>
@@ -219,31 +224,12 @@ export default function ShopByProductType({
 
         {/* Page Title */}
         <div className="flex items-center justify-between mb-6">
-          <Suspense
-            fallback={
-              <h1 className="text-[18px] font-black italic leading-[150%] tracking-[-0.198px] text-[#000]">
-                {productTypeDisplayName(productType, i18n.language)}
-              </h1>
-            }
-          >
-            <Await resolve={loaderData.productsResponse}>
-              {(data) => {
-                const totalCount = data?.data?.meta?.total ?? 0;
-                const productTypeLabel = productTypeDisplayName(
-                  productType,
-                  i18n.language
-                );
-                return (
-                  <h1 className="text-[18px] font-black italic leading-[150%] tracking-[-0.198px] text-[#000]">
-                    {productTypeLabel}{" "}
-                    <span className="text-[14px] font-normal not-italic leading-[150%] tracking-[-0.154px] text-[rgba(0,0,0,0.50)]">
-                      ({totalCount})
-                    </span>
-                  </h1>
-                );
-              }}
-            </Await>
-          </Suspense>
+          <h1 className="text-[18px] font-black italic leading-[150%] tracking-[-0.198px] text-[#000]">
+            {productTypeDisplayName(productType, i18n.language)}{" "}
+            <span className="text-[14px] font-normal not-italic leading-[150%] tracking-[-0.154px] text-[rgba(0,0,0,0.50)]">
+              ({totalCount})
+            </span>
+          </h1>
           <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
             <DrawerTrigger asChild>
               <Button variant="outline" className="lg:hidden bg-white rounded dark:bg-white">
@@ -287,7 +273,11 @@ export default function ShopByProductType({
             <HydrationBoundary state={loaderData.dehydratedState}>
               <Await resolve={loaderData.productsResponse}>
                 {(data) => (
-                  <ProductsGrid initialData={data} productType={productType} />
+                  <ProductsGrid
+                    initialData={data}
+                    productType={productType}
+                    onTotalCountChange={setTotalCount}
+                  />
                 )}
               </Await>
             </HydrationBoundary>
@@ -302,9 +292,11 @@ export default function ShopByProductType({
 function ProductsGrid({
   initialData,
   productType,
+  onTotalCountChange,
 }: {
   initialData: any;
   productType: { id: string; code: string; slug: string; name: string };
+  onTotalCountChange: (count: number) => void;
 }) {
   // Safely extract initial data
   const safeInitialData = useMemo(() => {
@@ -397,6 +389,11 @@ function ProductsGrid({
         : undefined
       : undefined,
   });
+
+  const liveTotalCount = data?.pages?.[0]?.meta?.total ?? 0;
+  useEffect(() => {
+    onTotalCountChange(liveTotalCount);
+  }, [liveTotalCount, onTotalCountChange]);
 
   const showProductsSkeleton = isPending || (isFetching && !data);
 

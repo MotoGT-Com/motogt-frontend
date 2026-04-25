@@ -151,6 +151,11 @@ export const meta: Route.MetaFunction = () => {
 export default function Shop({ loaderData }: Route.ComponentProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const { t, i18n } = useTranslation("shop");
+  const [totalCount, setTotalCount] = useState(0);
+
+  useEffect(() => {
+    setTotalCount(loaderData.productsResponse?.data?.meta?.total ?? 0);
+  }, [loaderData.productsResponse]);
 
   return (
     <>
@@ -163,25 +168,12 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
         {/* Page Title */}
         <section className="mb-6 flex items-center justify-between">
           <div>
-            <Suspense fallback={
-              <h1 className="text-[18px] font-black italic leading-[150%] tracking-[-0.198px] text-[#000]">
-                {t("title")}
-              </h1>
-            }>
-              <Await resolve={loaderData.productsResponse}>
-                {(data) => {
-                  const totalCount = data?.data?.meta?.total ?? 0;
-                  return (
-                    <h1 className="text-[18px] font-black italic leading-[150%] tracking-[-0.198px] text-[#000]">
-                      {t("title")}{" "}
-                      <span className="text-[14px] font-normal not-italic leading-[150%] tracking-[-0.154px] text-[rgba(0,0,0,0.50)]">
-                        ({totalCount})
-                      </span>
-                    </h1>
-                  );
-                }}
-              </Await>
-            </Suspense>
+            <h1 className="text-[18px] font-black italic leading-[150%] tracking-[-0.198px] text-[#000]">
+              {t("title")}{" "}
+              <span className="text-[14px] font-normal not-italic leading-[150%] tracking-[-0.154px] text-[rgba(0,0,0,0.50)]">
+                ({totalCount})
+              </span>
+            </h1>
           </div>
           <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
             <DrawerTrigger asChild>
@@ -222,7 +214,7 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
                 </div>
               }
             >
-              <ProductsGrid />
+              <ProductsGrid onTotalCountChange={setTotalCount} />
             </Suspense>
           </main>
         </div>
@@ -231,7 +223,11 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
   );
 }
 
-function ProductsGrid() {
+function ProductsGrid({
+  onTotalCountChange,
+}: {
+  onTotalCountChange: (count: number) => void;
+}) {
   const { productsResponse } = useLoaderData<typeof loader>();
   const [searchParams] = useQueryStates(shopSearchParamsSchema);
   const [urlSearchParams] = useSearchParams();
@@ -369,6 +365,11 @@ function ProductsGrid() {
     },
     initialPageParam: 1,
   });
+
+  const liveTotalCount = productsPages?.pages?.[0]?.meta?.total ?? 0;
+  useEffect(() => {
+    onTotalCountChange(liveTotalCount);
+  }, [liveTotalCount, onTotalCountChange]);
 
   /** First page / filter change: show skeleton. Pagination uses bottom spinner only. */
   const showProductsSkeleton =
