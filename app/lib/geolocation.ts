@@ -2,6 +2,7 @@ import type { Currency } from "~/lib/constants";
 import { currencyFromGeoCountry } from "~/lib/constants";
 
 export const GEOLOCATION_STORAGE_KEY = "motogt_geolocation";
+export const LEGACY_DETECTED_COUNTRY_KEY = "detected_country";
 
 /** 24 hours — reduces third-party API calls */
 export const GEOLOCATION_TTL_MS = 24 * 60 * 60 * 1000;
@@ -55,14 +56,36 @@ export function parseGeolocationStored(raw: string | null): MotogtGeolocationSto
   }
 }
 
+function entryFromLegacyDetectedCountry(
+  legacyCountry: string | null
+): MotogtGeolocationStored | null {
+  if (!legacyCountry) return null;
+  const normalized = legacyCountry.trim().toUpperCase();
+  if (!normalized) return null;
+  const now = Date.now();
+  return {
+    countryCode: normalized,
+    currency: currencyFromGeoCountry(normalized),
+    detectedAt: now,
+    expiresAt: now + GEOLOCATION_TTL_MS,
+  };
+}
+
 /** Valid (unexpired) cache entry, or null. */
 export function readValidGeolocationCache(): MotogtGeolocationStored | null {
   if (typeof window === "undefined") return null;
   try {
     const entry = parseGeolocationStored(localStorage.getItem(GEOLOCATION_STORAGE_KEY));
-    if (!entry) return null;
-    if (Date.now() > entry.expiresAt) return null;
-    return entry;
+    if (entry && Date.now() <= entry.expiresAt) return entry;
+
+    // Backward compatibility: announcement banner uses this key.
+    const legacyEntry = entryFromLegacyDetectedCountry(
+      localStorage.getItem(LEGACY_DETECTED_COUNTRY_KEY)
+    );
+    if (!legacyEntry) return null;
+    // Promote legacy value into canonical cache shape.
+    localStorage.setItem(GEOLOCATION_STORAGE_KEY, JSON.stringify(legacyEntry));
+    return legacyEntry;
   } catch {
     return null;
   }
@@ -72,7 +95,10 @@ export function readValidGeolocationCache(): MotogtGeolocationStored | null {
 export function readStaleGeolocationCache(): MotogtGeolocationStored | null {
   if (typeof window === "undefined") return null;
   try {
-    return parseGeolocationStored(localStorage.getItem(GEOLOCATION_STORAGE_KEY));
+    return (
+      parseGeolocationStored(localStorage.getItem(GEOLOCATION_STORAGE_KEY)) ??
+      entryFromLegacyDetectedCountry(localStorage.getItem(LEGACY_DETECTED_COUNTRY_KEY))
+    );
   } catch {
     return null;
   }
@@ -91,6 +117,7 @@ export function writeGeolocationCache(countryCode: string): void {
   };
   try {
     localStorage.setItem(GEOLOCATION_STORAGE_KEY, JSON.stringify(payload));
+    localStorage.setItem(LEGACY_DETECTED_COUNTRY_KEY, normalized);
   } catch {
     // Quota or disabled — ignore
   }

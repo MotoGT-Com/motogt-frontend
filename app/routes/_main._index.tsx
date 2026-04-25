@@ -200,10 +200,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     <>
       <title>{t('home:meta.title')}</title>
       {/* Free Delivery Banner */}
-      <AnnouncementBar 
-        message={t('home:announcement.freeDeliveryJO')}
-        countryCode="JO"
-      />
+      <AnnouncementBar />
       {/* Search Section */}
       <section className="relative w-full min-h-[200px] md:min-h-[300px] flex items-center justify-center mb-8 overflow-x-hidden">
         {/* Background Image */}

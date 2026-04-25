@@ -91,6 +91,13 @@ describe("geolocation localStorage cache", () => {
     expect(entry?.currency).toBe("QAR");
     expect(entry!.expiresAt).toBeGreaterThan(Date.now());
   });
+
+  it("supports legacy detected_country cache key", () => {
+    localStorage.setItem("detected_country", "AE");
+    const entry = readValidGeolocationCache();
+    expect(entry?.countryCode).toBe("AE");
+    expect(entry?.currency).toBe("AED");
+  });
 });
 
 describe("fetchCountryCodeFromIp", () => {
