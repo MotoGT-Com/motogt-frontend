@@ -315,9 +315,14 @@ export function GarageFeaturedBanner({ userCars }: Props) {
     return (
       <div className="w-full min-h-[400px] md:min-h-0 md:h-[320px] relative overflow-hidden">
         <img
-          src="/garage/garage-banner.png"
+          src="/garage/garage-banner-1280w.webp"
+          srcSet="/garage/garage-banner-768w.webp 768w, /garage/garage-banner-1280w.webp 1280w, /garage/garage-banner-1920w.webp 1920w, /garage/garage-banner-2560w.webp 2560w"
+          sizes="100vw"
           alt=""
           aria-hidden
+          width={5120}
+          height={1339}
+          loading="lazy"
           className="absolute inset-0 w-full h-full object-cover md:object-center object-[center_22%]"
         />
         <div className="absolute inset-0 bg-white/10" aria-hidden />
@@ -352,9 +357,14 @@ export function GarageFeaturedBanner({ userCars }: Props) {
       >
         {/* Fixed background — mobile is a taller vertical frame; desktop stays wide */}
         <img
-          src="/garage/garage-banner.png"
+          src="/garage/garage-banner-1280w.webp"
+          srcSet="/garage/garage-banner-768w.webp 768w, /garage/garage-banner-1280w.webp 1280w, /garage/garage-banner-1920w.webp 1920w, /garage/garage-banner-2560w.webp 2560w"
+          sizes="100vw"
           alt=""
           aria-hidden
+          width={5120}
+          height={1339}
+          loading="lazy"
           className="absolute inset-0 w-full h-full object-cover object-[center_22%] md:object-center"
         />
         <div className="absolute inset-0 bg-white/10" aria-hidden />

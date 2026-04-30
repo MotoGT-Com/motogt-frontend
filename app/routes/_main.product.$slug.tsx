@@ -12,7 +12,7 @@ import { data, href, Link, redirect, useLocation, useRevalidator } from "react-r
 import { accessTokenCookie } from "~/lib/auth-middleware";
 import { authContext } from "~/context";
 import { Faq } from "~/components/faq";
-import { serializeShopURL } from "./_main.shop._index";
+import { serializeShopURL } from "~/lib/shop-search-params";
 import type { ProductItem } from "~/lib/client";
 import { garageCarsQueryOptions } from "~/lib/queries";
 import { useQuery } from "@tanstack/react-query";

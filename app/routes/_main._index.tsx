@@ -1,12 +1,26 @@
 import { Await, href, Link } from "react-router";
 import type { Route } from "./+types/_main._index";
+
+export function links() {
+  return [
+    {
+      rel: "preload",
+      as: "image",
+      href: "/hero-banner-1280w.webp",
+      // imageSrcSet/imageSizes allow the browser to pick the correct variant to preload
+      imageSrcSet:
+        "/hero-banner-640w.webp 640w, /hero-banner-1280w.webp 1280w, /hero-banner-2560w.webp 2560w",
+      imageSizes: "100vw",
+    },
+  ];
+}
 import { ProductSearch } from "~/components/product-search";
 import { SimpleCard } from "~/components/ui/card";
 import { getApiHomeExteriorProducts, getApiHomeInteriorProducts, getApiHomeSubcategories, getApiProductsPublic, getApiProductTypes } from "~/lib/client";
 import { defaultParams } from "~/lib/api-client";
-import { serializeShopURL } from "./_main.shop._index";
+import { serializeShopURL } from "~/lib/shop-search-params";
 import { accessTokenCookie } from "~/lib/auth-middleware";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { exteriorProductsQueryOptions, interiorProductsQueryOptions } from "~/lib/queries";
 import { HomeCarousel } from "~/components/garage-carousel";
 import { GarageFeaturedBanner } from "~/components/garage-featured-banner";
@@ -195,6 +209,21 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   } = loaderData;
 
   const { t } = useTranslation(['home', 'common']);
+  const [renderDeferredSections, setRenderDeferredSections] = useState(false);
+
+  useEffect(() => {
+    const onReady = () => setRenderDeferredSections(true);
+
+    if ("requestIdleCallback" in window) {
+      const idleId = (window as any).requestIdleCallback(onReady, { timeout: 1500 });
+      return () => {
+        (window as any).cancelIdleCallback?.(idleId);
+      };
+    }
+
+    const timeoutId = globalThis.setTimeout(onReady, 600);
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   return (
     <>
@@ -205,14 +234,23 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       <section className="relative w-full min-h-[200px] md:min-h-[300px] flex items-center justify-center mb-8 overflow-x-hidden">
         {/* Background Image */}
         <div className="absolute inset-0 z-0 overflow-hidden">
-          <img
-            src="/hero-banner.png"
-            alt=""
-            className="w-full h-full object-cover"
-            fetchPriority="high"
-            loading="eager"
-            aria-hidden="true"
-          />
+          <picture>
+            <source
+              type="image/webp"
+              srcSet="/hero-banner-640w.webp 640w, /hero-banner-1280w.webp 1280w, /hero-banner-2560w.webp 2560w"
+              sizes="100vw"
+            />
+            <img
+              src="/hero-banner-1280w.webp"
+              alt=""
+              width={2560}
+              height={590}
+              className="w-full h-full object-cover"
+              fetchPriority="high"
+              loading="eager"
+              aria-hidden="true"
+            />
+          </picture>
           {/* Overlay for better text readability */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60" />
         </div>
@@ -242,13 +280,22 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           >
             <SimpleCard className="relative aspect-[21/9] overflow-hidden rounded-md transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-lg">
               <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/30 to-black/0 z-10 transition-opacity duration-300 group-hover:opacity-80" />
-              <img
-                src="/hero1.png"
-                aria-hidden="true"
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                fetchPriority="high"
-                loading="eager"
-              />
+              <picture>
+                <source
+                  type="image/webp"
+                  srcSet="/hero1-400w.webp 400w, /hero1-800w.webp 800w"
+                  sizes="(max-width: 768px) 90vw, 50vw"
+                />
+                <img
+                  src="/hero1-800w.webp"
+                  aria-hidden="true"
+                  width={584}
+                  height={234}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  fetchPriority="auto"
+                  loading="lazy"
+                />
+              </picture>
               <div className="absolute md:bottom-8 bottom-4 md:left-8 left-4 z-20 text-white transition-all duration-300 group-hover:translate-y-[-4px]">
                 <h3>
                   <span className="md:text-2xl text-xl transition-all duration-300">{t('home:sections.exploreOur')}</span>
@@ -366,58 +413,70 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         productsResponse={interiorProductsResponse}
       />
 
-      {/* Car Showcase Section */}
-      <HomeCarousel isAuthenticated={isAuthenticated} />
-      <HomeFeaturedBanner isAuthenticated={isAuthenticated} />
+      {renderDeferredSections ? (
+        <>
+          {/* Car Showcase Section */}
+          <HomeCarousel isAuthenticated={isAuthenticated} />
+          <HomeFeaturedBanner isAuthenticated={isAuthenticated} />
 
-      <ProductsHorizontalScroll
-        sectionTitle={t('home:sections.cleaningProducts')}
-        productsResponse={cleaningProductsResponse}
-        wrapperClassName="pt-6 mb-24"
-      />
-
-      <section className="bg-primary py-6 mb-2">
-        <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl md:text-4xl font-bold italic text-white">
-              {t('home:bestSellers.title')}
-            </h2>
-            <Link to={href("/shop")} className="text-sm md:text-xl font-bold text-white whitespace-nowrap">
-              {t('home:bestSellers.viewAll')}
-            </Link>
-          </div>
-        </div>
-
-        <div className="-mb-24">
           <ProductsHorizontalScroll
+            sectionTitle={t('home:sections.cleaningProducts')}
+            productsResponse={cleaningProductsResponse}
+            wrapperClassName="pt-6 mb-24"
+          />
+
+          <section className="bg-primary py-6 mb-2">
+            <div className="max-w-7xl mx-auto px-4 md:px-6">
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-2xl md:text-4xl font-bold italic text-white">
+                  {t('home:bestSellers.title')}
+                </h2>
+                <Link to={href("/shop")} className="text-sm md:text-xl font-bold text-white whitespace-nowrap">
+                  {t('home:bestSellers.viewAll')}
+                </Link>
+              </div>
+            </div>
+
+            <div className="-mb-24">
+              <ProductsHorizontalScroll
+                productsResponse={exteriorProductsResponse}
+              />
+            </div>
+          </section>
+
+          <ProductsHorizontalScroll
+            sectionTitle={t('home:newArrivals.title')}
             productsResponse={exteriorProductsResponse}
           />
-        </div>
-      </section>
 
-      <ProductsHorizontalScroll
-        sectionTitle={t('home:newArrivals.title')}
-        productsResponse={exteriorProductsResponse}
-      />
+          <ProductsHorizontalScroll
+            sectionTitle={t('home:sections.ridingGear')}
+            productsResponse={ridingGearProductsResponse}
+          />
 
-      <ProductsHorizontalScroll
-        sectionTitle={t('home:sections.ridingGear')}
-        productsResponse={ridingGearProductsResponse}
-      />
+          <img
+            src="/bottom-banner-1280w.webp"
+            srcSet="/bottom-banner-768w.webp 768w, /bottom-banner-1280w.webp 1280w"
+            sizes="100vw"
+            alt={t('home:banner.ownYourLook')}
+            width={2560}
+            height={606}
+            loading="lazy"
+            className="w-full h-full"
+          />
 
-      <img
-      loading="lazy"
-        src="/bottom-banner.webp"
-        alt={t('home:banner.ownYourLook')}
-        className="w-full h-full"
-      />
+          <ProductsHorizontalScroll
+            sectionTitle={t('home:sections.motorcycleAccessories')}
+            productsResponse={motorcycleAccessoriesResponse}
+          />
 
-      <ProductsHorizontalScroll
-        sectionTitle={t('home:sections.motorcycleAccessories')}
-        productsResponse={motorcycleAccessoriesResponse}
-      />
-
-      <Faq />
+          <Faq />
+        </>
+      ) : (
+        <section className="max-w-7xl mx-auto px-6 mb-8" aria-hidden>
+          <div className="h-48 animate-pulse rounded-md bg-muted" />
+        </section>
+      )}
     </>
   );
 }
