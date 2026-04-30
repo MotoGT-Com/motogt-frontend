@@ -3,7 +3,10 @@
     "title": "Home - MotoGT"
   },
   "announcement": {
-    "freeDeliveryJO": "Free delivery on all orders across Jordan"
+    "freeDeliveryJO": "Free delivery on all orders across Jordan ",
+    "deliveryAE": "Now delivering across the UAE",
+    "deliverySA": "Now delivering across the Kingdom of Saudi Arabia",
+    "deliveryQA": "Now delivering across Qatar"
   },
   "hero": {
     "searchTitle": "What Are We Looking For Today?"
