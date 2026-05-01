@@ -6,7 +6,7 @@ declare global {
   interface Window {
     gtag?: (
       command: string,
-      targetId: string,
+      target: string | Date,
       config?: Record<string, string | number | boolean | undefined>
     ) => void;
     dataLayer?: unknown[];

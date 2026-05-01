@@ -27,6 +27,9 @@ export default async function handleRequest(
   }
 
   responseHeaders.set("Content-Language", locale);
+  // Keep HTML revalidated to prevent stale document shells while allowing
+  // static hashed assets to remain long-cached by the static file server.
+  responseHeaders.set("Cache-Control", "no-cache, max-age=0, must-revalidate");
 
   if (request.method.toUpperCase() === "HEAD") {
     return new Response(null, {

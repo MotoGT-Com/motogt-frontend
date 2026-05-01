@@ -5,7 +5,6 @@ type LanguageIds = {
 
 type AppConfig = {
   googleAnalyticsId: string;
-  tidioId: string;
   apiBaseUrl: string;
   defaultStoreId: string;
   languageIds: LanguageIds;
@@ -29,7 +28,6 @@ const getEnv = (key: string, fallback = ""): string => {
 
 export const config: AppConfig = {
   googleAnalyticsId: getEnv("VITE_GA_ID", ""),
-  tidioId: getEnv("VITE_TIDIO_ID", ""),
   apiBaseUrl: getEnv("VITE_API_BASE_URL", "https://api.motogt.com"),
   defaultStoreId: getEnv(
     "VITE_DEFAULT_STORE_ID",

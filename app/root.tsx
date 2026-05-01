@@ -6,20 +6,50 @@ import "./app.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "~/components/ui/sonner";
 import { globalAuthMiddleware } from "./lib/auth-middleware";
-import "@fontsource/koulen";
-import "@fontsource-variable/inter";
-import "@fontsource-variable/inter/wght-italic.css";
 import { I18nextProvider } from "react-i18next";
 import i18n from "./lib/i18n";
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { config } from "./config";
 import { getLocaleWithCookie } from "./lib/i18n-cookie";
 import { AuthModalProvider } from "./context/AuthModalContext";
 import { AuthModal } from "./components/auth/AuthModal";
 import { CurrencyProvider } from "~/hooks/use-currency";
-import { SpeedInsights } from "@vercel/speed-insights/react";
+
+const GoogleAnalytics = lazy(() =>
+  import("~/components/google-analytics").then((module) => ({
+    default: module.GoogleAnalytics,
+  }))
+);
+const SpeedInsights = lazy(() =>
+  import("@vercel/speed-insights/react").then((module) => ({
+    default: module.SpeedInsights,
+  }))
+);
 
 export const middleware: MiddlewareFunction[] = [globalAuthMiddleware];
+
+export function links() {
+  return [
+    { rel: "preconnect", href: "https://api.motogt.com" },
+    { rel: "preconnect", href: "https://www.googletagmanager.com" },
+    { rel: "dns-prefetch", href: "https://api.motogt.com" },
+    { rel: "dns-prefetch", href: "https://www.googletagmanager.com" },
+    {
+      rel: "preload",
+      href: "/fonts/inter-latin-wght-normal.woff2",
+      as: "font",
+      type: "font/woff2",
+      crossOrigin: "anonymous",
+    },
+    {
+      rel: "preload",
+      href: "/fonts/koulen-latin-400-normal.woff2",
+      as: "font",
+      type: "font/woff2",
+      crossOrigin: "anonymous",
+    },
+  ];
+}
 
 export async function loader({ request }: Route.LoaderArgs) {
   const { locale, setCookie } = await getLocaleWithCookie(request);
@@ -108,6 +138,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const loaderData = useLoaderData<typeof loader>();
   const currentLang = loaderData?.locale ?? "ar";
   const dir = currentLang === "ar" ? "rtl" : "ltr";
+  const [loadNonCriticalScripts, setLoadNonCriticalScripts] = useState(false);
 
   useEffect(() => {
     // Update HTML attributes when language changes (client-side only)
@@ -125,6 +156,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  useEffect(() => {
+    const onReady = () => setLoadNonCriticalScripts(true);
+
+    if ("requestIdleCallback" in window) {
+      const idleId = (window as any).requestIdleCallback(onReady, { timeout: 2000 });
+      return () => {
+        (window as any).cancelIdleCallback?.(idleId);
+      };
+    }
+
+    const timeoutId = window.setTimeout(onReady, 1000);
+    return () => clearTimeout(timeoutId);
+  }, []);
+
   return (
     <html lang={currentLang} dir={dir}>
       <head>
@@ -137,53 +182,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {/* Version: 1.1.1 */}
         <Meta />
         <Links />
-        {/* <!-- Google tag (gtag.js) --> */}
+        {/* dataLayer stub — buffers gtag() calls until the GA script loads post-hydration */}
         {config.googleAnalyticsId && (
-          <>
-            <script
-              async
-              src={`https://www.googletagmanager.com/gtag/js?id=${config.googleAnalyticsId}`}
-            ></script>
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-
-                gtag('config', '${config.googleAnalyticsId}');`,
-              }}
-            ></script>
-          </>
-        )}
-        {config.tidioId && (
           <script
-            src={`//code.tidio.co/${config.tidioId}.js`}
-            async
-          ></script>
+            dangerouslySetInnerHTML={{
+              __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}`,
+            }}
+          />
         )}
-        {/* Hide Tidio widget by default */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `
-              // MotoGT Application Version
-              window.__MOTOGT_VERSION__ = '1.1.1';
-              window.__MOTOGT_BUILD_INFO__ = {
-                version: '1.1.1'
-              };
-              
-              window.addEventListener('load', function() {
-                // Hide Tidio widget by default on all pages
-                const hideTidioWidget = () => {
-                  if (window.tidioChatApi) {
-                    window.tidioChatApi.hide();
-                  } else {
-                    setTimeout(hideTidioWidget, 100);
-                  }
-                };
-                hideTidioWidget();
-              });
-            `,
+            __html: `window.__MOTOGT_VERSION__='1.1.1';window.__MOTOGT_BUILD_INFO__={version:'1.1.1'}`,
           }}
         />
       </head>
@@ -201,7 +210,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Toaster className="hidden" />
         <ScrollRestoration />
         <Scripts />
-        <SpeedInsights />
+        {loadNonCriticalScripts ? (
+          <Suspense fallback={null}>
+            {config.googleAnalyticsId && <GoogleAnalytics id={config.googleAnalyticsId} />}
+            <SpeedInsights />
+          </Suspense>
+        ) : null}
       </body>
     </html>
   );

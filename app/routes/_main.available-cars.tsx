@@ -24,7 +24,7 @@ import {
 } from "~/lib/queries";
 import type { Route } from "./+types/_main.available-cars";
 import { useTranslation } from "react-i18next";
-import { serializeShopURL } from "./_main.shop._index";
+import { serializeShopURL } from "~/lib/shop-search-params";
 import { AddNewCarDialog } from "~/components/add-new-car-dialog";
 import type { Route as MainRoute } from "./+types/_main";
 import { useAuthModal } from "~/context/AuthModalContext";
