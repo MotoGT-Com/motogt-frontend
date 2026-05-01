@@ -65,6 +65,7 @@ const enrichProductsResponseWithEnglishSlug = async (
     },
   };
 };
+//comment
 
 // Loader function to fetch data on the server
 export async function loader({ request }: Route.LoaderArgs) {
