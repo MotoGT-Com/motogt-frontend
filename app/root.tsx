@@ -12,7 +12,7 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { config } from "./config";
 import { getLocaleWithCookie } from "./lib/i18n-cookie";
 import { AuthModalProvider } from "./context/AuthModalContext";
-import { AuthModal } from "./components/auth/AuthModal";
+import { useIdleReady, idleReadyRootNonCriticalScripts } from "~/hooks/use-idle-ready";
 import { CurrencyProvider } from "~/hooks/use-currency";
 
 const GoogleAnalytics = lazy(() =>
@@ -24,6 +24,9 @@ const SpeedInsights = lazy(() =>
   import("@vercel/speed-insights/react").then((module) => ({
     default: module.SpeedInsights,
   }))
+);
+const AuthModal = lazy(() =>
+  import("~/components/auth/AuthModal").then((m) => ({ default: m.AuthModal }))
 );
 
 export const middleware: MiddlewareFunction[] = [globalAuthMiddleware];
@@ -138,7 +141,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const loaderData = useLoaderData<typeof loader>();
   const currentLang = loaderData?.locale ?? "ar";
   const dir = currentLang === "ar" ? "rtl" : "ltr";
-  const [loadNonCriticalScripts, setLoadNonCriticalScripts] = useState(false);
+  const loadNonCriticalScripts = useIdleReady(idleReadyRootNonCriticalScripts);
 
   useEffect(() => {
     // Update HTML attributes when language changes (client-side only)
@@ -154,20 +157,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
     return () => {
       i18n.off('languageChanged', updateHtmlAttributes);
     };
-  }, []);
-
-  useEffect(() => {
-    const onReady = () => setLoadNonCriticalScripts(true);
-
-    if ("requestIdleCallback" in window) {
-      const idleId = (window as any).requestIdleCallback(onReady, { timeout: 2000 });
-      return () => {
-        (window as any).cancelIdleCallback?.(idleId);
-      };
-    }
-
-    const timeoutId = window.setTimeout(onReady, 1000);
-    return () => clearTimeout(timeoutId);
   }, []);
 
   return (
@@ -202,7 +191,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <CurrencyProvider>
               <AuthModalProvider>
                 {children}
-                <AuthModal />
+                <Suspense fallback={null}>
+                  <AuthModal />
+                </Suspense>
               </AuthModalProvider>
             </CurrencyProvider>
           </QueryClientProvider>

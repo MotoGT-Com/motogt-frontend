@@ -20,7 +20,8 @@ import { getApiHomeExteriorProducts, getApiHomeInteriorProducts, getApiHomeSubca
 import { defaultParams } from "~/lib/api-client";
 import { serializeShopURL } from "~/lib/shop-search-params";
 import { accessTokenCookie } from "~/lib/auth-middleware";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense } from "react";
+import { useIdleReady, idleReadyHomeDeferredSections } from "~/hooks/use-idle-ready";
 import { exteriorProductsQueryOptions, interiorProductsQueryOptions } from "~/lib/queries";
 import { HomeCarousel } from "~/components/garage-carousel";
 import { GarageFeaturedBanner } from "~/components/garage-featured-banner";
@@ -210,21 +211,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   } = loaderData;
 
   const { t } = useTranslation(['home', 'common']);
-  const [renderDeferredSections, setRenderDeferredSections] = useState(false);
-
-  useEffect(() => {
-    const onReady = () => setRenderDeferredSections(true);
-
-    if ("requestIdleCallback" in window) {
-      const idleId = (window as any).requestIdleCallback(onReady, { timeout: 1500 });
-      return () => {
-        (window as any).cancelIdleCallback?.(idleId);
-      };
-    }
-
-    const timeoutId = globalThis.setTimeout(onReady, 600);
-    return () => clearTimeout(timeoutId);
-  }, []);
+  const renderDeferredSections = useIdleReady(idleReadyHomeDeferredSections);
 
   return (
     <>

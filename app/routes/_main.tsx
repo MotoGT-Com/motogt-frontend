@@ -32,28 +32,52 @@ import type { Route } from "./+types/_main";
 import { cn } from "~/lib/utils";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTrigger, } from "~/components/ui/sheet";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, lazy, Suspense } from "react";
 import { useCartManager } from "~/lib/cart-manager";
 import { authContext } from "~/context";
 import { getApiProductTypes } from "~/lib/client";
 import { HeaderToast } from "~/components/header-toast";
 import { HomeNavIcon, CarPartsNavIcon, CareNavIcon, RidingGearNavIcon, GarageNavIcon, WishlistNavIcon, CartNavIcon, ProfileNavIcon, OrdersNavIcon, AddressNavIcon, SupportNavIcon, FeaturedNavIcon, } from "~/components/nav-icons";
 import { LogoutButton } from "~/components/logout-button";
-import { ProfileHoverPopup } from "~/components/profile-hover-popup";
 import { GarageNavButton } from "~/components/garage-nav-button";
 import { LanguageSwitcher } from "~/components/language-switcher";
 import { CurrencySelector } from "~/components/currency-selector";
 import { useCurrency } from "~/hooks/use-currency";
-import { CartHoverPopup } from "~/components/cart-hover-popup";
-import { WishlistHoverPopup } from "~/components/wishlist-hover-popup";
-import { CarPartsHoverPopup } from "~/components/car-parts-hover-popup";
-import { MotorcyclesHoverPopup } from "~/components/motorcycles-hover-popup";
-import { CarCareHoverPopup } from "~/components/car-care-hover-popup";
-import { RecommendedHoverPopup } from "~/components/recommended-hover-popup";
+
+const ProfileHoverPopup = lazy(() =>
+  import("~/components/profile-hover-popup").then((m) => ({ default: m.ProfileHoverPopup }))
+);
+const CartHoverPopup = lazy(() =>
+  import("~/components/cart-hover-popup").then((m) => ({ default: m.CartHoverPopup }))
+);
+const WishlistHoverPopup = lazy(() =>
+  import("~/components/wishlist-hover-popup").then((m) => ({ default: m.WishlistHoverPopup }))
+);
+const CarPartsHoverPopup = lazy(() =>
+  import("~/components/car-parts-hover-popup").then((m) => ({ default: m.CarPartsHoverPopup }))
+);
+const MotorcyclesHoverPopup = lazy(() =>
+  import("~/components/motorcycles-hover-popup").then((m) => ({ default: m.MotorcyclesHoverPopup }))
+);
+const CarCareHoverPopup = lazy(() =>
+  import("~/components/car-care-hover-popup").then((m) => ({ default: m.CarCareHoverPopup }))
+);
+const RecommendedHoverPopup = lazy(() =>
+  import("~/components/recommended-hover-popup").then((m) => ({ default: m.RecommendedHoverPopup }))
+);
 import { useTranslation } from "react-i18next";
 import { SiteFooter } from "~/components/site-footer";
 import { useAuthModal } from "~/context/AuthModalContext";
 import { ProductSearch } from "~/components/product-search";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function PopupWithFallback({ Popup, children, ...rest }: any) {
+  return (
+    <Suspense fallback={<>{children}</>}>
+      <Popup {...rest}>{children}</Popup>
+    </Suspense>
+  );
+}
 
 /**
  * Server-side loader that fetches authentication state, user data, and product types
@@ -274,11 +298,12 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
           <div className="hidden md:flex items-center gap-3">
             <LanguageSwitcher />
             <CurrencySelector />
-            <CartHoverPopup
+            <PopupWithFallback
+              Popup={CartHoverPopup}
               items={cartItems}
               totalItems={cartTotalItems}
               totalAmount={cartTotalAmount}
-              onRemove={(productId) => removeFromCartMutation.mutate(productId)}
+              onRemove={(productId: string) => removeFromCartMutation.mutate(productId)}
               isRemoving={removeFromCartMutation.isPending}
             >
               <NavLink to={href("/cart")} prefetch="render">
@@ -304,8 +329,8 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
                   </Button>
                 )}
               </NavLink>
-            </CartHoverPopup>
-            <ProfileHoverPopup>
+            </PopupWithFallback>
+            <PopupWithFallback Popup={ProfileHoverPopup}>
               <NavLinkButton
                 to={href("/profile")}
                 size="icon"
@@ -317,7 +342,7 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
               >
                 <span className="sr-only">{t("nav.profile")}</span>
               </NavLinkButton>
-            </ProfileHoverPopup>
+            </PopupWithFallback>
           </div>
           {/* Mobile Header Actions - Cart and Menu Toggle */}
           <div className="flex items-center gap-2 md:hidden">
@@ -573,43 +598,43 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
               )}
             >
               <nav className="flex items-center justify-center gap-6">
-                <CarPartsHoverPopup>
+                <PopupWithFallback Popup={CarPartsHoverPopup}>
                   <NavLinkButton
                     to={href("/shop/:productType", { productType: "car-parts" })}
                     icon={CarPartsNavIcon}
                   >
                     {t("nav.carParts")}
                   </NavLinkButton>
-                </CarPartsHoverPopup>
-                <MotorcyclesHoverPopup>
+                </PopupWithFallback>
+                <PopupWithFallback Popup={MotorcyclesHoverPopup}>
                   <NavLinkButton
                     to={href("/shop/:productType", { productType: "motorcycles" })}
                     icon={RidingGearNavIcon}
                   >
                     {t("nav.motorcycles")}
                   </NavLinkButton>
-                </MotorcyclesHoverPopup>
-                <CarCareHoverPopup>
+                </PopupWithFallback>
+                <PopupWithFallback Popup={CarCareHoverPopup}>
                   <NavLinkButton
                     to={href("/shop/:productType", { productType: "car-care-accessiores" })}
                     icon={CareNavIcon}
                   >
                     {t("nav.carCareAccessories")}
                   </NavLinkButton>
-                </CarCareHoverPopup>
-                <RecommendedHoverPopup>
+                </PopupWithFallback>
+                <PopupWithFallback Popup={RecommendedHoverPopup}>
                   <NavLinkButton
                     to={href("/recommended")}
                     icon={FeaturedNavIcon}
                   >
                     {t("nav.recommendedForYou")}
                   </NavLinkButton>
-                </RecommendedHoverPopup>
-                <WishlistHoverPopup>
+                </PopupWithFallback>
+                <PopupWithFallback Popup={WishlistHoverPopup}>
                   <NavLinkButton to={href("/wishlist")} icon={WishlistNavIcon}>
                     {t("nav.wishlist")}
                   </NavLinkButton>
-                </WishlistHoverPopup>
+                </PopupWithFallback>
               </nav>
             </div>
           </div>
