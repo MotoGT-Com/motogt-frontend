@@ -4,17 +4,13 @@ type CurrencyAnalyticsSource = "geo" | "manual" | "default" | "geo_fail";
 
 declare global {
   interface Window {
-    gtag?: (
-      command: string,
-      target: string | Date,
-      config?: Record<string, string | number | boolean | undefined>
-    ) => void;
-    dataLayer?: unknown[];
+    dataLayer?: Record<string, unknown>[];
   }
 }
 
 /**
- * GA4-friendly custom event when currency context is resolved or changed.
+ * Pushes a GTM-friendly custom event. In GTM, add a trigger on Custom Event
+ * name `currency_context` and map fields to GA4 event parameters as needed.
  */
 export function trackCurrencyContext(params: {
   currency: Currency;
@@ -22,10 +18,10 @@ export function trackCurrencyContext(params: {
   source: CurrencyAnalyticsSource;
   geo_fail?: boolean;
 }): void {
-  if (typeof window === "undefined" || typeof window.gtag !== "function") {
-    return;
-  }
-  window.gtag("event", "currency_context", {
+  if (typeof window === "undefined") return;
+  const layer = window.dataLayer ?? (window.dataLayer = []);
+  layer.push({
+    event: "currency_context",
     currency: params.currency,
     country_code: params.country_code ?? "",
     source: params.source,

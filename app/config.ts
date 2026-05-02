@@ -4,7 +4,8 @@ type LanguageIds = {
 };
 
 type AppConfig = {
-  googleAnalyticsId: string;
+  /** Google Tag Manager container ID, e.g. GTM-XXXXXXX */
+  googleTagManagerId: string;
   apiBaseUrl: string;
   defaultStoreId: string;
   languageIds: LanguageIds;
@@ -27,7 +28,7 @@ const getEnv = (key: string, fallback = ""): string => {
 };
 
 export const config: AppConfig = {
-  googleAnalyticsId: getEnv("VITE_GA_ID", ""),
+  googleTagManagerId: getEnv("VITE_GTM_ID", "GTM-NJF7T45N"),
   apiBaseUrl: getEnv("VITE_API_BASE_URL", "https://api.motogt.com"),
   defaultStoreId: getEnv(
     "VITE_DEFAULT_STORE_ID",

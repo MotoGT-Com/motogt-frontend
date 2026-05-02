@@ -15,11 +15,6 @@ import { AuthModalProvider } from "./context/AuthModalContext";
 import { useIdleReady, idleReadyRootNonCriticalScripts } from "~/hooks/use-idle-ready";
 import { CurrencyProvider } from "~/hooks/use-currency";
 
-const GoogleAnalytics = lazy(() =>
-  import("~/components/google-analytics").then((module) => ({
-    default: module.GoogleAnalytics,
-  }))
-);
 const SpeedInsights = lazy(() =>
   import("@vercel/speed-insights/react").then((module) => ({
     default: module.SpeedInsights,
@@ -163,6 +158,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
     <html lang={currentLang} dir={dir}>
       <head>
         <meta charSet="utf-8" />
+        {config.googleTagManagerId ? (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','${config.googleTagManagerId}');`,
+            }}
+          />
+        ) : null}
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="google-site-verification" content="ifoBponjdgiewA3DS35cQdKfaLusWjmlFcOGDrhggME" />
         <meta name="msvalidate.01" content="28C371A61003CC50B7A16D28779F1B74" />
@@ -171,14 +177,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {/* Version: 1.1.1 */}
         <Meta />
         <Links />
-        {/* dataLayer stub — buffers gtag() calls until the GA script loads post-hydration */}
-        {config.googleAnalyticsId && (
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}`,
-            }}
-          />
-        )}
         <script
           dangerouslySetInnerHTML={{
             __html: `window.__MOTOGT_VERSION__='1.1.1';window.__MOTOGT_BUILD_INFO__={version:'1.1.1'}`,
@@ -186,6 +184,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
         />
       </head>
       <body className="font-sans min-h-screen flex flex-col bg-background-secondary">
+        {config.googleTagManagerId ? (
+          <noscript>
+            <iframe
+              title="Google Tag Manager"
+              src={`https://www.googletagmanager.com/ns.html?id=${config.googleTagManagerId}`}
+              height="0"
+              width="0"
+              style={{ display: "none", visibility: "hidden" }}
+            />
+          </noscript>
+        ) : null}
         <I18nextProvider i18n={i18n}>
           <QueryClientProvider client={queryClient}>
             <CurrencyProvider>
@@ -203,7 +212,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Scripts />
         {loadNonCriticalScripts ? (
           <Suspense fallback={null}>
-            {config.googleAnalyticsId && <GoogleAnalytics id={config.googleAnalyticsId} />}
             <SpeedInsights />
           </Suspense>
         ) : null}
