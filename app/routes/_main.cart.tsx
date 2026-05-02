@@ -293,6 +293,18 @@ export default function Cart({ loaderData }: Route.ComponentProps) {
                         totalAmount={(convertedSubtotal ?? totals.total).toFixed(2)}
                         lang={i18n.language}
                         disabled={cartQuery.data.items.length === 0}
+                        gtmTracking={{
+                          mode: "cart",
+                          cartTotal: Number(
+                            (convertedSubtotal ?? totals.total).toFixed(2)
+                          ),
+                          itemCount:
+                            cartQuery.data.totalItems ??
+                            cartQuery.data.items.reduce(
+                              (acc, item) => acc + (item.quantity ?? 0),
+                              0
+                            ),
+                        }}
                       />
                     </div>
                   </div>

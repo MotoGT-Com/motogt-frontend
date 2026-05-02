@@ -1066,6 +1066,14 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
                 ]}
                 currency={selectedCurrency}
                 lang={i18n.language}
+                gtmTracking={{
+                  mode: "pdp",
+                  productName: localizedProductName,
+                  productSku: product.itemCode,
+                  productPrice: Number(displayPrice.toFixed(2)),
+                  productMake: compatibleCar?.carBrand ?? "",
+                  productModel: compatibleCar?.carModel ?? "",
+                }}
               />
             </div>
           </div>

@@ -684,6 +684,20 @@ function ProductCard({
             ]}
             currency={selectedCurrency}
             lang={i18n.language}
+            gtmTracking={{
+              mode: "pdp",
+              productName: productName || "Product",
+              productSku: product.itemCode || "-",
+              productPrice: Number(
+                ((convertedPrice ?? product.price) ?? 0).toFixed(2)
+              ),
+              productMake: hasCarFilter
+                ? (filterCarBrand ?? "")
+                : (product.carCompatibility?.[0]?.carBrand ?? ""),
+              productModel: hasCarFilter
+                ? (filterCarModel ?? "")
+                : (product.carCompatibility?.[0]?.carModel ?? ""),
+            }}
           />
         </div>
       </div>

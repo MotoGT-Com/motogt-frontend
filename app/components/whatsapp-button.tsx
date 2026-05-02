@@ -1,3 +1,4 @@
+import type { ComponentProps } from "react";
 import { Button } from "~/components/ui/button";
 import { config } from "~/config";
 import {
@@ -5,20 +6,62 @@ import {
   generateWAMessage,
   type WhatsAppMessageItem,
 } from "~/lib/whatsapp";
+import { pushWhatsAppOrderClick } from "~/lib/analytics-whatsapp-order";
 import { useCurrency } from "~/hooks/use-currency";
 import { cn } from "~/lib/utils";
 import { useTranslation } from "react-i18next";
 import { useRouteLoaderData } from "react-router";
 import type { Route as MainRoute } from "../routes/+types/_main";
 
-type WhatsAppButtonProps = {
+export type WhatsAppGtmPdpTracking = {
+  mode: "pdp";
+  productName: string;
+  productSku: string;
+  productPrice: number;
+  productMake: string;
+  productModel: string;
+};
+
+export type WhatsAppGtmCartTracking = {
+  mode: "cart";
+  cartTotal: number;
+  itemCount: number;
+};
+
+export type WhatsAppGtmTracking = WhatsAppGtmPdpTracking | WhatsAppGtmCartTracking;
+
+export type WhatsAppButtonProps = {
   items: WhatsAppMessageItem[];
   currency: string;
   totalAmount?: string | number;
   lang: string;
   className?: string;
   disabled?: boolean;
+  /** GTM data attributes + dataLayer on click (JOD-only button still applies). */
+  gtmTracking?: WhatsAppGtmTracking;
 };
+
+/** DOM `data-*` for GTM; typed loosely because `ButtonHTMLAttributes` omits arbitrary `data-*` keys. */
+function gtmDataAttributes(
+  gtm: WhatsAppGtmTracking | undefined
+): Record<string, string | number> {
+  if (!gtm) return {};
+  if (gtm.mode === "pdp") {
+    return {
+      "data-gtm": "whatsapp-order-pdp",
+      "data-gtm-product-name": gtm.productName,
+      "data-gtm-product-sku": gtm.productSku,
+      "data-gtm-product-price": gtm.productPrice,
+      "data-gtm-product-make": gtm.productMake,
+      "data-gtm-product-model": gtm.productModel,
+    };
+  }
+  return {
+    "data-gtm": "whatsapp-order-cart",
+    "data-gtm-cart-total": gtm.cartTotal,
+    "data-gtm-item-count": gtm.itemCount,
+  };
+}
 
 export function WhatsAppButton({
   items,
@@ -27,6 +70,7 @@ export function WhatsAppButton({
   lang,
   className,
   disabled = false,
+  gtmTracking,
 }: WhatsAppButtonProps) {
   const { t } = useTranslation("common");
   const { selectedCurrency } = useCurrency();
@@ -44,6 +88,24 @@ export function WhatsAppButton({
 
   const handleClick = () => {
     if (disabled || !items.length) return;
+
+    if (gtmTracking?.mode === "pdp") {
+      pushWhatsAppOrderClick({
+        source: "pdp",
+        product_name: gtmTracking.productName,
+        product_sku: gtmTracking.productSku,
+        product_price: gtmTracking.productPrice,
+        product_make: gtmTracking.productMake,
+        product_model: gtmTracking.productModel,
+      });
+    } else if (gtmTracking?.mode === "cart") {
+      pushWhatsAppOrderClick({
+        source: "cart",
+        cart_total: gtmTracking.cartTotal,
+        item_count: gtmTracking.itemCount,
+      });
+    }
+
     const resolvedItems = items.map((item) => ({
       ...item,
       productUrl: item.productUrl
@@ -75,6 +137,7 @@ export function WhatsAppButton({
         "font-koulen inline-flex items-center justify-center gap-2",
         className
       )}
+      {...(gtmDataAttributes(gtmTracking) as ComponentProps<"button">)}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -93,5 +156,3 @@ export function WhatsAppButton({
     </Button>
   );
 }
-
-export type { WhatsAppButtonProps };

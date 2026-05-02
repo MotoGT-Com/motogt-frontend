@@ -200,6 +200,13 @@ export function CartHoverPopup({
                 totalAmount={(convertedTotal ?? totalAmount).toFixed(2)}
                 lang={currentLanguage}
                 disabled={items.length === 0}
+                gtmTracking={{
+                  mode: "cart",
+                  cartTotal: Number(
+                    (convertedTotal ?? totalAmount).toFixed(2)
+                  ),
+                  itemCount: totalItems,
+                }}
               />
             </div>
           </div>
