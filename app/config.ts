@@ -6,6 +6,11 @@ type LanguageIds = {
 type AppConfig = {
   /** Google Tag Manager container ID, e.g. GTM-XXXXXXX */
   googleTagManagerId: string;
+  /**
+   * Session replay / UX analytics script URL (Contentsquare tag, formerly Hotjar-style).
+   * Set empty via env to disable.
+   */
+  sessionReplayScriptSrc: string;
   apiBaseUrl: string;
   defaultStoreId: string;
   languageIds: LanguageIds;
@@ -29,6 +34,10 @@ const getEnv = (key: string, fallback = ""): string => {
 
 export const config: AppConfig = {
   googleTagManagerId: getEnv("VITE_GTM_ID", "GTM-NJF7T45N"),
+  sessionReplayScriptSrc: getEnv(
+    "VITE_SESSION_REPLAY_SCRIPT_SRC",
+    "https://t.contentsquare.net/uxa/7047d6ef9a0cb.js"
+  ),
   apiBaseUrl: getEnv("VITE_API_BASE_URL", "https://api.motogt.com"),
   defaultStoreId: getEnv(
     "VITE_DEFAULT_STORE_ID",

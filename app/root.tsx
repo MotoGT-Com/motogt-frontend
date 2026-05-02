@@ -30,6 +30,7 @@ export function links() {
   return [
     { rel: "preconnect", href: "https://api.motogt.com" },
     { rel: "preconnect", href: "https://www.googletagmanager.com" },
+    { rel: "dns-prefetch", href: "https://t.contentsquare.net" },
     { rel: "dns-prefetch", href: "https://api.motogt.com" },
     { rel: "dns-prefetch", href: "https://www.googletagmanager.com" },
     {
@@ -168,6 +169,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 })(window,document,'script','dataLayer','${config.googleTagManagerId}');`,
             }}
           />
+        ) : null}
+        {config.sessionReplayScriptSrc ? (
+          <script async src={config.sessionReplayScriptSrc} />
         ) : null}
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="google-site-verification" content="ifoBponjdgiewA3DS35cQdKfaLusWjmlFcOGDrhggME" />
