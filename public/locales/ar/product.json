@@ -7,6 +7,9 @@
   "details": {
     "title": "تفاصيل المنتج",
     "description": "الوصف",
+    "noDescription": "لا يوجد وصف متاح.",
+    "size": "المقاس",
+    "color": "اللون",
     "specifications": "المواصفات",
     "reviews": "التقييمات",
     "relatedProducts": "منتجات ذات صلة",

@@ -7,10 +7,13 @@
   "details": {
     "title": "Product Details",
     "description": "Description",
+    "noDescription": "No description available.",
+    "size": "Size",
+    "color": "Color",
     "specifications": "Specifications",
     "reviews": "Reviews",
     "relatedProducts": "Related Products",
-    "options": "الخيارات"
+    "options": "Options"
   },
   "price": {
     "original": "Original Price",

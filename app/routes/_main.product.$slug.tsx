@@ -346,7 +346,8 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
       : null
   );
 
-  const { t } = useTranslation(["common", "product"]);
+  const { t, i18n } = useTranslation(["common", "product"]);
+  const isArabic = (i18n.language || "").startsWith("ar");
 
   const isRTL = i18n.language === 'ar';
   const ChevronIcon = isRTL ? ChevronLeft : ChevronRight;
@@ -737,7 +738,7 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
               </div>
               <p className="text-sm font-medium text-gray-700 leading-relaxed">
                 {getLocalizedTranslation(product.translations)?.description ||
-                  "No description available."}
+                  t("product:details.noDescription")}
               </p>
             </div>
 
@@ -835,7 +836,7 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
                       {sizes.length > 0 && (
                         <div>
                           <label className="text-sm font-medium mb-2 block">
-                            {t("product:details.size")}
+                            {t("product:details.size", { defaultValue: isArabic ? "المقاس" : "Size" })}
                           </label>
                           <div className="flex flex-wrap gap-2">
                             {sizes.map((size, index) => {
@@ -877,7 +878,7 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
                       {colors.length > 0 && (
                         <div>
                           <label className="text-sm font-medium mb-2 block">
-                            {t("product:details.color")}
+                            {t("product:details.color", { defaultValue: isArabic ? "اللون" : "Color" })}
                           </label>
                           <div className="flex flex-wrap gap-2">
                             {colors.map((color, index) => {

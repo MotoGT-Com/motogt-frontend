@@ -25,14 +25,26 @@ function getLocalizedTranslation<
   T extends { languageCode: string; name?: string | null },
 >(translations: T[] | undefined): T | undefined {
   if (!translations || translations.length === 0) return undefined;
-  
+
   const currentLang = (i18n.language || "").split("-")[0]; // 'en' or 'ar'
-  
-  // Find translation matching current language
-  const translation = translations.find(t => t.languageCode === currentLang);
-  
-  // Fallback to Arabic if current language not found (since Arabic is now default)
-  return translation || translations.find(t => t.languageCode === "ar") || translations[0];
+  const normalize = (lang?: string | null) => (lang || "").split("-")[0].toLowerCase();
+
+  // Match language by normalized code so both "ar" and "ar-SA" resolve correctly.
+  const exact = translations.find((t) => normalize(t.languageCode) === currentLang);
+  if (exact) return exact;
+
+  // Prefer sensible fallback order based on active language.
+  if (currentLang === "ar") {
+    return (
+      translations.find((t) => normalize(t.languageCode) === "en") ||
+      translations[0]
+    );
+  }
+
+  return (
+    translations.find((t) => normalize(t.languageCode) === "ar") ||
+    translations[0]
+  );
 }
 
 export function resolveProductSlug(
