@@ -1,7 +1,7 @@
 import { PlusIcon, MinusIcon, FilterIcon, Loader2, X, ChevronUp, ChevronDown, } from "lucide-react";
 import { AccordionDropdownButton } from "~/components/accordion-dropdown-button";
 import { Suspense, useEffect, useMemo, useState } from "react";
-import { Await, useSearchParams } from "react-router";
+import { Await, Link, useSearchParams } from "react-router";
 import { ProductCard, ProductCardSkeleton } from "~/components/product-card";
 import { ProductSearch } from "~/components/product-search";
 import { Button } from "~/components/ui/button";
@@ -26,6 +26,7 @@ import { Badge } from "~/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { getLocaleFromRequest } from "~/lib/i18n-cookie";
 import FilterSidebar from "~/components/filter-sidebar";
+import { SimpleCard } from "~/components/ui/card";
 import { config } from "~/config";
 import { resolveProductSlug } from "~/lib/get-locale-translation";
 import type { ProductType } from "~/lib/client/types.gen";
