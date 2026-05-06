@@ -11,7 +11,13 @@ import type { Route } from "./+types/_main.shop._index";
 import { getApiProductsPublic, getApiCategoriesPublic, type GetApiCategoriesPublicResponse, } from "~/lib/client";
 import { defaultParams } from "~/lib/api-client";
 import { InlineAccordion, InlineAccordionContent, InlineAccordionItem, InlineAccordionTrigger, } from "~/components/ui/inline-accordion";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+  useInfiniteQuery,
+} from "@tanstack/react-query";
+import { subcategoryCountsQueryOptions } from "~/lib/queries";
 import { useInView } from "react-intersection-observer";
 import { Drawer, DrawerClose, DrawerContent, DrawerTrigger, } from "~/components/ui/drawer";
 import { Label } from "@radix-ui/react-label";
@@ -39,11 +45,65 @@ export { shopSearchParamsSchema, serializeShopURL } from "~/lib/shop-search-para
 const loadSearchParams = loadShopSearchParams;
 
 const hasLocaleTranslation = (product: any, locale: string) => {
+  const localeCode = (locale || "").split("-")[0];
   return product?.translations?.some(
     (translation: any) =>
-      translation.languageCode === locale && translation.slug && translation.name
+      translation.languageCode === localeCode &&
+      translation.slug &&
+      translation.name
   );
 };
+
+function collectSubcategoryIds(categoriesData: any[]): string[] {
+  const ids: string[] = [];
+  for (const cat of categoriesData ?? []) {
+    const subs = (cat?.subcategories ?? []) as Array<{ id?: string }>;
+    for (const sub of subs) {
+      if (sub?.id) ids.push(sub.id);
+    }
+  }
+  return Array.from(new Set(ids));
+}
+
+/**
+ * Compute accurate per-subcategory counts under the active filters.
+ * The public products endpoint matches `categoryId` against both `category_id`
+ * and `sub_category_id`, so passing a leaf subcategory id returns the correct
+ * total in `meta.total` regardless of how the product row stores the link.
+ */
+async function getSubcategoryCountsById({
+  baseQuery,
+  subcategoryIds,
+}: {
+  baseQuery: Record<string, any>;
+  subcategoryIds: string[];
+}): Promise<Record<string, number>> {
+  const counts: Record<string, number> = {};
+  if (!subcategoryIds.length) return counts;
+
+  await Promise.all(
+    subcategoryIds.map(async (id) => {
+      try {
+        const response = await getApiProductsPublic({
+          query: {
+            ...baseQuery,
+            categoryId: id,
+            page: 1,
+            limit: 1,
+          } as any,
+        });
+        if (!response.error) {
+          counts[id] = response.data?.meta?.total ?? 0;
+        } else {
+          counts[id] = 0;
+        }
+      } catch {
+        counts[id] = 0;
+      }
+    })
+  );
+  return counts;
+}
 
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
@@ -70,20 +130,31 @@ export async function loader({ request }: Route.LoaderArgs) {
     },
   });
 
+  const productQueryBase = {
+    storeId: defaultParams.storeId,
+    languageId,
+    search: searchParams.search,
+    carId: searchParams.carId,
+    carBrand: searchParams.carBrand,
+    carModel: searchParams.carModel,
+    carYear: searchParams.carYear,
+    categoryId:
+      searchParams.categories && searchParams.categories.length > 0
+        ? searchParams.categories.join(",")
+        : undefined,
+    productIds:
+      searchParams.productIds && searchParams.productIds.length > 0
+        ? searchParams.productIds.join(",")
+        : undefined,
+    sortBy: searchParams.sortBy,
+    sortOrder: searchParams.sortOrder,
+  };
+
   let productsResponse = await getApiProductsPublic({
     query: {
-      storeId: defaultParams.storeId,
-      languageId,
+      ...productQueryBase,
       limit: LIMIT,
-      search: searchParams.search,
-      carId: searchParams.carId,
-      carBrand: searchParams.carBrand,
-      carModel: searchParams.carModel,
-      carYear: searchParams.carYear,
-      categoryId: searchParams.categories.join(","),
-      productIds: searchParams.productIds.join(","),
-      sortBy: searchParams.sortBy,
-      sortOrder: searchParams.sortOrder,
+      page: 1,
     },
   });
 
@@ -133,10 +204,50 @@ export async function loader({ request }: Route.LoaderArgs) {
     };
   }
 
+  const subcategoryIds = collectSubcategoryIds(
+    categoriesResponse.data?.data ?? []
+  );
+  const countFilters = {
+    storeId: productQueryBase.storeId,
+    languageId: productQueryBase.languageId,
+    carId: productQueryBase.carId,
+    carBrand: productQueryBase.carBrand,
+    carModel: productQueryBase.carModel,
+    carYear: productQueryBase.carYear,
+    search: productQueryBase.search,
+    productIds: productQueryBase.productIds,
+  };
+  const hasFiltersAffectingCounts = Boolean(
+    countFilters.carId ||
+      countFilters.carBrand ||
+      countFilters.carModel ||
+      countFilters.carYear ||
+      countFilters.search ||
+      countFilters.productIds
+  );
+
+  const queryClient = new QueryClient();
+  if (hasFiltersAffectingCounts && subcategoryIds.length > 0) {
+    const countsById = await getSubcategoryCountsById({
+      baseQuery: countFilters,
+      subcategoryIds,
+    });
+    const countsQueryKey = subcategoryCountsQueryOptions({
+      filters: countFilters,
+      subcategoryIds,
+    }).queryKey;
+    queryClient.setQueryData(countsQueryKey, countsById);
+  }
+
   return {
     productsResponse,
     categoriesResponse,
     searchParams,
+    countQueryBase: {
+      storeId: defaultParams.storeId,
+      languageId,
+    },
+    dehydratedState: dehydrate(queryClient),
   };
 }
 
@@ -165,7 +276,7 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
   }, [loaderData.productsResponse]);
 
   return (
-    <>
+    <HydrationBoundary state={loaderData.dehydratedState}>
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Search Section */}
         <section className="mb-8">
@@ -201,6 +312,7 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
                   variant="drawer"
                   categoriesResponse={loaderData.categoriesResponse}
                   productsResponse={loaderData.productsResponse}
+                  countQueryBase={loaderData.countQueryBase}
                 />
               </div>
             </DrawerContent>
@@ -209,12 +321,13 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
         </section>
 
         {/* Main Content Grid */}
-        <div className="flex gap-8 items-start">
+        <div className="flex gap-4 items-start">
           {/* Left Sidebar - Filters */}
           <aside className="hidden lg:block">
             <FilterSidebar
               categoriesResponse={loaderData.categoriesResponse}
               productsResponse={loaderData.productsResponse}
+              countQueryBase={loaderData.countQueryBase}
             />
           </aside>
           {/* Right Side - Product Grid */}
@@ -233,7 +346,7 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
           </main>
         </div>
       </div>
-    </>
+    </HydrationBoundary>
   );
 }
 

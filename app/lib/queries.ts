@@ -87,6 +87,88 @@ const buildProductsByTypeQueryKey = (
   params.categories?.slice().sort().join(",") ?? "",
 ];
 
+export type SubcategoryCountFilters = {
+  storeId: string;
+  languageId: string;
+  productTypeId?: string;
+  carBrand?: string;
+  carModel?: string;
+  carYear?: number;
+  carId?: string;
+  search?: string;
+  productIds?: string;
+};
+
+const buildSubcategoryCountsQueryKey = (
+  filters: SubcategoryCountFilters,
+  subcategoryIds: string[]
+) => [
+  "subcategoryCounts",
+  filters.productTypeId ?? "",
+  filters.languageId,
+  filters.carBrand ?? "",
+  filters.carModel ?? "",
+  filters.carYear ?? null,
+  filters.carId ?? "",
+  filters.search ?? "",
+  filters.productIds ?? "",
+  [...subcategoryIds].sort().join(","),
+];
+
+/**
+ * Per-subcategory count query: returns `{ [subcategoryId]: total }` reflecting
+ * the active car/search filters. Uses one `meta.total` query per id and the
+ * server-side semantics where `categoryId` matches both `category_id` and
+ * `sub_category_id`.
+ */
+export const subcategoryCountsQueryOptions = ({
+  filters,
+  subcategoryIds,
+  enabled = true,
+}: {
+  filters: SubcategoryCountFilters;
+  subcategoryIds: string[];
+  enabled?: boolean;
+}) =>
+  queryOptions<Record<string, number>>({
+    queryKey: buildSubcategoryCountsQueryKey(filters, subcategoryIds),
+    queryFn: async () => {
+      const counts: Record<string, number> = {};
+      if (subcategoryIds.length === 0) return counts;
+      await Promise.all(
+        subcategoryIds.map(async (id) => {
+          try {
+            const response = await getApiProductsPublic({
+              query: {
+                storeId: filters.storeId,
+                languageId: filters.languageId,
+                productTypeId: filters.productTypeId,
+                carBrand: filters.carBrand,
+                carModel: filters.carModel,
+                carYear: filters.carYear,
+                carId: filters.carId,
+                search: filters.search,
+                productIds: filters.productIds,
+                categoryId: id,
+                page: 1,
+                limit: 1,
+              } as any,
+            });
+            counts[id] = response.error
+              ? 0
+              : response.data?.meta?.total ?? 0;
+          } catch {
+            counts[id] = 0;
+          }
+        })
+      );
+      return counts;
+    },
+    enabled,
+    staleTime: 30_000,
+    gcTime: 5 * 60_000,
+  });
+
 export const productsByTypeInfiniteQueryOptions = ({
   productTypeId,
   params,

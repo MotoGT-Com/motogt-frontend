@@ -9,7 +9,10 @@ import { Checkbox } from "~/components/ui/checkbox";
 import { slugToProductType, formatProductType, stripNulls, cn, } from "~/lib/utils";
 import type { Route } from "./+types/_main.shop.$productType";
 import { getApiProductsPublic, getApiCategoriesPublic, getApiProductTypes } from "~/lib/client";
-import { productsByTypeInfiniteQueryOptions } from "~/lib/queries";
+import {
+  productsByTypeInfiniteQueryOptions,
+  subcategoryCountsQueryOptions,
+} from "~/lib/queries";
 import { defaultParams } from "~/lib/api-client";
 import { InlineAccordion, InlineAccordionContent, InlineAccordionItem, InlineAccordionTrigger, } from "~/components/ui/inline-accordion";
 import { dehydrate, HydrationBoundary, QueryClient, useInfiniteQuery } from "@tanstack/react-query";
@@ -57,6 +60,56 @@ type ShopListMeta = {
 export const serializeShopURL = createSerializer(shopSearchParamsSchema);
 const loadSearchParams = createLoader(shopSearchParamsSchema);
 
+function collectSubcategoryIds(categoriesData: any[]): string[] {
+  const ids: string[] = [];
+  for (const cat of categoriesData ?? []) {
+    const subs = (cat?.subcategories ?? []) as Array<{ id?: string }>;
+    for (const sub of subs) {
+      if (sub?.id) ids.push(sub.id);
+    }
+  }
+  return Array.from(new Set(ids));
+}
+
+/**
+ * Compute accurate per-subcategory counts under the active filters by asking
+ * the API for `meta.total` per subcategory id (which matches both category_id
+ * and sub_category_id on the backend).
+ */
+async function getSubcategoryCountsById({
+  baseQuery,
+  subcategoryIds,
+}: {
+  baseQuery: Record<string, any>;
+  subcategoryIds: string[];
+}): Promise<Record<string, number>> {
+  const counts: Record<string, number> = {};
+  if (!subcategoryIds.length) return counts;
+
+  await Promise.all(
+    subcategoryIds.map(async (id) => {
+      try {
+        const response = await getApiProductsPublic({
+          query: {
+            ...baseQuery,
+            categoryId: id,
+            page: 1,
+            limit: 1,
+          } as any,
+        });
+        if (!response.error) {
+          counts[id] = response.data?.meta?.total ?? 0;
+        } else {
+          counts[id] = 0;
+        }
+      } catch {
+        counts[id] = 0;
+      }
+    })
+  );
+  return counts;
+}
+
 // Category name mapping for each product type
 export async function loader({ request, params }: Route.LoaderArgs) {
   const productTypeSlug = params.productType;
@@ -83,6 +136,22 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const searchParams = stripNulls(loadSearchParams(request));
   const queryClient = new QueryClient();
 
+  const productQueryBase = {
+    storeId: defaultParams.storeId,
+    languageId,
+    productTypeId: productType.id,
+    search: searchParams.search ?? undefined,
+    carBrand: searchParams.carBrand ?? undefined,
+    carModel: searchParams.carModel ?? undefined,
+    carYear: searchParams.carYear ?? undefined,
+    categoryId:
+      searchParams.categories && searchParams.categories.length > 0
+        ? searchParams.categories.join(",")
+        : undefined,
+    sortBy: searchParams.sortBy ?? undefined,
+    sortOrder: searchParams.sortOrder ?? undefined,
+  };
+
   // Fetch categories and products in parallel
   const [categoriesResponse, productsResponse] = await Promise.all([
     getApiCategoriesPublic({
@@ -94,21 +163,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     }),
     getApiProductsPublic({
       query: {
-        storeId: defaultParams.storeId,
-        languageId,
-        productTypeId: productType.id,
+        ...productQueryBase,
         limit: LIMIT,
         page: 1,
-        search: searchParams.search ?? undefined,
-        carBrand: searchParams.carBrand ?? undefined,
-        carModel: searchParams.carModel ?? undefined,
-        carYear: searchParams.carYear ?? undefined,
-        categoryId:
-          searchParams.categories && searchParams.categories.length > 0
-            ? searchParams.categories.join(",")
-            : undefined,
-        sortBy: searchParams.sortBy ?? undefined,
-        sortOrder: searchParams.sortOrder ?? undefined,
       } as any,
     }),
   ]);
@@ -167,6 +224,36 @@ export async function loader({ request, params }: Route.LoaderArgs) {
         }
       : enrichedProductsResponse;
 
+  const subcategoryIds = collectSubcategoryIds(
+    categoriesResponse.data?.data ?? []
+  );
+  const countFilters = {
+    storeId: productQueryBase.storeId,
+    languageId: productQueryBase.languageId,
+    productTypeId: productQueryBase.productTypeId,
+    carBrand: productQueryBase.carBrand,
+    carModel: productQueryBase.carModel,
+    carYear: productQueryBase.carYear,
+    search: productQueryBase.search,
+  };
+  const hasFiltersAffectingCounts = Boolean(
+    countFilters.carBrand ||
+      countFilters.carModel ||
+      countFilters.carYear ||
+      countFilters.search
+  );
+  if (hasFiltersAffectingCounts && subcategoryIds.length > 0) {
+    const countsById = await getSubcategoryCountsById({
+      baseQuery: countFilters,
+      subcategoryIds,
+    });
+    const countsQueryKey = subcategoryCountsQueryOptions({
+      filters: countFilters,
+      subcategoryIds,
+    }).queryKey;
+    queryClient.setQueryData(countsQueryKey, countsById);
+  }
+
   const productsQueryOptions = productsByTypeInfiniteQueryOptions({
     productTypeId: productType.id,
     params: searchParams,
@@ -184,6 +271,11 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     productsResponse: filteredProductsResponse,
     categoriesResponse,
     searchParams,
+    countQueryBase: {
+      storeId: defaultParams.storeId,
+      languageId,
+      productTypeId: productType.id,
+    },
     productType,
     productTypeSlug,
     dehydratedState: dehydrate(queryClient),
@@ -233,7 +325,7 @@ export default function ShopByProductType({
   }, [loaderData.productsResponse]);
 
   return (
-    <>
+    <HydrationBoundary state={loaderData.dehydratedState}>
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Search Section */}
         <section className="mb-8">
@@ -267,6 +359,7 @@ export default function ShopByProductType({
                   variant="drawer"
                   categoriesResponse={loaderData.categoriesResponse}
                   productsResponse={loaderData.productsResponse}
+                  countQueryBase={loaderData.countQueryBase}
                 />
               </div>
             </DrawerContent>
@@ -281,6 +374,7 @@ export default function ShopByProductType({
             <FilterSidebar
               categoriesResponse={loaderData.categoriesResponse}
               productsResponse={loaderData.productsResponse}
+              countQueryBase={loaderData.countQueryBase}
             />
           </aside>
 
@@ -295,7 +389,6 @@ export default function ShopByProductType({
                 </div>
               }
             >
-            <HydrationBoundary state={loaderData.dehydratedState}>
               <Await resolve={loaderData.productsResponse}>
                 {(data) => (
                   <ProductsGrid
@@ -305,12 +398,11 @@ export default function ShopByProductType({
                   />
                 )}
               </Await>
-            </HydrationBoundary>
             </Suspense>
           </main>
         </div>
       </div>
-    </>
+    </HydrationBoundary>
   );
 }
 

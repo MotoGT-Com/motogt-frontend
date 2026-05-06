@@ -42,10 +42,17 @@ function CategoriesFilter({
   categories,
   countsById,
   hasActiveFilters = false,
+  countsLockedToFilters = false,
 }: {
   categories: Category[];
   countsById?: Record<string, number>;
   hasActiveFilters?: boolean;
+  /**
+   * True when car/search filters are active that should restrict the per-subcategory
+   * counts. While the filtered counts are still in flight, we hide the count rather
+   * than showing the misleading global `productCount` from the categories endpoint.
+   */
+  countsLockedToFilters?: boolean;
 }) {
   const [searchParams, setSearchParams] = useQueryStates(
     shopSearchParamsSchema
@@ -89,8 +96,12 @@ function CategoriesFilter({
   }
 
   const resolveCount = (id: string, fallback?: number) => {
-    if (hasActiveFilters) {
+    if (countsLockedToFilters) {
       if (!countsById) return undefined;
+      return countsById[id] ?? 0;
+    }
+    if (hasActiveFilters) {
+      if (!countsById) return fallback;
       return countsById[id] ?? 0;
     }
     return fallback;
