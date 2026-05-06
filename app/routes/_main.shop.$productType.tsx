@@ -27,17 +27,32 @@ import { config } from "~/config";
 import { resolveProductSlug } from "~/lib/get-locale-translation";
 import type { ProductType } from "~/lib/client/types.gen";
 
+function pickTrimmed(s: string | undefined | null): string {
+  if (typeof s !== "string") return "";
+  const t = s.trim();
+  return t;
+}
+
+/** Resolves a label for the product type; API sometimes omits `name` / `translations`. */
 function productTypeDisplayName(pt: ProductType, langCode: string): string {
   const code = langCode.split("-")[0];
-  return (
-    pt.translations?.[code]?.name ??
-    pt.translations?.en?.name ??
-    pt.translations?.ar?.name ??
-    pt.name
-  );
+  const fromTranslations =
+    pickTrimmed(pt.translations?.[code]?.name) ||
+    pickTrimmed(pt.translations?.en?.name) ||
+    pickTrimmed(pt.translations?.ar?.name);
+  const primary = fromTranslations || pickTrimmed(pt.name);
+  if (primary) return primary;
+  if (pt.slug)
+    return formatProductType(slugToProductType(pt.slug));
+  if (pt.code) return formatProductType(pt.code);
+  return "";
 }
 
 const LIMIT = 30;
+
+type ShopListMeta = {
+  total: number;
+};
 
 export const serializeShopURL = createSerializer(shopSearchParamsSchema);
 const loadSearchParams = createLoader(shopSearchParamsSchema);
@@ -208,10 +223,13 @@ export default function ShopByProductType({
   const { productType } = loaderData;
 
   const { t, i18n } = useTranslation("shop");
-  const [totalCount, setTotalCount] = useState(0);
+  const [listMeta, setListMeta] = useState<ShopListMeta>(() => ({
+    total: loaderData.productsResponse?.data?.meta?.total ?? 0,
+  }));
 
   useEffect(() => {
-    setTotalCount(loaderData.productsResponse?.data?.meta?.total ?? 0);
+    const m = loaderData.productsResponse?.data?.meta;
+    setListMeta({ total: m?.total ?? 0 });
   }, [loaderData.productsResponse]);
 
   return (
@@ -223,13 +241,19 @@ export default function ShopByProductType({
         </section>
 
         {/* Page Title */}
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-[18px] font-black italic leading-[150%] tracking-[-0.198px] text-[#000]">
-            {productTypeDisplayName(productType, i18n.language)}{" "}
-            <span className="text-[14px] font-normal not-italic leading-[150%] tracking-[-0.154px] text-[rgba(0,0,0,0.50)]">
-              ({totalCount})
+        <div className="flex items-center justify-between gap-3 mb-6 min-w-0">
+          <h1
+            dir="auto"
+            className="flex min-w-0 flex-1 flex-wrap items-baseline gap-2 text-[18px] leading-[150%] tracking-[-0.198px] text-[#000]"
+          >
+            <span className="min-w-0 break-words font-black italic">
+              {productTypeDisplayName(productType, i18n.language)}
+            </span>
+            <span className="shrink-0 text-[14px] font-normal not-italic tracking-[-0.154px] text-[rgba(0,0,0,0.50)]">
+              {t("listing.partsCount", { count: listMeta.total })}
             </span>
           </h1>
+          <div className="shrink-0">
           <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
             <DrawerTrigger asChild>
               <Button variant="outline" className="lg:hidden bg-white rounded dark:bg-white">
@@ -247,6 +271,7 @@ export default function ShopByProductType({
               </div>
             </DrawerContent>
           </Drawer>
+          </div>
         </div>
 
         {/* Products Grid with Sidebar */}
@@ -276,7 +301,7 @@ export default function ShopByProductType({
                   <ProductsGrid
                     initialData={data}
                     productType={productType}
-                    onTotalCountChange={setTotalCount}
+                    onListMetaChange={setListMeta}
                   />
                 )}
               </Await>
@@ -292,11 +317,11 @@ export default function ShopByProductType({
 function ProductsGrid({
   initialData,
   productType,
-  onTotalCountChange,
+  onListMetaChange,
 }: {
   initialData: any;
   productType: { id: string; code: string; slug: string; name: string };
-  onTotalCountChange: (count: number) => void;
+  onListMetaChange: (meta: ShopListMeta) => void;
 }) {
   // Safely extract initial data
   const safeInitialData = useMemo(() => {
@@ -390,10 +415,12 @@ function ProductsGrid({
       : undefined,
   });
 
-  const liveTotalCount = data?.pages?.[0]?.meta?.total ?? 0;
   useEffect(() => {
-    onTotalCountChange(liveTotalCount);
-  }, [liveTotalCount, onTotalCountChange]);
+    if (!data?.pages?.length) return;
+    const first = data.pages[0]?.meta;
+    if (!first) return;
+    onListMetaChange({ total: first.total ?? 0 });
+  }, [data?.pages, onListMetaChange]);
 
   const showProductsSkeleton = isPending || (isFetching && !data);
 

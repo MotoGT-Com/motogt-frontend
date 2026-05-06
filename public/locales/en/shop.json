@@ -1,5 +1,9 @@
 {
   "title": "Shop",
+  "listing": {
+    "partsCount_one": "({{count}} Part)",
+    "partsCount_other": "({{count}} Parts)"
+  },
   "search": {
     "placeholder": "Search for products...",
     "noResults": "No products found",

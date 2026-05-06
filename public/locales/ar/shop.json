@@ -1,5 +1,13 @@
 {
   "title": "المتجر",
+  "listing": {
+    "partsCount_zero": "({{count}} قطع)",
+    "partsCount_one": "({{count}} قطعة)",
+    "partsCount_two": "({{count}} قطعتان)",
+    "partsCount_few": "({{count}} قطع)",
+    "partsCount_many": "({{count}} قطعة)",
+    "partsCount_other": "({{count}} قطعة)"
+  },
   "search": {
     "placeholder": "ابحث عن المنتجات...",
     "noResults": "لم يتم العثور على منتجات",

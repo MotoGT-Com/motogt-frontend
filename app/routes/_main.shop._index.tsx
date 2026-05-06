@@ -30,6 +30,10 @@ import {
 
 const LIMIT = 30;
 
+type ShopListMeta = {
+  total: number;
+};
+
 export { shopSearchParamsSchema, serializeShopURL } from "~/lib/shop-search-params";
 
 const loadSearchParams = loadShopSearchParams;
@@ -151,10 +155,13 @@ export const meta: Route.MetaFunction = () => {
 export default function Shop({ loaderData }: Route.ComponentProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const { t, i18n } = useTranslation("shop");
-  const [totalCount, setTotalCount] = useState(0);
+  const [listMeta, setListMeta] = useState<ShopListMeta>(() => ({
+    total: loaderData.productsResponse?.data?.meta?.total ?? 0,
+  }));
 
   useEffect(() => {
-    setTotalCount(loaderData.productsResponse?.data?.meta?.total ?? 0);
+    const m = loaderData.productsResponse?.data?.meta;
+    setListMeta({ total: m?.total ?? 0 });
   }, [loaderData.productsResponse]);
 
   return (
@@ -166,15 +173,21 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
         </section>
 
         {/* Page Title */}
-        <section className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className="text-[18px] font-black italic leading-[150%] tracking-[-0.198px] text-[#000]">
-              {t("title")}{" "}
-              <span className="text-[14px] font-normal not-italic leading-[150%] tracking-[-0.154px] text-[rgba(0,0,0,0.50)]">
-                ({totalCount})
+        <section className="mb-6 flex items-center justify-between gap-3 min-w-0">
+          <div className="min-w-0 flex-1">
+            <h1
+              dir="auto"
+              className="flex min-w-0 flex-wrap items-baseline gap-2 text-[18px] leading-[150%] tracking-[-0.198px] text-[#000]"
+            >
+              <span className="min-w-0 break-words font-black italic">
+                {t("title")}
+              </span>
+              <span className="shrink-0 text-[14px] font-normal not-italic tracking-[-0.154px] text-[rgba(0,0,0,0.50)]">
+                {t("listing.partsCount", { count: listMeta.total })}
               </span>
             </h1>
           </div>
+          <div className="shrink-0">
           <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
             <DrawerTrigger asChild>
               <Button variant="outline" className="lg:hidden bg-white rounded dark:bg-white">
@@ -192,6 +205,7 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
               </div>
             </DrawerContent>
           </Drawer>
+          </div>
         </section>
 
         {/* Main Content Grid */}
@@ -214,7 +228,7 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
                 </div>
               }
             >
-              <ProductsGrid onTotalCountChange={setTotalCount} />
+              <ProductsGrid onListMetaChange={setListMeta} />
             </Suspense>
           </main>
         </div>
@@ -224,9 +238,9 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
 }
 
 function ProductsGrid({
-  onTotalCountChange,
+  onListMetaChange,
 }: {
-  onTotalCountChange: (count: number) => void;
+  onListMetaChange: (meta: ShopListMeta) => void;
 }) {
   const { productsResponse } = useLoaderData<typeof loader>();
   const [searchParams] = useQueryStates(shopSearchParamsSchema);
@@ -366,10 +380,12 @@ function ProductsGrid({
     initialPageParam: 1,
   });
 
-  const liveTotalCount = productsPages?.pages?.[0]?.meta?.total ?? 0;
   useEffect(() => {
-    onTotalCountChange(liveTotalCount);
-  }, [liveTotalCount, onTotalCountChange]);
+    if (!productsPages?.pages?.length) return;
+    const first = productsPages.pages[0]?.meta;
+    if (!first) return;
+    onListMetaChange({ total: first.total ?? 0 });
+  }, [productsPages?.pages, onListMetaChange]);
 
   /** First page / filter change: show skeleton. Pagination uses bottom spinner only. */
   const showProductsSkeleton =
