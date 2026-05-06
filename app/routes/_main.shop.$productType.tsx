@@ -310,12 +310,12 @@ export const meta: Route.MetaFunction = ({ data }: any) => {
 };
 
 const MOTORCYCLES_CATEGORIES = [
-  { id: "6e5d334c-3c12-4f53-91b9-0320d76eb08e", label: "Riding Jackets", image: "/categories/motorcycles/jackets.png" },
-  { id: "301cb0c5-72cc-4560-97a8-9d376245d13a", label: "Riding Shirts",  image: "/categories/motorcycles/shirts.png"  },
-  { id: "4e0b6d22-3258-4fc0-947b-68cd83459ba0", label: "Body Armor",     image: "/categories/motorcycles/armor.png",   imageClassName: "-top-0.5 left-11 w-[207px] h-[149px] rotate-[14deg]" },
-  { id: "3ff9e80b-7cb8-4f7d-9f3f-80e5893eab0d", label: "Riding Gloves", image: "/categories/motorcycles/gloves.png"  },
-  { id: "1c88251a-5669-408d-8e0c-23fa94f8bf1a", label: "Bags",          image: "/categories/motorcycles/bags.png"    },
-  { id: "1157bae5-379a-485e-a4c4-4abeb1b8ef9b", label: "Accessories",   image: "/categories/motorcycles/accessories.png" },
+  { id: "6e5d334c-3c12-4f53-91b9-0320d76eb08e", labelKey: "categories.ridingJackets", image: "/categories/motorcycles/jackets.png" },
+  { id: "301cb0c5-72cc-4560-97a8-9d376245d13a", labelKey: "categories.ridingShirts",  image: "/categories/motorcycles/shirts.png"  },
+  { id: "4e0b6d22-3258-4fc0-947b-68cd83459ba0", labelKey: "categories.bodyArmor",     image: "/categories/motorcycles/armor.png",   imageClassName: "-top-0.5 left-11 w-[207px] h-[149px] rotate-[14deg]" },
+  { id: "3ff9e80b-7cb8-4f7d-9f3f-80e5893eab0d", labelKey: "categories.ridingGloves", image: "/categories/motorcycles/gloves.png"  },
+  { id: "1c88251a-5669-408d-8e0c-23fa94f8bf1a", labelKey: "categories.bags",          image: "/categories/motorcycles/bags.png"    },
+  { id: "1157bae5-379a-485e-a4c4-4abeb1b8ef9b", labelKey: "categories.accessories",   image: "/categories/motorcycles/accessories.png" },
 ];
 
 export default function ShopByProductType({
@@ -325,6 +325,15 @@ export default function ShopByProductType({
   const { productType } = loaderData;
 
   const { t, i18n } = useTranslation("shop");
+  const localizedProductTypeTitle = useMemo(() => {
+    const normalizedType = slugToProductType(loaderData.productTypeSlug ?? "");
+    if (normalizedType === "car_parts") return t("productTypes.carParts");
+    if (normalizedType === "motorcycles") return t("productTypes.motorcycles");
+    if (normalizedType === "car_care_accessories") {
+      return t("productTypes.carCareAccessories");
+    }
+    return productTypeDisplayName(productType, i18n.language);
+  }, [loaderData.productTypeSlug, t, productType, i18n.language]);
   const [listMeta, setListMeta] = useState<ShopListMeta>(() => ({
     total: loaderData.productsResponse?.data?.meta?.total ?? 0,
   }));
@@ -353,11 +362,11 @@ export default function ShopByProductType({
                   <SimpleCard className="aspect-[5/4] font-koulen group bg-primary text-white uppercase p-6 flex flex-col justify-end relative overflow-hidden">
                     <img
                       src={cat.image}
-                      alt={cat.label}
+                      alt={t(cat.labelKey)}
                       loading="lazy"
                       className={`absolute ${cat.imageClassName ?? "top-0 -end-10 w-full h-full"} object-contain group-hover:scale-110 hover:-rotate-3 transition-all duration-500`}
                     />
-                    <h3 className="text-2xl max-w-20 z-10">{cat.label}</h3>
+                    <h3 className="text-2xl max-w-20 z-10">{t(cat.labelKey)}</h3>
                   </SimpleCard>
                 </Link>
               ))}
@@ -377,7 +386,7 @@ export default function ShopByProductType({
             className="flex min-w-0 flex-1 flex-wrap items-baseline gap-2 text-[18px] leading-[150%] tracking-[-0.198px] text-[#000]"
           >
             <span className="min-w-0 break-words font-black italic">
-              {productTypeDisplayName(productType, i18n.language)}
+              {localizedProductTypeTitle}
             </span>
             <span className="shrink-0 text-[14px] font-normal not-italic tracking-[-0.154px] text-[rgba(0,0,0,0.50)]">
               {t("listing.partsCount", { count: listMeta.total })}

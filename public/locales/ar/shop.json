@@ -57,6 +57,19 @@
     "page": "صفحة {{current}} من {{total}}"
   },
   "sections": {
-    "shopYourGear": "تسوق معداتك"
+    "shopYourGear": "تسوق لرحلتك"
+  },
+  "productTypes": {
+    "carParts": "قطع السيارات",
+    "motorcycles": "الدراجات النارية",
+    "carCareAccessories": "العناية بالسيارة والإكسسوارات"
+  },
+  "categories": {
+    "ridingJackets": "جاكيتات ركوب",
+    "ridingShirts": "قمصان ركوب",
+    "bodyArmor": "دروع الجسم",
+    "ridingGloves": "قفازات ركوب",
+    "bags": "حقائب",
+    "accessories": "إكسسوارات"
   }
 }

@@ -53,6 +53,19 @@
     "page": "Page {{current}} of {{total}}"
   },
   "sections": {
-    "shopYourGear": "Shop your gear"
+    "shopYourGear": "Shop your ride"
+  },
+  "productTypes": {
+    "carParts": "Car Parts",
+    "motorcycles": "Motorcycles",
+    "carCareAccessories": "Car Care & Accessories"
+  },
+  "categories": {
+    "ridingJackets": "Riding Jackets",
+    "ridingShirts": "Riding Shirts",
+    "bodyArmor": "Body Armor",
+    "ridingGloves": "Riding Gloves",
+    "bags": "Bags",
+    "accessories": "Accessories"
   }
 }
