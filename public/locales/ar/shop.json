@@ -55,5 +55,8 @@
     "previous": "السابق",
     "next": "التالي",
     "page": "صفحة {{current}} من {{total}}"
+  },
+  "sections": {
+    "shopYourGear": "تسوق معداتك"
   }
 }

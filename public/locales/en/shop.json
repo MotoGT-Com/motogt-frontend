@@ -51,5 +51,8 @@
     "previous": "Previous",
     "next": "Next",
     "page": "Page {{current}} of {{total}}"
+  },
+  "sections": {
+    "shopYourGear": "Shop your gear"
   }
 }
