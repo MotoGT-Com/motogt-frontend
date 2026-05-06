@@ -5,16 +5,27 @@ import { useQuery } from "@tanstack/react-query";
 import { SimpleCard } from "~/components/ui/card";
 import CategoriesFilter from "~/components/filter";
 import SortingOptions from "~/components/sorting-options";
+import { AccordionDropdownButton } from "~/components/accordion-dropdown-button";
+import { ShopFilterChipButton } from "~/components/shop-filter-chip-button";
+import {
+  InlineAccordion,
+  InlineAccordionContent,
+  InlineAccordionItem,
+  InlineAccordionTrigger,
+} from "~/components/ui/inline-accordion";
 import { cn } from "~/lib/utils";
+import { useTranslation } from "react-i18next";
 import {
   subcategoryCountsQueryOptions,
   type SubcategoryCountFilters,
 } from "~/lib/queries";
 import { shopSearchParamsSchema } from "~/lib/shop-search-params";
+import { MOTORCYCLE_FILTER_BRANDS } from "~/lib/motorcycle-brand";
 
 type FilterSidebarProps = {
   categoriesResponse: any;
   productsResponse?: any;
+  productTypeSlug?: string;
   countQueryBase: Pick<
     SubcategoryCountFilters,
     "storeId" | "languageId" | "productTypeId"
@@ -167,9 +178,72 @@ function CategoriesFilterContainer({
   );
 }
 
+function MotorcycleBrandFilter() {
+  const [searchParams, setSearchParams] = useQueryStates(
+    shopSearchParamsSchema
+  );
+  const { t } = useTranslation("shop");
+
+  const selectedBrand = searchParams.brand ?? "";
+  const isAnySelected = !selectedBrand;
+
+  return (
+    <div>
+      <InlineAccordion type="single" collapsible defaultValue="brand">
+        <InlineAccordionItem value="brand">
+          <InlineAccordionTrigger className="flex items-center justify-between w-full hover:no-underline p-0 mb-3 group">
+            <h3 className="text-base font-bold text-black leading-[1.5] tracking-[-0.176px]">
+              {t("filters.brand")}
+            </h3>
+            <AccordionDropdownButton />
+          </InlineAccordionTrigger>
+          <InlineAccordionContent>
+            <div className="flex flex-col gap-2 pt-0">
+              <div className="flex gap-2 flex-wrap">
+                <ShopFilterChipButton
+                  selected={isAnySelected}
+                  onClick={() => void setSearchParams({ brand: null })}
+                >
+                  {t("sort.any")}
+                </ShopFilterChipButton>
+                <ShopFilterChipButton
+                  selected={selectedBrand === MOTORCYCLE_FILTER_BRANDS[0].value}
+                  onClick={() =>
+                    void setSearchParams({
+                      brand: MOTORCYCLE_FILTER_BRANDS[0].value,
+                    })
+                  }
+                  className="px-3"
+                >
+                  {MOTORCYCLE_FILTER_BRANDS[0].label}
+                </ShopFilterChipButton>
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                <ShopFilterChipButton
+                  selected={selectedBrand === MOTORCYCLE_FILTER_BRANDS[1].value}
+                  onClick={() =>
+                    void setSearchParams({
+                      brand: MOTORCYCLE_FILTER_BRANDS[1].value,
+                    })
+                  }
+                  className="px-3"
+                >
+                  {MOTORCYCLE_FILTER_BRANDS[1].label}
+                </ShopFilterChipButton>
+              </div>
+            </div>
+          </InlineAccordionContent>
+        </InlineAccordionItem>
+      </InlineAccordion>
+      <div className="border-t my-6" />
+    </div>
+  );
+}
+
 function FilterSidebar({
   categoriesResponse,
   productsResponse,
+  productTypeSlug,
   countQueryBase,
   variant = "sidebar",
   className,
@@ -178,6 +252,7 @@ function FilterSidebar({
     <div className="max-h-[calc(100vh-9rem)] overflow-y-auto pr-1">
       <SortingOptions />
       <div className="border-t my-6" />
+      {productTypeSlug === "motorcycles" && <MotorcycleBrandFilter />}
       <Suspense fallback={<div>Loading categories...</div>}>
         <Await resolve={Promise.all([categoriesResponse, productsResponse])}>
           {([categories, products]) => (

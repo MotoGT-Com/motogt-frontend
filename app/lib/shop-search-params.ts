@@ -24,6 +24,7 @@ export const shopSearchParamsSchema = {
   categories: parseAsArrayOf(parseAsString).withDefault([]),
   search: parseAsString,
   productIds: parseAsArrayOf(parseAsString).withDefault([]),
+  brand: parseAsString,
   carId: parseAsString,
   carBrand: parseAsString,
   carModel: parseAsString,

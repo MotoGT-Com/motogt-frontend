@@ -30,6 +30,10 @@ import { SimpleCard } from "~/components/ui/card";
 import { config } from "~/config";
 import { resolveProductSlug } from "~/lib/get-locale-translation";
 import type { ProductType } from "~/lib/client/types.gen";
+import {
+  getMotorcycleBrand,
+  motorcycleBrandFilterMatches,
+} from "~/lib/motorcycle-brand";
 
 function pickTrimmed(s: string | undefined | null): string {
   if (typeof s !== "string") return "";
@@ -404,6 +408,7 @@ export default function ShopByProductType({
               <div className="p-4 max-h-[80vh] overflow-y-auto pb-8">
                 <FilterSidebar
                   variant="drawer"
+                  productTypeSlug={loaderData.productTypeSlug}
                   categoriesResponse={loaderData.categoriesResponse}
                   productsResponse={loaderData.productsResponse}
                   countQueryBase={loaderData.countQueryBase}
@@ -419,6 +424,7 @@ export default function ShopByProductType({
           {/* Sidebar - Desktop */}
           <aside className="hidden lg:block">
             <FilterSidebar
+              productTypeSlug={loaderData.productTypeSlug}
               categoriesResponse={loaderData.categoriesResponse}
               productsResponse={loaderData.productsResponse}
               countQueryBase={loaderData.countQueryBase}
@@ -491,6 +497,7 @@ function ProductsGrid({
   const hasActiveFilters = useMemo(() => {
     return Boolean(
       searchParams.search ||
+        searchParams.brand ||
         searchParams.carBrand ||
         searchParams.carModel ||
         searchParams.carYear ||
@@ -500,6 +507,7 @@ function ProductsGrid({
     );
   }, [
     searchParams.search,
+    searchParams.brand,
     searchParams.carBrand,
     searchParams.carModel,
     searchParams.carYear,
@@ -554,13 +562,6 @@ function ProductsGrid({
       : undefined,
   });
 
-  useEffect(() => {
-    if (!data?.pages?.length) return;
-    const first = data.pages[0]?.meta;
-    if (!first) return;
-    onListMetaChange({ total: first.total ?? 0 });
-  }, [data?.pages, onListMetaChange]);
-
   const showProductsSkeleton = isPending || (isFetching && !data);
 
   useEffect(() => {
@@ -578,6 +579,27 @@ function ProductsGrid({
       return page.data;
     });
   }, [data]);
+
+  const productsByBrand = useMemo(() => {
+    const selectedBrand = searchParams.brand?.trim();
+    if (!selectedBrand) return allProducts;
+
+    return allProducts.filter((product) => {
+      const brand = getMotorcycleBrand(product, i18n.language);
+      return motorcycleBrandFilterMatches(selectedBrand, brand);
+    });
+  }, [allProducts, searchParams.brand, i18n.language]);
+
+  useEffect(() => {
+    if (searchParams.brand) {
+      onListMetaChange({ total: productsByBrand.length });
+      return;
+    }
+    if (!data?.pages?.length) return;
+    const first = data.pages[0]?.meta;
+    if (!first) return;
+    onListMetaChange({ total: first.total ?? 0 });
+  }, [searchParams.brand, productsByBrand.length, data?.pages, onListMetaChange]);
 
   if (error) {
     return (
@@ -603,7 +625,7 @@ function ProductsGrid({
     );
   }
 
-  if (allProducts.length === 0) {
+  if (productsByBrand.length === 0) {
     return (
       <div className="text-center py-12">
         <p className="text-lg text-muted-foreground">
@@ -616,7 +638,7 @@ function ProductsGrid({
   return (
     <>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-        {allProducts
+        {productsByBrand
           .filter((product) =>
             product?.translations?.some(
               (translation) =>

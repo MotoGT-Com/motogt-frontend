@@ -1,14 +1,23 @@
 import { AccordionDropdownButton } from "~/components/accordion-dropdown-button";
-import { Button } from "~/components/ui/button";
-import { InlineAccordion, InlineAccordionContent, InlineAccordionItem, InlineAccordionTrigger, } from "~/components/ui/inline-accordion";
+import { ShopFilterChipButton } from "~/components/shop-filter-chip-button";
+import {
+  InlineAccordion,
+  InlineAccordionContent,
+  InlineAccordionItem,
+  InlineAccordionTrigger,
+} from "~/components/ui/inline-accordion";
 import { useTranslation } from "react-i18next";
-import { cn } from "~/lib/utils";
 import { useQueryStates } from "nuqs";
 import { shopSearchParamsSchema } from "~/lib/shop-search-params";
 import { useSearchParams } from "react-router";
 
 type SortCombo = {
-  sortBy: "name" | "price" | "createdAt" | "stockQuantity" | "carCompatibility";
+  sortBy:
+    | "name"
+    | "price"
+    | "createdAt"
+    | "stockQuantity"
+    | "carCompatibility";
   sortOrder: "asc" | "desc";
 };
 
@@ -70,84 +79,42 @@ function SortingOptions() {
           </InlineAccordionTrigger>
           <InlineAccordionContent>
             <div className="flex flex-col gap-2 pt-0">
-              {/* First row */}
               <div className="flex gap-2">
-                <Button
-                  type="button"
+                <ShopFilterChipButton
+                  selected={isAnySelected}
                   onClick={() => handleSortChange("none")}
-                  variant="ghost"
-                  size="sm"
-                  className={cn(
-                    "whitespace-nowrap px-2 py-1.5 rounded-sm text-sm leading-[1.5] tracking-[-0.154px]",
-                    isAnySelected
-                      ? "bg-[#cf172f] text-white font-bold hover:bg-[#cf172f]/90 hover:text-white border-0"
-                      : "bg-[#f9f9f9] text-black font-medium border border-[#e6e6e6] hover:bg-[#f9f9f9]"
-                  )}
                 >
                   {t("sort.any")}
-                </Button>
-                <Button
-                  type="button"
+                </ShopFilterChipButton>
+                <ShopFilterChipButton
+                  selected={currentSort === "price-desc"}
                   onClick={() => handleSortChange("price-desc")}
-                  variant="ghost"
-                  size="sm"
-                  className={cn(
-                    "whitespace-nowrap px-3 py-1.5 rounded-sm text-sm leading-[1.5] tracking-[-0.154px]",
-                    currentSort === "price-desc"
-                      ? "bg-[#cf172f] text-white font-bold hover:bg-[#cf172f]/90 hover:text-white border-0"
-                      : "bg-[#f9f9f9] text-black font-medium border border-[#e6e6e6] hover:bg-[#f9f9f9]"
-                  )}
+                  className="px-3"
                 >
                   {t("sort.priceHighToLow")}
-                </Button>
+                </ShopFilterChipButton>
               </div>
-              {/* Second row */}
               <div className="flex gap-2">
-                <Button
-                  type="button"
+                <ShopFilterChipButton
+                  selected={currentSort === "price-asc"}
                   onClick={() => handleSortChange("price-asc")}
-                  variant="ghost"
-                  size="sm"
-                  className={cn(
-                    "whitespace-nowrap px-2 py-1.5 rounded-sm text-sm leading-[1.5] tracking-[-0.154px]",
-                    currentSort === "price-asc"
-                      ? "bg-[#cf172f] text-white font-bold hover:bg-[#cf172f]/90 hover:text-white border-0"
-                      : "bg-[#f9f9f9] text-black font-medium border border-[#e6e6e6] hover:bg-[#f9f9f9]"
-                  )}
                 >
                   {t("sort.priceLowToHigh")}
-                </Button>
+                </ShopFilterChipButton>
               </div>
-              {/* Third row */}
               <div className="flex gap-2">
-                <Button
-                  type="button"
+                <ShopFilterChipButton
+                  selected={currentSort === "name-asc"}
                   onClick={() => handleSortChange("name-asc")}
-                  variant="ghost"
-                  size="sm"
-                  className={cn(
-                    "whitespace-nowrap px-2 py-1.5 rounded-sm text-sm leading-[1.5] tracking-[-0.154px]",
-                    currentSort === "name-asc"
-                      ? "bg-[#cf172f] text-white font-bold hover:bg-[#cf172f]/90 hover:text-white border-0"
-                      : "bg-[#f9f9f9] text-black font-medium border border-[#e6e6e6] hover:bg-[#f9f9f9]"
-                  )}
                 >
                   {t("sort.nameAsc")}
-                </Button>
-                <Button
-                  type="button"
+                </ShopFilterChipButton>
+                <ShopFilterChipButton
+                  selected={currentSort === "name-desc"}
                   onClick={() => handleSortChange("name-desc")}
-                  variant="ghost"
-                  size="sm"
-                  className={cn(
-                    "whitespace-nowrap px-2 py-1.5 rounded-sm text-sm leading-[1.5] tracking-[-0.154px]",
-                    currentSort === "name-desc"
-                      ? "bg-[#cf172f] text-white font-bold hover:bg-[#cf172f]/90 hover:text-white border-0"
-                      : "bg-[#f9f9f9] text-black font-medium border border-[#e6e6e6] hover:bg-[#f9f9f9]"
-                  )}
                 >
                   {t("sort.nameDesc")}
-                </Button>
+                </ShopFilterChipButton>
               </div>
             </div>
           </InlineAccordionContent>
