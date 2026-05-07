@@ -80,6 +80,37 @@ const enrichProductsResponseWithEnglishSlug = async (
     },
   };
 };
+
+const removeBmwProductsFromResponse = async (responsePromise: Promise<any>) => {
+  const response = await responsePromise;
+  const products = response?.data?.data;
+
+  if (!Array.isArray(products) || products.length === 0) {
+    return response;
+  }
+
+  const filteredProducts = products.filter((product: any) => {
+    const hasBmwCompatibility = (product?.carCompatibility ?? []).some(
+      (car: any) => car?.carBrand?.toLowerCase() === "bmw"
+    );
+
+    const hasBmwInName =
+      product?.name?.toLowerCase?.().includes("bmw") ||
+      (product?.translations ?? []).some((translation: any) =>
+        translation?.name?.toLowerCase?.().includes("bmw")
+      );
+
+    return !hasBmwCompatibility && !hasBmwInName;
+  });
+
+  return {
+    ...response,
+    data: {
+      ...response.data,
+      data: filteredProducts,
+    },
+  };
+};
 //comment
 
 // Loader function to fetch data on the server
@@ -173,12 +204,15 @@ export async function loader({ request }: Route.LoaderArgs) {
         locale
       )
     : Promise.resolve({ data: { data: [], meta: { total: 0 } } });
+  const motorcycleRidersProductsResponse =
+    removeBmwProductsFromResponse(motorcycleAccessoriesResponse);
   return {
     categoriesResponse,
     exteriorProductsResponse,
     interiorProductsResponse,
     ridingGearProductsResponse,
     cleaningProductsResponse,
+    motorcycleRidersProductsResponse,
     motorcycleAccessoriesResponse,
     isAuthenticated: !!accessToken,
   };
@@ -206,6 +240,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     interiorProductsResponse,
     ridingGearProductsResponse,
     cleaningProductsResponse,
+    motorcycleRidersProductsResponse,
     motorcycleAccessoriesResponse,
     isAuthenticated,
   } = loaderData;
@@ -425,9 +460,9 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             <div className="max-w-7xl mx-auto px-2 md:px-6">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-2xl md:text-4xl font-bold italic text-white">
-                  {t('home:bestSellers.title')}
+                  {t('home:sections.forMotorcycleRiders')}
                 </h2>
-                <Link to={href("/shop")} className="text-sm md:text-xl font-bold text-white whitespace-nowrap">
+                <Link to="/shop/motorcycles" className="text-sm md:text-xl font-bold text-white whitespace-nowrap">
                   {t('home:bestSellers.viewAll')}
                 </Link>
               </div>
@@ -435,7 +470,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
             <div className="-mb-24">
               <ProductsHorizontalScroll
-                productsResponse={exteriorProductsResponse}
+                productsResponse={motorcycleRidersProductsResponse}
               />
             </div>
           </section>
@@ -443,11 +478,6 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           <ProductsHorizontalScroll
             sectionTitle={t('home:newArrivals.title')}
             productsResponse={exteriorProductsResponse}
-          />
-
-          <ProductsHorizontalScroll
-            sectionTitle={t('home:sections.ridingGear')}
-            productsResponse={ridingGearProductsResponse}
           />
 
           <img
