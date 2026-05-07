@@ -291,12 +291,12 @@ export default function Recommended({ loaderData }: Route.ComponentProps) {
       <>
         <title>{t("nav.recommendedForYou")} - MotoGT</title>
         {isGuest && <GuestBanner type="garage" />}
-        <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="max-w-7xl mx-auto px-2 md:px-6 py-8">
           <h1 className="text-2xl font-black italic mb-6">
             {t("nav.recommendedForYou")}
           </h1>
         </div>
-        <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
+        <div className="flex-1 flex flex-col items-center justify-center text-center px-2 md:px-6">
           <div className="flex flex-col items-center justify-center">
             <img
               loading="lazy"
@@ -326,7 +326,7 @@ export default function Recommended({ loaderData }: Route.ComponentProps) {
     <>
       <title>{t("nav.recommendedForYou")} - MotoGT</title>
       {isGuest && <GuestBanner type="garage" />}
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-2 md:px-6 py-8">
         <h1 className="text-2xl font-black italic mb-6">
           {t("nav.recommendedForYou")}
         </h1>

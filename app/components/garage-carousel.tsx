@@ -46,7 +46,7 @@ export function GarageCarousel({
                   className="block"
                 >
                   <div
-                    className="flex flex-col items-center transition-all duration-500 ease-out select-none isolate group px-4 md:px-0"
+                    className="flex flex-col items-center transition-all duration-500 ease-out select-none isolate group px-2 md:px-0"
                     style={{
                       transform: `scale(${scale})`,
                       opacity,
@@ -147,7 +147,7 @@ export function HomeCarousel({ isAuthenticated }: { isAuthenticated: boolean }) 
   if (userCars.length === 0) {
     return (
       <div className="mb-16">
-        <div className="max-w-7xl mx-auto px-6 mb-4">
+        <div className="max-w-7xl mx-auto px-2 md:px-6 mb-4">
           <div className="flex items-center gap-2">
           <h2 className="text-xl font-bold italic text-black">{t("title")}</h2>
           <HoverCard openDelay={200}>
@@ -200,7 +200,7 @@ export function HomeCarousel({ isAuthenticated }: { isAuthenticated: boolean }) 
 
   return (
     <div className="mb-16">
-      <div className="flex items-center justify-between max-w-7xl mx-auto px-6 mb-4">
+      <div className="flex items-center justify-between max-w-7xl mx-auto px-2 md:px-6 mb-4">
         <div className="flex items-center gap-2">
           <h2 className="text-xl font-bold italic text-black">{t("title")}</h2>
           <HoverCard openDelay={200}>

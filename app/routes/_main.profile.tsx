@@ -24,7 +24,7 @@ export default function Profile({ loaderData }: Route.ComponentProps) {
 
   return (
     <div className="flex-1 flex flex-col">
-      <div className="max-w-7xl mx-auto px-6 py-8 flex gap-8 flex-1 w-full">
+      <div className="max-w-7xl mx-auto px-2 md:px-6 py-8 flex gap-8 flex-1 w-full">
         {/* Sidebar */}
         <SimpleCard className="hidden md:block w-[308px] pt-8 pb-4 px-4 h-fit">
           <h2 className="text-2xl font-black italic text-black mb-6">

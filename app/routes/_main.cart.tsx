@@ -139,7 +139,7 @@ export default function Cart({ loaderData }: Route.ComponentProps) {
     <>
       <title>{t('pageTitle')}</title>
       <div className="bg-background-secondary py-8">
-        <div className="max-w-7xl mx-auto px-6 mb-8">
+        <div className="max-w-7xl mx-auto px-2 md:px-6 mb-8">
           <div className="grid lg:grid-cols-[1fr_400px] gap-6">
             {/* Cart Items Section */}
             <div className="space-y-4">

@@ -48,7 +48,7 @@ export function GuestBanner({ type }: { type: "garage" | "wishlist" }) {
       dir={isRTL ? "rtl" : "ltr"}
       className="w-full border-b border-[#e0e0e0] bg-[#f5f5f5]"
     >
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-2.5 flex items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-2 md:px-6 py-2.5 flex items-center justify-between gap-4">
         {/* Left: icon + text */}
         <div className="flex items-center gap-3 min-w-0">
           <div className="shrink-0 flex items-center justify-center w-7 h-7 rounded-full bg-[#cf172f]/10">

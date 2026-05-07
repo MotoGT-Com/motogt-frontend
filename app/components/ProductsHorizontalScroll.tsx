@@ -50,13 +50,13 @@ const ProductsHorizontalScroll = ({
   return (
     <div className={wrapperClassName}>
       {sectionTitle && (
-        <div className="flex items-center justify-between max-w-7xl mx-auto px-6 mb-6">
+        <div className="flex items-center justify-between max-w-7xl mx-auto px-2 md:px-6 mb-6">
           <h2 className="text-xl font-bold italic text-black">
             {sectionTitle}
           </h2>
         </div>
       )}
-      <div className="ps-[calc(max(0px,(100vw-80rem)/2)+1.5rem)]">
+      <div className="ps-[calc(max(0px,(100vw-80rem)/2)+0.5rem)] md:ps-[calc(max(0px,(100vw-80rem)/2)+1.5rem)]">
         <div
           className={"flex overflow-x-auto gap-4 " + styles.hideScrollbar}
         >

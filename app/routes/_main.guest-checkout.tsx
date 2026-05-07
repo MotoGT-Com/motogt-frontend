@@ -425,7 +425,7 @@ export default function GuestCheckout({ loaderData }: Route.ComponentProps) {
     return (
       <>
         <title>{t("pageTitle")}</title>
-        <div className="bg-background-secondary min-h-[70vh] flex items-center justify-center px-6 py-12">
+        <div className="bg-background-secondary min-h-[70vh] flex items-center justify-center px-2 md:px-6 py-12">
           <SimpleCard className="w-full max-w-xl p-8 text-center">
             <div className="mx-auto mb-5 flex size-14 items-center justify-center rounded-full bg-primary/10">
               <Loader2 className="size-7 animate-spin text-primary" />

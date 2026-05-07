@@ -53,7 +53,7 @@ export default function TrackOrder() {
     <>
       <title>{t("pageTitle")}</title>
       <div className="bg-background-secondary py-8">
-        <div className="max-w-2xl mx-auto px-6">
+        <div className="max-w-2xl mx-auto px-2 md:px-6">
           {/* Search Form */}
           {!submitted || query.isError ? (
             <SimpleCard className="p-8">

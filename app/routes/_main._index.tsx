@@ -244,7 +244,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         </div>
         
         {/* Content */}
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-2 md:px-6 py-6 md:py-8">
           <div className="mb-4 flex flex-col gap-2 md:mb-6 md:flex-row md:items-end md:justify-between md:gap-6">
             <h1 className="text-2xl font-bold italic text-white md:text-4xl min-w-0">
               {t("home:hero.searchTitle")}
@@ -262,7 +262,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       </section>
 
       {/* Hero Banners */}
-      <section className="max-w-7xl mx-auto px-6 mb-8">
+      <section className="max-w-7xl mx-auto px-2 md:px-6 mb-8">
         <h2 className="text-2xl font-bold italic mb-4">
           {t('home:sections.theHottest')} <span className="sr-only">Moto GT</span>
           <Logo className="w-32 inline pb-1" />
@@ -340,7 +340,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       </section>
 
       {/* Categories Grid */}
-      <section className="max-w-7xl mx-auto px-6 mb-8">
+      <section className="max-w-7xl mx-auto px-2 md:px-6 mb-8">
         <h2 className="text-2xl font-bold italic mb-6">{t('home:sections.everythingYouNeed')}</h2>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
           <Suspense
@@ -422,7 +422,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           />
 
           <section className="bg-primary py-6 mb-2">
-            <div className="max-w-7xl mx-auto px-4 md:px-6">
+            <div className="max-w-7xl mx-auto px-2 md:px-6">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-2xl md:text-4xl font-bold italic text-white">
                   {t('home:bestSellers.title')}
@@ -469,7 +469,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           <Faq />
         </>
       ) : (
-        <section className="max-w-7xl mx-auto px-6 mb-8" aria-hidden>
+        <section className="max-w-7xl mx-auto px-2 md:px-6 mb-8" aria-hidden>
           <div className="h-48 animate-pulse rounded-md bg-muted" />
         </section>
       )}

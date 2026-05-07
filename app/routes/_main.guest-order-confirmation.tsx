@@ -24,7 +24,7 @@ export default function GuestOrderConfirmation() {
   if (!orderNumber) {
     return (
       <div className="bg-background-secondary py-8">
-        <div className="max-w-2xl mx-auto px-6 text-center py-16">
+        <div className="max-w-2xl mx-auto px-2 md:px-6 text-center py-16">
           <h3 className="text-xl font-semibold text-gray-600 mb-4">{t("noOrder.title")}</h3>
           <p className="text-gray-500 mb-8">{t("noOrder.description")}</p>
           <Link

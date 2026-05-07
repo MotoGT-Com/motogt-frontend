@@ -157,7 +157,7 @@ export default function AvailableCars({ loaderData }: Route.ComponentProps) {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8">
+    <div className="max-w-7xl mx-auto px-2 md:px-6 py-8">
       <section
         className="relative mb-8 overflow-hidden rounded-xl shadow-md"
         aria-labelledby="available-cars-heading"

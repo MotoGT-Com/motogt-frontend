@@ -2,7 +2,7 @@ export default function Privacy() {
   return (
     <>
       <title>Privacy Policy - MotoGT</title>
-      <article className="prose prose-sm md:prose-base prose-headings:font-koulen mx-auto my-10 md:my-18 px-6">
+      <article className="prose prose-sm md:prose-base prose-headings:font-koulen mx-auto my-10 md:my-18 px-2 md:px-6">
         <h1>Privacy Policy</h1>
 
         <section>

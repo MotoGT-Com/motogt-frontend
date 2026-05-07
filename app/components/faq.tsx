@@ -21,7 +21,7 @@ export function Faq() {
   return (
     <section
       id="faqs"
-      className="max-w-4xl mx-auto scroll-mt-24 px-6 py-16"
+      className="max-w-4xl mx-auto scroll-mt-24 px-2 md:px-6 py-16"
     >
       <div className="text-center mb-8">
         <h2 className="text-2xl md:text-5xl font-bold md:mb-2">

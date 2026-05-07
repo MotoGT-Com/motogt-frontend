@@ -106,7 +106,7 @@ export function AnnouncementBar({
 
   return (
     <div className={`${className} w-full py-3`}>
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-2 md:px-6">
         <div
           dir="ltr"
           className="mx-auto flex w-full max-w-3xl items-center justify-center gap-2 text-white md:w-fit md:max-w-none"
