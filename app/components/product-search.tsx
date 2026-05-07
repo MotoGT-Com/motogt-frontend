@@ -501,6 +501,7 @@ function ProductSearch({
               createPortal(
                 <div
                   ref={dropdownRef}
+                  data-product-search-dropdown
                   className="fixed bg-white border border-gray-200 rounded-lg shadow-lg z-[9999] overflow-y-auto"
                   dir={isRTL ? "rtl" : "ltr"}
                   style={{

@@ -215,7 +215,9 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
       if (
         target?.closest("[data-slot='select-content']") ||
         target?.closest("[data-slot='select-item']") ||
-        target?.closest("[data-radix-popper-content-wrapper]")
+        target?.closest("[data-radix-popper-content-wrapper]") ||
+        // ProductSearch renders its hit list via createPortal(document.body); it is not under <header>.
+        target?.closest("[data-product-search-dropdown]")
       ) {
         return;
       }
