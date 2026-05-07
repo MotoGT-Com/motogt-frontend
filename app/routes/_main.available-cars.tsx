@@ -28,6 +28,7 @@ import { serializeShopURL } from "~/lib/shop-search-params";
 import { AddNewCarDialog } from "~/components/add-new-car-dialog";
 import type { Route as MainRoute } from "./+types/_main";
 import { useAuthModal } from "~/context/AuthModalContext";
+import { cn } from "~/lib/utils";
 
 const LIMIT = 24;
 
@@ -125,7 +126,8 @@ export default function AvailableCars({ loaderData }: Route.ComponentProps) {
   const isAuthenticated = !!mainLoaderData?.isAuthenticated;
   const { openAuthModal } = useAuthModal();
   const [searchParams] = useSearchParams();
-  const { t } = useTranslation("common");
+  const { t, i18n } = useTranslation("common");
+  const isRTL = i18n.language === "ar";
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedCarForGarage, setSelectedCarForGarage] = useState<{
     make: string;
@@ -156,78 +158,124 @@ export default function AvailableCars({ loaderData }: Route.ComponentProps) {
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">
-      <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-primary to-[#ac0f28] p-6 text-white mb-8">
-        <div className="pointer-events-none absolute -right-8 -top-12 h-44 w-44 rounded-full bg-white/10 blur-2xl" />
-        <div className="pointer-events-none absolute -left-14 -bottom-14 h-52 w-52 rounded-full bg-black/10 blur-2xl" />
-        <div className="flex items-start gap-3">
-          <Car className="size-6 mt-0.5" />
-          <div>
-            <h1 className="text-2xl font-black italic">
-              {t("availableCarsPage.title")}
-            </h1>
-            <p className="text-sm text-white/90 mt-1">
-              {t("availableCarsPage.subtitle")}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <SimpleCard className="p-4 md:p-5 mb-6 border-primary/10 shadow-sm">
-        <form
-          method="get"
-          action={href("/available-cars")}
-          className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 items-center"
+      <section
+        className="relative mb-8 overflow-hidden rounded-xl shadow-md"
+        aria-labelledby="available-cars-heading"
+      >
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: "url(/cars-banner.webp)" }}
+          aria-hidden
+        />
+        <div
+          className="absolute inset-0 bg-gradient-to-t from-black/55 via-primary/72 to-primary/60"
+          aria-hidden
+        />
+        <div
+          className={cn(
+            "relative z-10 flex flex-col gap-6 p-6 md:p-8 md:gap-8",
+            isRTL && "text-end"
+          )}
         >
-          {selectedBrand ? (
-            <input type="hidden" name="brand" value={selectedBrand} />
-          ) : null}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-            <Input
-              name="search"
-              defaultValue={searchParams.get("search") ?? ""}
-              placeholder={t("availableCarsPage.searchPlaceholder")}
-              className="h-11 pl-9"
-            />
-          </div>
-          <Button type="submit" className="h-11">
-            {t("buttons.search")}
-          </Button>
-        </form>
-
-        {brands.length > 0 ? (
-          <div className="mt-4 overflow-x-auto">
-            <div className="flex min-w-max flex-wrap gap-2 pb-1">
-            <Link
-              to={href("/available-cars")}
-              className={`px-3 py-1.5 rounded-full text-xs border transition ${
-                !selectedBrand
-                  ? "bg-primary text-white border-primary"
-                  : "bg-white text-foreground border-border hover:border-primary"
-              }`}
-            >
-              {t("availableCarsPage.allBrands")}
-            </Link>
-            {brands.slice(0, 12).map((brand: string) => (
-              <Link
-                key={brand}
-                to={`${href("/available-cars")}?${new URLSearchParams({
-                  brand,
-                  page: "1",
-                }).toString()}`}
-                className={`px-3 py-1.5 rounded-full text-xs border transition ${
-                  selectedBrand === brand
-                    ? "bg-primary text-white border-primary"
-                    : "bg-white text-foreground border-border hover:border-primary"
-                }`}
+          <div
+            className={cn(
+              "flex items-start gap-3 md:gap-4",
+              isRTL && "flex-row-reverse"
+            )}
+          >
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-white/15 ring-1 ring-white/25 md:size-11">
+              <Car className="size-5 text-white md:size-6" aria-hidden />
+            </span>
+            <div className="min-w-0">
+              <h1
+                id="available-cars-heading"
+                className="text-2xl font-black italic tracking-tight text-white md:text-3xl"
               >
-                {brand}
-              </Link>
-            ))}
+                {t("availableCarsPage.title")}
+              </h1>
+              <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-white/90 md:text-[15px]">
+                {t("availableCarsPage.subtitle")}
+              </p>
             </div>
           </div>
-        ) : null}
-      </SimpleCard>
+
+          <div className="rounded-xl border border-white/20 bg-white p-4 shadow-lg md:p-5">
+            <form
+              method="get"
+              action={href("/available-cars")}
+              className="flex flex-col gap-3 sm:flex-row sm:items-stretch"
+            >
+              {selectedBrand ? (
+                <input type="hidden" name="brand" value={selectedBrand} />
+              ) : null}
+              <div className="relative min-w-0 flex-1">
+                <Search
+                  className={cn(
+                    "pointer-events-none absolute top-1/2 size-4 -translate-y-1/2 text-muted-foreground",
+                    isRTL ? "right-3" : "left-3"
+                  )}
+                  aria-hidden
+                />
+                <Input
+                  name="search"
+                  defaultValue={searchParams.get("search") ?? ""}
+                  placeholder={t("availableCarsPage.searchPlaceholder")}
+                  className={cn(
+                    "h-11 rounded-lg border-border bg-white shadow-sm",
+                    isRTL ? "pr-10" : "pl-10"
+                  )}
+                />
+              </div>
+              <Button
+                type="submit"
+                className="h-11 shrink-0 rounded-lg bg-primary px-8 font-koulen text-base tracking-wide hover:bg-primary/90 sm:min-w-[7.5rem]"
+              >
+                {t("buttons.search")}
+              </Button>
+            </form>
+
+            {brands.length > 0 ? (
+              <div
+                className="mt-4 border-t border-neutral-200 pt-4"
+                dir="ltr"
+              >
+                <div className="-mx-1 overflow-x-auto overscroll-x-contain px-1 pb-0.5 [scrollbar-width:thin]">
+                  <div className="flex w-max flex-nowrap gap-2 py-0.5">
+                    <Link
+                      to={href("/available-cars")}
+                      className={cn(
+                        "inline-flex items-center justify-center rounded-full border px-3.5 py-2 text-xs font-semibold uppercase tracking-wide transition-colors",
+                        !selectedBrand
+                          ? "border-primary bg-primary text-white shadow-sm"
+                          : "border-neutral-200 bg-white text-neutral-800 hover:border-primary/40 hover:text-primary"
+                      )}
+                    >
+                      {t("availableCarsPage.allBrands")}
+                    </Link>
+                    {brands.map((brand: string) => (
+                      <Link
+                        key={brand}
+                        to={`${href("/available-cars")}?${new URLSearchParams({
+                          brand,
+                          page: "1",
+                        }).toString()}`}
+                        className={cn(
+                          "inline-flex items-center justify-center rounded-full border px-3.5 py-2 text-xs font-semibold uppercase tracking-wide transition-colors",
+                          selectedBrand === brand
+                            ? "border-primary bg-primary text-white shadow-sm"
+                            : "border-neutral-200 bg-white text-neutral-800 hover:border-primary/40 hover:text-primary"
+                        )}
+                      >
+                        {brand}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </section>
 
       <div className="mb-4 text-sm text-muted-foreground">
         {t("availableCarsPage.results", { count: meta.total })}
