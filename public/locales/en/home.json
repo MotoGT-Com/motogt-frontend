@@ -9,7 +9,8 @@
     "deliveryQA": "Now delivering across Qatar"
   },
   "hero": {
-    "searchTitle": "What Are We Looking For Today?"
+    "searchTitle": "What Are We Looking For Today?",
+    "viewAllCars": "View all cars"
   },
   "sections": {
     "theHottest": "The Hottest on",

@@ -245,11 +245,19 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         
         {/* Content */}
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-          <h1 className="text-2xl md:text-4xl font-bold italic mb-4 md:mb-6 text-white">
-            {t('home:hero.searchTitle')}
-          </h1>
-            <ProductSearch />
-       
+          <div className="mb-4 flex flex-col gap-2 md:mb-6 md:flex-row md:items-end md:justify-between md:gap-6">
+            <h1 className="text-2xl font-bold italic text-white md:text-4xl min-w-0">
+              {t("home:hero.searchTitle")}
+            </h1>
+            <Link
+              to={href("/available-cars")}
+              prefetch="render"
+              className="font-koulen text-sm uppercase tracking-wide text-white/90 underline decoration-white/35 underline-offset-[5px] transition-colors hover:text-white hover:decoration-white md:shrink-0 md:pb-1 md:text-base"
+            >
+              {t("home:hero.viewAllCars")}
+            </Link>
+          </div>
+          <ProductSearch />
         </div>
       </section>
 

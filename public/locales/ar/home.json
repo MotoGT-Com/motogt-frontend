@@ -9,7 +9,8 @@
     "deliveryQA": "نوصل الآن إلى جميع أنحاء قطر"
   },
   "hero": {
-    "searchTitle": "عن ماذا تبحث اليوم؟"
+    "searchTitle": "عن ماذا تبحث اليوم؟",
+    "viewAllCars": "عرض جميع السيارات"
   },
   "sections": {
     "theHottest": "الأكثر رواجًا على",
