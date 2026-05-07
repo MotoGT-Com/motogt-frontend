@@ -599,7 +599,7 @@ function ProductSearch({
                 name="carBrand"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="sr-only">{t("carSearch.carMake")}</FormLabel>
+                    <FormLabel className="sr-only">{t("carSearch.carBrand")}</FormLabel>
                     <FormControl>
                       <Select
                         value={field.value}
@@ -647,7 +647,7 @@ function ProductSearch({
                               )}
                               aria-hidden="true"
                             >
-                              {t("carSearch.carMake")}
+                              {t("carSearch.carBrand")}
                             </div>
                             <SelectValue
                               className="uppercase"
