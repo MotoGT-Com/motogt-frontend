@@ -7,13 +7,16 @@ export function links() {
       rel: "preload",
       as: "image",
       href: "/hero-banner-1280w.webp",
-      // imageSrcSet/imageSizes allow the browser to pick the correct variant to preload
       imageSrcSet:
         "/hero-banner-640w.webp 640w, /hero-banner-1280w.webp 1280w, /hero-banner-2560w.webp 2560w",
       imageSizes: "100vw",
     },
   ];
 }
+import { useCallback, useEffect, useRef, useState } from "react";
+import useEmblaCarousel from "embla-carousel-react";
+import Fade from "embla-carousel-fade";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ProductSearch } from "~/components/product-search";
 import { SimpleCard } from "~/components/ui/card";
 import { getApiHomeExteriorProducts, getApiHomeInteriorProducts, getApiHomeSubcategories, getApiProductsPublic, getApiProductTypes } from "~/lib/client";
@@ -218,6 +221,242 @@ export async function loader({ request }: Route.LoaderArgs) {
   };
 }
 
+const SLIDE_DURATION = 5000;
+
+const heroBannerSlides = [
+  {
+    key: "riding-gear",
+    to: "/shop/motorcycles?categories=3523d127-7fe6-4e8e-b575-8ce20b44a77d",
+    image: (
+      <picture>
+        <source type="image/webp" srcSet="/hero1-400w.webp 400w, /hero1-800w.webp 800w" sizes="100vw" />
+        <img src="/hero1-800w.webp" aria-hidden="true" width={1184} height={317} className="absolute inset-0 w-full h-full object-cover" loading="eager" />
+      </picture>
+    ),
+    gradient: "bg-gradient-to-r from-black/80 via-black/20 to-transparent",
+    textAlign: "items-start text-start",
+    badge: null,
+    titleKey: "home:sections.ridingGear" as const,
+    subtitleKey: "home:sections.exploreOur" as const,
+  },
+  {
+    key: "jetour-t2",
+    to: serializeShopURL({ productIds: ["59ef9ee4-4c81-4f3a-9f20-8cb2d50d118c", "c9ec9918-cc19-4552-afc1-f3b1f7ecdfaf"] }),
+    image: (
+      <img src="/hero2.webp" aria-hidden="true" loading="eager" className="absolute inset-0 w-full h-full object-cover" />
+    ),
+    gradient: "bg-gradient-to-r from-black/80 via-black/20 to-transparent",
+    textAlign: "items-start text-start",
+    badge: "home:sections.limitedQuantity" as const,
+    titleKey: "home:sections.blackCarbonKit" as const,
+    subtitleKey: "home:sections.jetourT2" as const,
+  },
+  {
+    key: "car-care",
+    to: "/shop/car-care-accessiores",
+    image: (
+      <img src="/hero3.png" aria-hidden="true" loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
+    ),
+    gradient: "bg-gradient-to-r from-black/80 via-black/20 to-transparent",
+    textAlign: "items-start text-start",
+    badge: null,
+    titleKey: "home:sections.cleaningProducts" as const,
+    subtitleKey: "home:sections.exploreOur" as const,
+  },
+] as const;
+
+function HeroBannerCarousel() {
+  const { t } = useTranslation(["home", "common"]);
+
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [Fade()]);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const progressRef = useRef<HTMLDivElement>(null);
+  const animFrameRef = useRef<number>(0);
+  const startTimeRef = useRef<number>(0);
+  const scrollTo   = useCallback((i: number) => emblaApi?.scrollTo(i), [emblaApi]);
+  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
+  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
+
+  // Track selected slide
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    onSelect();
+    emblaApi.on("select", onSelect);
+    return () => { emblaApi.off("select", onSelect); };
+  }, [emblaApi, onSelect]);
+
+  // Animate the progress bar and advance slide
+  useEffect(() => {
+    if (!emblaApi) return;
+
+    const animate = (timestamp: number) => {
+      if (!startTimeRef.current) startTimeRef.current = timestamp;
+      const elapsed = timestamp - startTimeRef.current;
+      const progress = Math.min(elapsed / SLIDE_DURATION, 1);
+
+      if (progressRef.current) {
+        progressRef.current.style.width = `${progress * 100}%`;
+      }
+
+      if (progress < 1) {
+        animFrameRef.current = requestAnimationFrame(animate);
+      } else if (!isHovered) {
+        emblaApi.scrollNext();
+      }
+    };
+
+    const resetProgress = () => {
+      cancelAnimationFrame(animFrameRef.current);
+      startTimeRef.current = 0;
+      if (progressRef.current) progressRef.current.style.width = "0%";
+      if (!isHovered) animFrameRef.current = requestAnimationFrame(animate);
+    };
+
+    resetProgress();
+    emblaApi.on("select", resetProgress);
+
+    return () => {
+      cancelAnimationFrame(animFrameRef.current);
+      emblaApi.off("select", resetProgress);
+    };
+  }, [emblaApi, isHovered]);
+
+  // Pause on hover — resume on leave
+  useEffect(() => {
+    if (!emblaApi) return;
+    if (isHovered) {
+      cancelAnimationFrame(animFrameRef.current);
+      if (progressRef.current) {
+        // freeze bar width in place
+        const currentWidth = progressRef.current.style.width;
+        progressRef.current.style.width = currentWidth;
+      }
+    } else {
+      // restart timer from current progress
+      startTimeRef.current = 0;
+      if (progressRef.current) progressRef.current.style.width = "0%";
+      animFrameRef.current = requestAnimationFrame((ts) => {
+        startTimeRef.current = ts;
+        const animate = (timestamp: number) => {
+          const elapsed = timestamp - startTimeRef.current;
+          const progress = Math.min(elapsed / SLIDE_DURATION, 1);
+          if (progressRef.current) progressRef.current.style.width = `${progress * 100}%`;
+          if (progress < 1) {
+            animFrameRef.current = requestAnimationFrame(animate);
+          } else {
+            emblaApi.scrollNext();
+          }
+        };
+        animFrameRef.current = requestAnimationFrame(animate);
+      });
+    }
+  }, [isHovered, emblaApi]);
+
+  return (
+    <section className="max-w-7xl mx-auto px-2 md:px-6 mb-8">
+      <h2 className="text-2xl font-bold italic mb-4">
+        {t("home:sections.theHottest")} <span className="sr-only">Moto GT</span>
+        <Logo className="w-32 inline pb-1" />
+      </h2>
+
+      <div
+        className="relative rounded-xl overflow-hidden shadow-md"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        {/* Embla viewport */}
+        <div
+          className="aspect-[16/9] md:aspect-[1184/317]"
+          ref={emblaRef}
+        >
+          <div className="flex h-full">
+            {heroBannerSlides.map((slide) => (
+              <div key={slide.key} className="flex-[0_0_100%] min-w-0 relative h-full">
+                <Link to={slide.to} prefetch="render" draggable={false} className="group block h-full">
+                  {/* Background image — zooms on hover */}
+                  <div className="absolute inset-0 overflow-hidden">
+                    <div className="w-full h-full transition-transform duration-700 ease-out group-hover:scale-105">
+                      {slide.image}
+                    </div>
+                  </div>
+
+                  {/* Gradient overlay — deepens on hover */}
+                  <div className={`absolute inset-0 ${slide.gradient} transition-opacity duration-500 group-hover:opacity-90`} />
+
+                  {/* Text — top-left, lifts on hover */}
+                  <div className={`absolute top-4 left-5 md:top-8 md:left-10 z-10 text-white flex flex-col ${slide.textAlign} gap-1 transition-transform duration-500 ease-out group-hover:-translate-y-1`}>
+                    {slide.badge && (
+                      <span className="font-koulen bg-primary text-white text-xs md:text-sm px-2.5 py-0.5 rounded w-fit mb-1">
+                        {t(slide.badge)}
+                      </span>
+                    )}
+                    <p className="text-sm md:text-lg font-medium leading-tight opacity-90">
+                      {t(slide.subtitleKey)}
+                    </p>
+                    <h3 className="text-2xl md:text-4xl font-black italic uppercase leading-tight">
+                      {t(slide.titleKey)}
+                    </h3>
+                  </div>
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Left arrow */}
+        <button
+          type="button"
+          onClick={scrollPrev}
+          aria-label="Previous slide"
+          className="absolute left-3 top-1/2 -translate-y-1/2 z-30 flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm border border-white/20 hover:bg-white/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+        >
+          <ChevronLeft className="size-4" />
+        </button>
+
+        {/* Right arrow */}
+        <button
+          type="button"
+          onClick={scrollNext}
+          aria-label="Next slide"
+          className="absolute right-3 top-1/2 -translate-y-1/2 z-30 flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm border border-white/20 hover:bg-white/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+        >
+          <ChevronRight className="size-4" />
+        </button>
+
+        {/* Bottom center: small pill progress indicators */}
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5">
+          {heroBannerSlides.map((slide, i) => (
+            <button
+              key={slide.key}
+              type="button"
+              onClick={() => scrollTo(i)}
+              aria-label={`Go to slide ${i + 1}`}
+              className="relative h-[3px] w-6 rounded-full bg-white/35 overflow-hidden focus-visible:outline-none"
+            >
+              {i === selectedIndex && (
+                <div
+                  ref={i === selectedIndex ? progressRef : undefined}
+                  className="absolute inset-y-0 left-0 bg-white rounded-full"
+                  style={{ width: "0%" }}
+                />
+              )}
+              {i < selectedIndex && (
+                <div className="absolute inset-0 bg-white rounded-full" />
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function HomeFeaturedBanner({ isAuthenticated }: { isAuthenticated: boolean }) {
   const garageCarsQuery = useQuery({
     ...garageCarsQueryOptions,
@@ -296,83 +535,8 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         </div>
       </section>
 
-      {/* Hero Banners */}
-      <section className="max-w-7xl mx-auto px-2 md:px-6 mb-8">
-        <h2 className="text-2xl font-bold italic mb-4">
-          {t('home:sections.theHottest')} <span className="sr-only">Moto GT</span>
-          <Logo className="w-32 inline pb-1" />
-        </h2>
-
-        <div className="grid md:grid-cols-2 gap-4">
-          <Link
-            to="/shop/motorcycles?categories=3523d127-7fe6-4e8e-b575-8ce20b44a77d"
-            prefetch="render"
-            className="group"
-          >
-            <SimpleCard className="relative aspect-[21/9] overflow-hidden rounded-md transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-lg">
-              <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/30 to-black/0 z-10 transition-opacity duration-300 group-hover:opacity-80" />
-              <picture>
-                <source
-                  type="image/webp"
-                  srcSet="/hero1-400w.webp 400w, /hero1-800w.webp 800w"
-                  sizes="(max-width: 768px) 90vw, 50vw"
-                />
-                <img
-                  src="/hero1-800w.webp"
-                  aria-hidden="true"
-                  width={584}
-                  height={234}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  fetchPriority="auto"
-                  loading="lazy"
-                />
-              </picture>
-              <div className="absolute md:bottom-8 bottom-4 md:left-8 left-4 z-20 text-white transition-all duration-300 group-hover:translate-y-[-4px]">
-                <h3>
-                  <span className="md:text-2xl text-xl transition-all duration-300">{t('home:sections.exploreOur')}</span>
-                  <br />
-                  <span className="md:text-4xl text-2xl font-black italic uppercase transition-all duration-300 group-hover:scale-105">
-                    {t('home:sections.ridingGear')}
-                  </span>
-                </h3>
-              </div>
-            </SimpleCard>
-          </Link>
-
-          <Link
-            to={serializeShopURL({
-              productIds: [
-                "59ef9ee4-4c81-4f3a-9f20-8cb2d50d118c",
-                "c9ec9918-cc19-4552-afc1-f3b1f7ecdfaf",
-              ],
-            })}
-            prefetch="render"
-            className="group"
-          >
-            <SimpleCard className="relative aspect-[21/9] overflow-hidden rounded-md transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-lg">
-              <div className="absolute inset-0 bg-gradient-to-l from-black/90 via-black/30 to-black/0 z-10 transition-opacity duration-300 group-hover:opacity-80" />
-              <img
-              loading="lazy"
-                aria-hidden="true"
-                src="/hero2.webp"
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-              />
-              <div className="absolute md:bottom-8 bottom-4 md:right-8 right-4 z-20 text-white flex flex-col items-end text-end transition-all duration-300 group-hover:translate-y-[-4px]">
-                <div className="font-koulen bg-primary text-white px-2 text-lg rounded-md mb-2 transition-all duration-300 group-hover:scale-105 group-hover:bg-[#CF172F]/90">
-                  {t('home:sections.limitedQuantity')}
-                </div>
-                <h3>
-                  <span className="md:text-2xl text-xl transition-all duration-300">{t('home:sections.jetourT2')}</span>
-                  <br />
-                  <span className="md:text-4xl text-2xl font-black italic uppercase transition-all duration-300 group-hover:scale-105">
-                    {t('home:sections.blackCarbonKit')}
-                  </span>
-                </h3>
-              </div>
-            </SimpleCard>
-          </Link>
-        </div>
-      </section>
+      {/* Hero Banner Carousel */}
+      <HeroBannerCarousel />
 
       {/* Categories Grid */}
       <section className="max-w-7xl mx-auto px-2 md:px-6 mb-8">
@@ -476,8 +640,8 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           </section>
 
           <ProductsHorizontalScroll
-            sectionTitle={t('home:newArrivals.title')}
-            productsResponse={exteriorProductsResponse}
+            sectionTitle={t('home:sections.ridingGear')}
+            productsResponse={ridingGearProductsResponse}
           />
 
           <img
@@ -492,8 +656,8 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           />
 
           <ProductsHorizontalScroll
-            sectionTitle={t('home:sections.motorcycleAccessories')}
-            productsResponse={motorcycleAccessoriesResponse}
+            sectionTitle={t('home:newArrivals.title')}
+            productsResponse={ridingGearProductsResponse}
           />
 
           <Faq />

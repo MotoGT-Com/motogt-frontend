@@ -146,7 +146,7 @@ function BlurUpImage({
  * Features:
  * - Responsive design (mobile and desktop layouts)
  * - Fitment badge showing compatibility with user's garage cars
- * - Image hover effect (shows secondary image on hover)
+ * - Image hover effect (shows primary image on hover)
  * - Wishlist toggle functionality
  * - Add to cart functionality
  * - Clickable card that navigates to product details page
@@ -194,13 +194,16 @@ function ProductCard({
   const productName = getLocalizedTranslation(product.translations)?.name;
   const productPath = buildProductPath(product);
 
-  // Warm secondary image cache so hover swap is instant.
+  // Warm both images cache so the hover swap is instant.
   useEffect(() => {
-    if (typeof window === "undefined" || !product.secondaryImage) return;
+    if (typeof window === "undefined") return;
 
-    const preloadImage = new Image();
-    preloadImage.src = productImageSrc(product.secondaryImage);
-  }, [product.secondaryImage]);
+    const imageUrls = [product.mainImage, product.secondaryImage].filter(Boolean);
+    imageUrls.forEach((url) => {
+      const preloadImage = new Image();
+      preloadImage.src = productImageSrc(url as string);
+    });
+  }, [product.mainImage, product.secondaryImage]);
   
   // Currency hook for price conversion
   const { selectedCurrency, convertPrice } = useCurrency();
@@ -594,11 +597,11 @@ function ProductCard({
       {/* Fixed aspect image — reserves space immediately; shimmer until loaded */}
       <div className="shrink-0 w-full mb-2 md:mb-3">
         <BlurUpImage
-          key={isHovered && product.secondaryImage ? "secondary" : "primary"}
+          key={isHovered ? "primary" : "secondary"}
           src={
-            isHovered && product.secondaryImage
-              ? product.secondaryImage
-              : (product.mainImage ?? "")
+            isHovered
+              ? (product.mainImage ?? product.secondaryImage ?? "")
+              : (product.secondaryImage ?? product.mainImage ?? "")
           }
           alt={productName || "Product Image"}
         />
