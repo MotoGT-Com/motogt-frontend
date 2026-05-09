@@ -22,7 +22,10 @@
     "motorcycleAccessories": "Motorcycle Accessories",
     "limitedQuantity": "Limited Quantity!",
     "jetourT2": "Jetour T2",
-    "blackCarbonKit": "Black Carbon Kit"
+    "blackCarbonKit": "Black Carbon Kit",
+    "exteriorParts": "Exterior Parts",
+    "garageHeroTitle": "Your Garage",
+    "garageHeroSubtitle": "Save your cars and get parts that fit"
   },
   "products": {
     "exterior": "Exterior Parts",

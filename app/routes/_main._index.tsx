@@ -174,6 +174,19 @@ export async function loader({ request }: Route.LoaderArgs) {
     }),
     locale
   );
+  const justArrivedProductsResponse = enrichProductsResponseWithEnglishSlug(
+    getApiProductsPublic({
+      query: {
+        storeId: defaultParams.storeId,
+        languageId,
+        page: 1,
+        limit: 20,
+        sortBy: "createdAt",
+        sortOrder: "desc",
+      },
+    }),
+    locale
+  );
   const cleaningProductsResponse = cleaningType
     ? enrichProductsResponseWithEnglishSlug(
         getApiProductsPublic({
@@ -214,6 +227,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     exteriorProductsResponse,
     interiorProductsResponse,
     ridingGearProductsResponse,
+    justArrivedProductsResponse,
     cleaningProductsResponse,
     motorcycleRidersProductsResponse,
     motorcycleAccessoriesResponse,
@@ -229,8 +243,19 @@ const heroBannerSlides = [
     to: "/shop/motorcycles?categories=3523d127-7fe6-4e8e-b575-8ce20b44a77d",
     image: (
       <picture>
-        <source type="image/webp" srcSet="/hero1-400w.webp 400w, /hero1-800w.webp 800w" sizes="100vw" />
-        <img src="/hero1-800w.webp" aria-hidden="true" width={1184} height={317} className="absolute inset-0 w-full h-full object-cover" loading="eager" />
+        <source
+          type="image/webp"
+          srcSet="/hero1-400w.webp 400w, /hero1-800w.webp 800w, /hero1-1200w.webp 1200w"
+          sizes="(min-width: 1280px) 1200px, 100vw"
+        />
+        <img
+          src="/hero1-1200w.webp"
+          aria-hidden="true"
+          width={1184}
+          height={317}
+          className="absolute inset-0 w-full h-full object-cover"
+          loading="eager"
+        />
       </picture>
     ),
     gradient: "bg-gradient-to-r from-black/80 via-black/20 to-transparent",
@@ -243,7 +268,10 @@ const heroBannerSlides = [
     key: "jetour-t2",
     to: serializeShopURL({ productIds: ["59ef9ee4-4c81-4f3a-9f20-8cb2d50d118c", "c9ec9918-cc19-4552-afc1-f3b1f7ecdfaf"] }),
     image: (
-      <img src="/hero2.webp" aria-hidden="true" loading="eager" className="absolute inset-0 w-full h-full object-cover" />
+      <picture>
+        <source type="image/webp" srcSet="/hero2.webp" />
+        <img src="/hero2.webp" aria-hidden="true" loading="eager" className="absolute inset-0 w-full h-full object-cover" />
+      </picture>
     ),
     gradient: "bg-gradient-to-r from-black/80 via-black/20 to-transparent",
     textAlign: "items-start text-start",
@@ -252,16 +280,71 @@ const heroBannerSlides = [
     subtitleKey: "home:sections.jetourT2" as const,
   },
   {
+    key: "exterior-parts",
+    to: "/shop",
+    image: (
+      <picture>
+        <source
+          type="image/webp"
+          srcSet="/hero5-400w.webp 400w, /hero5-800w.webp 800w, /hero5-1200w.webp 1200w"
+          sizes="(min-width: 1280px) 1200px, 100vw"
+        />
+        <img
+          src="/hero5-1200w.webp"
+          aria-hidden="true"
+          width={1047}
+          height={343}
+          loading="lazy"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      </picture>
+    ),
+    gradient: "bg-gradient-to-r from-black/80 via-black/20 to-transparent",
+    textAlign: "items-start text-start",
+    badge: null,
+    titleKey: "home:sections.exteriorParts" as const,
+    subtitleKey: "home:sections.exploreOur" as const,
+  },
+  {
     key: "car-care",
     to: "/shop/car-care-accessiores",
     image: (
-      <img src="/hero3.png" aria-hidden="true" loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
+      <picture>
+        <source type="image/webp" srcSet="/hero3-400w.webp 400w, /hero3-800w.webp 800w" sizes="100vw" />
+        <img src="/hero3-800w.webp" aria-hidden="true" loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
+      </picture>
     ),
     gradient: "bg-gradient-to-r from-black/80 via-black/20 to-transparent",
     textAlign: "items-start text-start",
     badge: null,
     titleKey: "home:sections.cleaningProducts" as const,
     subtitleKey: "home:sections.exploreOur" as const,
+  },
+  {
+    key: "garage",
+    to: href("/my-garage"),
+    image: (
+      <picture>
+        <source
+          type="image/webp"
+          srcSet="/hero4-400w.webp 400w, /hero4-800w.webp 800w, /hero4-1200w.webp 1200w, /hero4-1920w.webp 1920w"
+          sizes="(min-width: 1280px) 1200px, 100vw"
+        />
+        <img
+          src="/hero4-1920w.webp"
+          aria-hidden="true"
+          width={2094}
+          height={686}
+          loading="lazy"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      </picture>
+    ),
+    gradient: "bg-gradient-to-r from-black/80 via-black/20 to-transparent",
+    textAlign: "items-start text-start",
+    badge: null,
+    titleKey: "home:sections.garageHeroTitle" as const,
+    subtitleKey: "home:sections.garageHeroSubtitle" as const,
   },
 ] as const;
 
@@ -478,6 +561,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     exteriorProductsResponse,
     interiorProductsResponse,
     ridingGearProductsResponse,
+    justArrivedProductsResponse,
     cleaningProductsResponse,
     motorcycleRidersProductsResponse,
     motorcycleAccessoriesResponse,
@@ -657,7 +741,8 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
           <ProductsHorizontalScroll
             sectionTitle={t('home:newArrivals.title')}
-            productsResponse={ridingGearProductsResponse}
+            productsResponse={justArrivedProductsResponse}
+            preserveProductOrder
           />
 
           <Faq />

@@ -22,7 +22,10 @@
     "motorcycleAccessories": "إكسسوارات الدراجات النارية",
     "limitedQuantity": "كمية محدودة!",
     "jetourT2": "T2 جيتور",
-    "blackCarbonKit": "طقم الكربون الأسود"
+    "blackCarbonKit": "طقم الكربون الأسود",
+    "exteriorParts": "قطع خارجية",
+    "garageHeroTitle": "كراجك",
+    "garageHeroSubtitle": "سجّل سياراتك  قطع تلائم سيارتك"
   },
   "products": {
     "exterior": "قطع خارجية",

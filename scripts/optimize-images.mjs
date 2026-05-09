@@ -12,10 +12,32 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PUBLIC = resolve(__dirname, "../public");
 
-const CWEBP = "/opt/homebrew/bin/cwebp";
+function findCwebp() {
+  const candidates = [
+    "/opt/homebrew/bin/cwebp",
+    "/usr/local/bin/cwebp",
+    process.env.CWEBP_PATH,
+  ].filter(Boolean);
+  for (const p of candidates) {
+    if (existsSync(p)) return p;
+  }
+  try {
+    const which = execSync("command -v cwebp 2>/dev/null", {
+      encoding: "utf8",
+    }).trim();
+    if (which && existsSync(which)) return which;
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
 
-if (!existsSync(CWEBP)) {
-  console.error(`cwebp not found at ${CWEBP}. Install with: brew install webp`);
+const CWEBP = findCwebp();
+
+if (!CWEBP) {
+  console.error(
+    "cwebp not found. Install with: brew install webp (macOS) or apt install webp (Linux), or set CWEBP_PATH"
+  );
   process.exit(1);
 }
 
@@ -30,13 +52,36 @@ const jobs = [
     ],
     quality: 82,
   },
+  /** Hero carousel “riding gear” slide source in WebP format */
   {
-    src: "hero1.png",
+    src: "hero1.webp",
     variants: [
       { width: 400, suffix: "400w" },
       { width: 800, suffix: "800w" },
+      { width: 1200, suffix: "1200w" },
     ],
-    quality: 82,
+    quality: 86,
+  },
+  /** Hero carousel “exterior parts” slide */
+  {
+    src: "hero5.webp",
+    variants: [
+      { width: 400, suffix: "400w" },
+      { width: 800, suffix: "800w" },
+      { width: 1200, suffix: "1200w" },
+    ],
+    quality: 86,
+  },
+  /** Hero carousel “garage” slide — wider variants for sharp logos/details on large viewports */
+  {
+    src: "hero4.png",
+    variants: [
+      { width: 400, suffix: "400w" },
+      { width: 800, suffix: "800w" },
+      { width: 1200, suffix: "1200w" },
+      { width: 1920, suffix: "1920w" },
+    ],
+    quality: 86,
   },
   {
     src: "garage/garage-banner.png",

@@ -9,12 +9,20 @@ interface ProductsHorizontalScrollProps {
   productsResponse: Promise<any> | { data?: { data: any[] } };
   /** Outer section spacing; default matches home product rails */
   wrapperClassName?: string;
+  /** When true, keep API order (e.g. newest first); default shuffles client-side */
+  preserveProductOrder?: boolean;
 }
 
-function ProductCarousel({ initialData }: { initialData: any[] }) {
+function ProductCarousel({
+  initialData,
+  preserveProductOrder,
+}: {
+  initialData: any[];
+  preserveProductOrder?: boolean;
+}) {
   const id = useId();
-  
-  // Show first 10 products in order during SSR, then shuffle client-side
+
+  // Show first 10 products in order during SSR; optionally shuffle client-side
   // to avoid hydration mismatch from Math.random()
   const [randomProducts, setRandomProducts] = useState<any[]>(() => {
     const data = Array.isArray(initialData) ? initialData : [];
@@ -24,9 +32,13 @@ function ProductCarousel({ initialData }: { initialData: any[] }) {
   useEffect(() => {
     const data = Array.isArray(initialData) ? initialData : [];
     if (data.length === 0) return;
+    if (preserveProductOrder) {
+      setRandomProducts(data.slice(0, 10));
+      return;
+    }
     const shuffled = [...data].sort(() => Math.random() - 0.5);
     setRandomProducts(shuffled.slice(0, 10));
-  }, [initialData]);
+  }, [initialData, preserveProductOrder]);
 
   return (
     <>
@@ -46,6 +58,7 @@ const ProductsHorizontalScroll = ({
   sectionTitle,
   productsResponse,
   wrapperClassName = "pt-4 mb-24",
+  preserveProductOrder = false,
 }: ProductsHorizontalScrollProps) => {
   return (
     <div className={wrapperClassName}>
@@ -72,6 +85,7 @@ const ProductsHorizontalScroll = ({
                 resolvedResponse.data && (
                   <ProductCarousel
                     initialData={resolvedResponse.data.data as any[]}
+                    preserveProductOrder={preserveProductOrder}
                   />
                 )
               }
