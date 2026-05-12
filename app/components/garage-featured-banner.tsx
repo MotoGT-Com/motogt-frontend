@@ -398,7 +398,7 @@ export function GarageFeaturedBanner({ userCars }: Props) {
                 style={{ opacity: active ? 1 : 0, pointerEvents: active ? "auto" : "none" }}
                 aria-hidden={!active}
               >
-                <div className="w-full h-full max-w-7xl mx-auto px-2 md:px-6 flex flex-col items-center justify-center gap-5 py-8 md:flex-row md:items-center md:gap-4 md:py-10">
+                <div className="w-full h-full max-w-[96rem] mx-auto px-12 md:px-16 flex flex-col items-center justify-center gap-5 py-8 md:flex-row md:items-center md:gap-8 md:py-10">
                   {/* Text — centered on mobile (vertical stack), start-aligned on md+ */}
                   <div className="flex w-full flex-col justify-center min-w-0 text-center md:flex-1 md:text-start">
                     <p className="text-white/75 uppercase text-[10px] md:text-base font-semibold tracking-[0.2em] mb-2 md:mb-3 truncate">

@@ -37,7 +37,7 @@ export default function Wishlist() {
     <>
       <title>{t('wishlist.pageTitle')}</title>
       {!isAuthenticated && <GuestBanner type="wishlist" />}
-      <div className="max-w-7xl mx-auto px-2 md:px-6 mb-6 mt-8">
+      <div className="max-w-[96rem] mx-auto px-4 md:px-8 mb-6 mt-8">
         <h1 className="text-[18px] font-black italic leading-[150%] tracking-[-0.198px] text-[#000]">
           {t('wishlist.title')}{" "}
           {totalFavorites > 0 && (
@@ -47,7 +47,7 @@ export default function Wishlist() {
           )}
         </h1>
       </div>
-      <main className="max-w-7xl mx-auto px-2 md:px-6 pb-8">
+      <main className="max-w-[96rem] mx-auto px-4 md:px-8 pb-8">
         {favoritesQuery.isPending ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {Array.from({ length: 9 }).map((_, index) => (

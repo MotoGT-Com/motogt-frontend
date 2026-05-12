@@ -641,7 +641,7 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
       <div className="bg-white pb-8">
         <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] mb-16">
           {/* Product Images Section */}
-          <div className="space-y-4 ps-[calc(max(0px,(100vw-80rem)/2)+1.5rem)] bg-background-secondary py-10 pe-6 md:pe-10">
+          <div className="space-y-4 ps-[calc(max(0px,(100vw-96rem)/2)+2rem)] bg-background-secondary py-10 pe-6 md:pe-10">
             {/* Product Title and Price */}
             <div className="flex items-center justify-between">
               <div>
@@ -729,7 +729,7 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
           </div>
 
           {/* Product Details Section */}
-          <div className="flex flex-col gap-6 pe-[calc(max(0px,(100vw-80rem)/2)+1.5rem)] ps-6 md:ps-10 pt-10 md:pb-10">
+          <div className="flex flex-col gap-6 pe-[calc(max(0px,(100vw-96rem)/2)+2rem)] ps-6 md:ps-10 pt-10 md:pb-10">
             {/* Description */}
             <div className="space-y-4 order-5 md:order-1">
               <div className="flex items-center justify-between gap-2">

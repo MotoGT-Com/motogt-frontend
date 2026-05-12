@@ -81,7 +81,7 @@ export default function MyGarage({ loaderData }: Route.ComponentProps) {
         <title>{t("pageTitle")}</title>
         <div className="py-5 flex-1 flex flex-col bg-red-200">
           {/* Header */}
-          <div className="max-w-7xl mx-auto px-2 md:px-6 mb-12 flex items-center justify-between">
+          <div className="max-w-[96rem] mx-auto px-4 md:px-8 mb-12 flex items-center justify-between">
             <h1 className="text-[18px] font-black italic leading-[150%] tracking-[-0.198px] text-[#000]">
               {t("title")}
             </h1>
@@ -144,7 +144,7 @@ export default function MyGarage({ loaderData }: Route.ComponentProps) {
         <title>{t("pageTitle")}</title>
         {!isAuthenticated && <GuestBanner type="garage" />}
         {/* Header */}
-        <div className="max-w-7xl mx-auto px-2 md:px-6 my-8">
+        <div className="max-w-[96rem] mx-auto px-4 md:px-8 my-8">
           <h1 className="text-[18px] font-black italic leading-[150%] tracking-[-0.198px] text-[#000]">
             {t("title")}
           </h1>
@@ -179,7 +179,7 @@ export default function MyGarage({ loaderData }: Route.ComponentProps) {
       <title>{t("pageTitle")}</title>
       {!isAuthenticated && <GuestBanner type="garage" />}
       <div className="py-4 md:py-5 flex-1 flex flex-col bg-background">
-        <div className="max-w-7xl mx-auto w-full px-2 md:px-6 flex items-center justify-between gap-3 mb-4 md:mb-0">
+        <div className="max-w-[96rem] mx-auto w-full px-4 md:px-8 flex items-center justify-between gap-3 mb-4 md:mb-0">
           <div className="flex items-center gap-2 min-w-0 flex-1">
             <HoverCard openDelay={300}>
               <HoverCardTrigger asChild>
@@ -229,7 +229,7 @@ export default function MyGarage({ loaderData }: Route.ComponentProps) {
           />
         </div>
 
-        <div className="max-w-7xl mx-auto w-full px-2 md:px-6 mt-4 md:mt-0">
+        <div className="max-w-[96rem] mx-auto w-full px-4 md:px-8 mt-4 md:mt-0">
           {userCars.length > 1 && (
             <div className="flex justify-between gap-3 md:gap-5 items-center max-w-md mx-auto mb-4">
               {/* Navigation Arrows */}

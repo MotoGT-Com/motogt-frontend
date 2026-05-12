@@ -263,7 +263,7 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
         ref={headerRef}
         className="bg-background border-b sticky top-0 z-50 font-koulen"
       >
-        <div className="max-w-7xl mx-auto px-2 py-3 md:px-6 md:py-4 flex items-center justify-between w-full">
+        <div className="max-w-[96rem] mx-auto px-4 py-3 md:px-8 md:py-4 flex items-center justify-between w-full">
           {/* Desktop: Left Garage Button */}
           <div className="hidden md:flex items-center gap-3">
             <GarageNavButton
@@ -569,7 +569,7 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
         </div>
         {/* Desktop Secondary Navigation */}
         <div className="hidden md:block border-t bg-background">
-          <div className="max-w-7xl mx-auto px-6">
+          <div className="max-w-[96rem] mx-auto px-8">
             <div
               id="desktop-header-search"
               className={cn(

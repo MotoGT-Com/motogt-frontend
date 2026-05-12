@@ -449,7 +449,7 @@ export default function GuestCheckout({ loaderData }: Route.ComponentProps) {
       <>
         <title>{t("pageTitle")}</title>
         <div className="bg-background-secondary py-8">
-          <div className="max-w-7xl mx-auto px-6">
+          <div className="max-w-[96rem] mx-auto px-8">
             <div className="text-center py-16">
               <h3 className="text-xl font-semibold text-gray-600 mb-4">
                 {tCheckout("emptyCart.title")}
@@ -472,7 +472,7 @@ export default function GuestCheckout({ loaderData }: Route.ComponentProps) {
     <>
       <title>{t("pageTitle")}</title>
       <div className="bg-background-secondary py-8">
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="max-w-[96rem] mx-auto px-8">
           <div className="mb-6 flex items-center gap-2">
             <Button variant="outline" size="icon" asChild className="bg-background hover:bg-background/60">
               <Link to="/cart"><ArrowLeft /></Link>

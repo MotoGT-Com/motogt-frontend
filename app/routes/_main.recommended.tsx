@@ -291,7 +291,7 @@ export default function Recommended({ loaderData }: Route.ComponentProps) {
       <>
         <title>{t("nav.recommendedForYou")} - MotoGT</title>
         {isGuest && <GuestBanner type="garage" />}
-        <div className="max-w-7xl mx-auto px-2 md:px-6 py-8">
+        <div className="max-w-[96rem] mx-auto px-4 md:px-8 py-8">
           <h1 className="text-2xl font-black italic mb-6">
             {t("nav.recommendedForYou")}
           </h1>
@@ -326,7 +326,7 @@ export default function Recommended({ loaderData }: Route.ComponentProps) {
     <>
       <title>{t("nav.recommendedForYou")} - MotoGT</title>
       {isGuest && <GuestBanner type="garage" />}
-      <div className="max-w-7xl mx-auto px-2 md:px-6 py-8">
+      <div className="max-w-[96rem] mx-auto px-4 md:px-8 py-8">
         <h1 className="text-2xl font-black italic mb-6">
           {t("nav.recommendedForYou")}
         </h1>

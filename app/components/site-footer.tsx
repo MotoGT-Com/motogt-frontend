@@ -85,7 +85,7 @@ export function SiteFooter() {
 
   return (
     <footer className="bg-primary text-white py-10 md:py-12">
-      <div className="max-w-7xl mx-auto px-2 md:px-6">
+      <div className="max-w-[96rem] mx-auto px-4 md:px-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-5 lg:gap-8">
           <section className={isRTL ? "text-right" : "text-left"}>
             <h2 className={sectionTitleClass}>{t("footer.help.title")}</h2>

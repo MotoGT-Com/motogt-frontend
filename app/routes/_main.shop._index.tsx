@@ -277,7 +277,7 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
 
   return (
     <HydrationBoundary state={loaderData.dehydratedState}>
-      <div className="max-w-7xl mx-auto px-2 md:px-6 py-8">
+      <div className="max-w-[96rem] mx-auto px-4 md:px-8 py-8">
         {/* Search Section */}
         <section className="mb-8">
           <ProductSearch />
