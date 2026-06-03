@@ -1,14 +1,5 @@
 import * as React from "react";
 import { cn } from "~/lib/utils";
-import {
-  CARE_SPONGE_ACTIVE_COLOR,
-  CARE_SPONGE_BODY_PATH,
-  CARE_SPONGE_BRAND_COLOR,
-  CARE_SPONGE_PORE_PATHS,
-  CARE_SPONGE_SOLID_PATH,
-  CARE_SPONGE_SOLID_VIEWBOX,
-  CARE_SPONGE_VIEWBOX,
-} from "~/lib/care-sponge-icon-paths";
 
 // Local icon paths from public/nav-icons/
 const homeOutlineIcon = "/nav-icons/home-outline.svg";
@@ -35,6 +26,8 @@ const logoutOutlineIcon = "/nav-icons/logout.svg";
 const logoutSolidIcon = "/nav-icons/logout-1.svg";
 const recommendedOutlineIcon = "/nav-icons/recommended-outline.svg";
 const recommendedSolidIcon = "/nav-icons/recommended-solid.svg";
+const careOutlineIcon = "/nav-icons/care-outline.svg";
+const careSolidIcon = "/nav-icons/care-solid.svg";
 
 export function HomeNavIcon({ isActive, className }: { isActive?: boolean; className?: string }) {
   return (
@@ -59,39 +52,13 @@ export function CarPartsNavIcon({ isActive, className }: { isActive?: boolean; c
 }
 
 export function CareNavIcon({ isActive, className }: { isActive?: boolean; className?: string }) {
-  const active = !!isActive;
-
   return (
-    <svg
-      width={20}
-      height={20}
-      viewBox={active ? CARE_SPONGE_SOLID_VIEWBOX : CARE_SPONGE_VIEWBOX}
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
+    <img
+      loading="lazy"
       className={cn("size-5 shrink-0", className)}
-      aria-hidden
-      preserveAspectRatio="xMidYMid meet"
-    >
-      {active ? (
-        <path
-          d={CARE_SPONGE_SOLID_PATH}
-          fill={CARE_SPONGE_ACTIVE_COLOR}
-          fillRule="evenodd"
-        />
-      ) : (
-        <>
-          <path d={CARE_SPONGE_BODY_PATH} fill={CARE_SPONGE_BRAND_COLOR} />
-          {CARE_SPONGE_PORE_PATHS.map((d, index) => (
-            <path
-              key={index}
-              d={d}
-              fill={CARE_SPONGE_BRAND_COLOR}
-              fillRule="evenodd"
-            />
-          ))}
-        </>
-      )}
-    </svg>
+      alt="Car Care"
+      src={isActive ? careSolidIcon : careOutlineIcon}
+    />
   );
 }
 

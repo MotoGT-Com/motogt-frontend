@@ -694,7 +694,7 @@ function NavLinkButton({
     >
       <NavLink
         to={to}
-        className="[&.active]:bg-primary [&.active]:text-white [&.active>img]:opacity-100 [&.active>svg]:text-white"
+        className="[&.active]:bg-primary [&.active]:text-white [&.active>img]:opacity-100"
         prefetch={prefetch}
         onClick={navLinkOnClick}
       >
