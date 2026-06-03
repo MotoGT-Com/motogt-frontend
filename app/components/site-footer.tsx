@@ -89,12 +89,12 @@ export function SiteFooter() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-5 lg:gap-8">
           <section className={isRTL ? "text-right" : "text-left"}>
             <h2 className={sectionTitleClass}>{t("footer.help.title")}</h2>
-            <div className={sectionBodyClass}>
+            <div className="mt-3 flex flex-col gap-2 text-sm leading-tight">
               {helpPhoneTelHref ? (
                 <a
                   href={helpPhoneTelHref}
                   dir="ltr"
-                  className={`${listLinkClass} text-[12px] tabular-nums tracking-normal`}
+                  className={`${listLinkClass} block w-fit max-w-full text-[12px] tabular-nums tracking-normal`}
                   style={{ unicodeBidi: "bidi-override", direction: "ltr" }}
                 >
                   {helpPhone}
@@ -102,7 +102,7 @@ export function SiteFooter() {
               ) : (
                 <p
                   dir="ltr"
-                  className="text-[12px] tabular-nums text-white/95"
+                  className="block w-fit max-w-full text-[12px] tabular-nums text-white/95"
                   style={{ unicodeBidi: "bidi-override", direction: "ltr" }}
                 >
                   {helpPhone}
@@ -110,7 +110,7 @@ export function SiteFooter() {
               )}
               <a
                 href={`mailto:${t("footer.help.email")}`}
-                className={listLinkClass}
+                className={`${listLinkClass} block w-fit max-w-full break-all`}
               >
                 {t("footer.help.email")}
               </a>
