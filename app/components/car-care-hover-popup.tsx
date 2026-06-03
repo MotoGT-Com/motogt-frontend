@@ -5,14 +5,12 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "~/components/ui/h
 import { useQuery } from "@tanstack/react-query";
 import { getApiProductsPublic } from "~/lib/client";
 import { defaultParams } from "~/lib/api-client";
-import { getCurrentLanguageId, LANGUAGE_IDS } from "~/lib/constants";
+import { getCurrentLanguageId, LANGUAGE_IDS, CAR_CARE_PRODUCT_TYPE_SLUG, isCarCareProductType } from "~/lib/constants";
 import getLocalizedTranslation from "~/lib/get-locale-translation";
 import type { Route } from "../routes/+types/_main";
 import { buildProductPath } from "~/lib/product-url";
 import { useCurrency } from "~/hooks/use-currency";
 import { useTranslation } from "react-i18next";
-
-const CARE_SLUG = "car-care-accessiores";
 
 const SUGGESTION_POOL = 40;
 const SUGGESTED_COUNT = 5;
@@ -31,15 +29,10 @@ function pickRandomDistinct<T>(items: T[], count: number): T[] {
 function resolveCarCareProductType(
   productTypes: NonNullable<Route.ComponentProps["loaderData"]["productTypes"]>
 ) {
-  return productTypes.find(
-    (pt) =>
-      pt.slug === CARE_SLUG ||
-      (pt as { code?: string }).code === "car_care_accessiores" ||
-      (pt as { code?: string }).code === "car-care-accessiores"
-  );
+  return productTypes.find(isCarCareProductType);
 }
 
-const SHOP_PRODUCT_TYPE = "car-care-accessiores" as const;
+const SHOP_PRODUCT_TYPE = CAR_CARE_PRODUCT_TYPE_SLUG;
 
 /**
  * CarCareHoverPopup — matches RecommendedHoverPopup layout (header, view all, rows, loading/empty).

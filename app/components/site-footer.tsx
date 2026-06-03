@@ -63,7 +63,7 @@ export function SiteFooter() {
     },
     {
       key: "cleaningCarCare",
-      to: href("/shop/:productType", { productType: "car-care-accessiores" }),
+      to: href("/shop/:productType", { productType: "car-care" }),
     },
   ];
 

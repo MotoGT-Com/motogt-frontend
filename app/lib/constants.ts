@@ -72,6 +72,24 @@ export function currencyFromGeoCountry(
   return GEO_COUNTRY_TO_CURRENCY[upper] ?? "JOD";
 }
 
+export const CAR_CARE_PRODUCT_TYPE_SLUG = "car-care" as const;
+export const LEGACY_CAR_CARE_PRODUCT_TYPE_SLUG = "car-care-accessiores" as const;
+
+export function isCarCareProductType(pt: {
+  slug?: string | null;
+  code?: string | null;
+}): boolean {
+  const slug = pt.slug?.toLowerCase();
+  const code = pt.code?.toLowerCase().replace(/-/g, "_");
+  return (
+    slug === CAR_CARE_PRODUCT_TYPE_SLUG ||
+    slug === LEGACY_CAR_CARE_PRODUCT_TYPE_SLUG ||
+    code === "car_care" ||
+    code === "car_care_accessiores" ||
+    code === "car_care_accessories"
+  );
+}
+
 export const CURRENCY_TO_FLAG: Record<Currency, string> = {
   JOD: "🇯🇴", // Jordan
   AED: "🇦🇪", // UAE

@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { garageCarsQueryOptions } from "~/lib/queries";
 import { getApiProductsPublic } from "~/lib/client/sdk.gen";
 import { defaultParams } from "~/lib/api-client";
-import { getCurrentLanguageId } from "~/lib/constants";
+import { getCurrentLanguageId, isCarCareProductType } from "~/lib/constants";
 import getLocalizedTranslation from "~/lib/get-locale-translation";
 import { buildProductPath } from "~/lib/product-url";
 import { useCurrency } from "~/hooks/use-currency";
@@ -16,7 +16,6 @@ import { AddNewCarDialog } from "~/components/add-new-car-dialog";
 import type { Route } from "../routes/+types/_main";
 
 const CAR_PREVIEW_LIMIT = 3;
-const CARE_SLUG = "car-care-accessiores";
 const CLEANING_FETCH_LIMIT = 24;
 const CLEANING_PICKS = 2;
 
@@ -42,9 +41,7 @@ export function RecommendedHoverPopup({ children }: { children: React.ReactNode 
 
   const careProductTypeId = useMemo(() => {
     const types = loaderData?.productTypes ?? [];
-    const match = types.find(
-      (pt) => pt.slug === CARE_SLUG || (pt as { code?: string }).code === "car_care_accessiores"
-    );
+    const match = types.find(isCarCareProductType);
     return match?.id ?? null;
   }, [loaderData?.productTypes]);
 

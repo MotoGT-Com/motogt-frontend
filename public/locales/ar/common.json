@@ -23,7 +23,7 @@
     "terms": "الشروط",
     "carParts": "قطع السيارات",
     "motorcycles": "الدراجات النارية",
-    "carCareAccessories": "العناية بالسيارة والإكسسوارات",
+    "carCareAccessories": "العناية بالسيارة",
     "recommendedForYou": "موصى به لك",
     "carPartsHoverTitle": "أشهر القطع",
     "carPartsHoverNoProduct": "لا يوجد منتج متاح",
@@ -220,7 +220,7 @@
       "recommended": "موصى به لك",
       "carParts": "قطع السيارات",
       "motorcycleGear": "معدات الدراجات النارية",
-      "cleaningCarCare": "التنظيف والعناية بالسيارة"
+      "cleaningCarCare": "العناية بالسيارة"
     },
     "policies": {
       "title": "السياسات",

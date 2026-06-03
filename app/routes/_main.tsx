@@ -463,7 +463,7 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
                       {t("nav.motorcycles")}
                     </NavLinkButton>
                     <NavLinkButton
-                      to={href("/shop/:productType", { productType: "car-care-accessiores" })}
+                      to={href("/shop/:productType", { productType: "car-care" })}
                       size="lg"
                       icon={CareNavIcon}
                     >
@@ -618,7 +618,7 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
                 </PopupWithFallback>
                 <PopupWithFallback Popup={CarCareHoverPopup}>
                   <NavLinkButton
-                    to={href("/shop/:productType", { productType: "car-care-accessiores" })}
+                    to={href("/shop/:productType", { productType: "car-care" })}
                     icon={CareNavIcon}
                   >
                     {t("nav.carCareAccessories")}
@@ -694,7 +694,7 @@ function NavLinkButton({
     >
       <NavLink
         to={to}
-        className="[&.active]:bg-primary [&.active]:text-white [&.active>img]:opacity-100"
+        className="[&.active]:bg-primary [&.active]:text-white [&.active>img]:opacity-100 [&.active>svg]:text-white"
         prefetch={prefetch}
         onClick={navLinkOnClick}
       >

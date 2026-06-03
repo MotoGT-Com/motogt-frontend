@@ -1,7 +1,7 @@
 import { PlusIcon, MinusIcon, FilterIcon, Loader2, X, ChevronUp, ChevronDown, } from "lucide-react";
 import { AccordionDropdownButton } from "~/components/accordion-dropdown-button";
 import { Suspense, useEffect, useMemo, useState } from "react";
-import { Await, Link, useSearchParams } from "react-router";
+import { Await, Link, redirect, useSearchParams } from "react-router";
 import { ProductCard, ProductCardSkeleton } from "~/components/product-card";
 import { ProductSearch } from "~/components/product-search";
 import { Button } from "~/components/ui/button";
@@ -14,6 +14,11 @@ import {
   subcategoryCountsQueryOptions,
 } from "~/lib/queries";
 import { defaultParams } from "~/lib/api-client";
+import {
+  CAR_CARE_PRODUCT_TYPE_SLUG,
+  LEGACY_CAR_CARE_PRODUCT_TYPE_SLUG,
+  isCarCareProductType,
+} from "~/lib/constants";
 import { InlineAccordion, InlineAccordionContent, InlineAccordionItem, InlineAccordionTrigger, } from "~/components/ui/inline-accordion";
 import { dehydrate, HydrationBoundary, QueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
@@ -118,6 +123,16 @@ async function getSubcategoryCountsById({
 // Category name mapping for each product type
 export async function loader({ request, params }: Route.LoaderArgs) {
   const productTypeSlug = params.productType;
+
+  if (productTypeSlug === LEGACY_CAR_CARE_PRODUCT_TYPE_SLUG) {
+    const url = new URL(request.url);
+    url.pathname = url.pathname.replace(
+      `/${LEGACY_CAR_CARE_PRODUCT_TYPE_SLUG}`,
+      `/${CAR_CARE_PRODUCT_TYPE_SLUG}`
+    );
+    throw redirect(url.toString(), 301);
+  }
+
   const locale = await getLocaleFromRequest(request);
   const languageId =
     locale === "ar" ? config.languageIds.ar : config.languageIds.en;
@@ -131,12 +146,22 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   
   const productTypes = productTypesResponse.data?.data || [];
   
-  // Find matching product type by slug
-  const productType = productTypes.find(pt => pt.slug === productTypeSlug);
+  // Find matching product type by slug (car-care accepts legacy API slug during migration)
+  const productType =
+    productTypes.find((pt) => pt.slug === productTypeSlug) ??
+    (productTypeSlug === CAR_CARE_PRODUCT_TYPE_SLUG
+      ? productTypes.find(isCarCareProductType)
+      : undefined);
   
   if (!productType) {
     throw new Response("Invalid product type", { status: 404 });
   }
+
+  const resolvedProductTypeSlug =
+    productTypeSlug === CAR_CARE_PRODUCT_TYPE_SLUG ||
+    isCarCareProductType(productType)
+      ? CAR_CARE_PRODUCT_TYPE_SLUG
+      : productTypeSlug;
 
   const searchParams = stripNulls(loadSearchParams(request));
   const queryClient = new QueryClient();
@@ -282,7 +307,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       productTypeId: productType.id,
     },
     productType,
-    productTypeSlug,
+    productTypeSlug: resolvedProductTypeSlug,
     dehydratedState: dehydrate(queryClient),
   };
 }
@@ -333,7 +358,7 @@ export default function ShopByProductType({
     const normalizedType = slugToProductType(loaderData.productTypeSlug ?? "");
     if (normalizedType === "car_parts") return t("productTypes.carParts");
     if (normalizedType === "motorcycles") return t("productTypes.motorcycles");
-    if (normalizedType === "car_care_accessories") {
+    if (normalizedType === "car_care") {
       return t("productTypes.carCareAccessories");
     }
     return productTypeDisplayName(productType, i18n.language);

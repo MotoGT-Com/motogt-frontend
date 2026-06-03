@@ -23,7 +23,7 @@
     "terms": "Terms",
     "carParts": "Car Parts",
     "motorcycles": "Motorcycles",
-    "carCareAccessories": "Car Care & Accessories",
+    "carCareAccessories": "Car Care",
     "recommendedForYou": "Recommended For You",
     "carPartsHoverTitle": "Hottest parts",
     "carPartsHoverNoProduct": "No product available",
@@ -219,7 +219,7 @@
       "recommended": "Recommended for you",
       "carParts": "Car Parts",
       "motorcycleGear": "Motorcycle Gear",
-      "cleaningCarCare": "Cleaning and Car Care"
+      "cleaningCarCare": "Car Care"
     },
     "policies": {
       "title": "Policies",

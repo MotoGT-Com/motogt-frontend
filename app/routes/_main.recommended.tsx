@@ -15,9 +15,9 @@ import { resolveProductSlug } from "~/lib/get-locale-translation";
 import { getGuestGarage } from "~/lib/guest-garage-manager";
 import { Loader2 } from "lucide-react";
 import type { ProductItem } from "~/lib/client/types.gen";
+import { isCarCareProductType } from "~/lib/constants";
 
 const PRODUCTS_LIMIT = 12;
-const CARE_ACCESSORIES_SLUG = "car-care-accessiores";
 
 function productMatchesGarageCars(
   product: { carCompatibility?: Array<{
@@ -93,9 +93,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   const productTypesResponse = await getApiProductTypes();
   const productTypes = productTypesResponse.data?.data ?? [];
-  const careType = productTypes.find(
-    (type) => type.slug === CARE_ACCESSORIES_SLUG
-  );
+  const careType = productTypes.find(isCarCareProductType);
 
   const [carProductsResponses, careProductsResponse] = await Promise.all([
     Promise.all(
@@ -217,7 +215,7 @@ export default function Recommended({ loaderData }: Route.ComponentProps) {
 
       const productTypesResponse = await getApiProductTypes();
       const productTypes = productTypesResponse.data?.data ?? [];
-      const careType = productTypes.find((t) => t.slug === CARE_ACCESSORIES_SLUG);
+      const careType = productTypes.find(isCarCareProductType);
 
       const [carProductsResponses, careProductsResponse] = await Promise.all([
         Promise.all(

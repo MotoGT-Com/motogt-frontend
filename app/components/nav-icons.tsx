@@ -1,13 +1,20 @@
 import * as React from "react";
 import { cn } from "~/lib/utils";
+import {
+  CARE_SPONGE_ACTIVE_COLOR,
+  CARE_SPONGE_BODY_PATH,
+  CARE_SPONGE_BRAND_COLOR,
+  CARE_SPONGE_PORE_PATHS,
+  CARE_SPONGE_SOLID_PATH,
+  CARE_SPONGE_SOLID_VIEWBOX,
+  CARE_SPONGE_VIEWBOX,
+} from "~/lib/care-sponge-icon-paths";
 
 // Local icon paths from public/nav-icons/
 const homeOutlineIcon = "/nav-icons/home-outline.svg";
 const homeSolidIcon = "/nav-icons/home-solid.svg";
 const carPartsOutlineIcon = "/nav-icons/parts-outline.svg";
 const carPartsSolidIcon = "/nav-icons/parts-solid.svg";
-const careOutlineIcon = "/nav-icons/care-outline.svg";
-const careSolidIcon = "/nav-icons/care-solid.svg";
 const ridingGearOutlineIcon = "/nav-icons/gear-outline.svg";
 const ridingGearSolidIcon = "/nav-icons/gear-solid.svg";
 const garageOutlineIcon = "/nav-icons/garage-outline.svg";
@@ -52,13 +59,39 @@ export function CarPartsNavIcon({ isActive, className }: { isActive?: boolean; c
 }
 
 export function CareNavIcon({ isActive, className }: { isActive?: boolean; className?: string }) {
+  const active = !!isActive;
+
   return (
-    <img
-    loading="lazy"
+    <svg
+      width={20}
+      height={20}
+      viewBox={active ? CARE_SPONGE_SOLID_VIEWBOX : CARE_SPONGE_VIEWBOX}
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
       className={cn("size-5 shrink-0", className)}
-      alt="Care & Accessories"
-      src={isActive ? careSolidIcon : careOutlineIcon}
-    />
+      aria-hidden
+      preserveAspectRatio="xMidYMid meet"
+    >
+      {active ? (
+        <path
+          d={CARE_SPONGE_SOLID_PATH}
+          fill={CARE_SPONGE_ACTIVE_COLOR}
+          fillRule="evenodd"
+        />
+      ) : (
+        <>
+          <path d={CARE_SPONGE_BODY_PATH} fill={CARE_SPONGE_BRAND_COLOR} />
+          {CARE_SPONGE_PORE_PATHS.map((d, index) => (
+            <path
+              key={index}
+              d={d}
+              fill={CARE_SPONGE_BRAND_COLOR}
+              fillRule="evenodd"
+            />
+          ))}
+        </>
+      )}
+    </svg>
   );
 }
 

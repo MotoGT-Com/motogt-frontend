@@ -21,6 +21,7 @@ import { ProductSearch } from "~/components/product-search";
 import { SimpleCard } from "~/components/ui/card";
 import { getApiHomeExteriorProducts, getApiHomeInteriorProducts, getApiHomeSubcategories, getApiProductsPublic, getApiProductTypes } from "~/lib/client";
 import { defaultParams } from "~/lib/api-client";
+import { isCarCareProductType, CAR_CARE_PRODUCT_TYPE_SLUG } from "~/lib/constants";
 import { serializeShopURL } from "~/lib/shop-search-params";
 import { accessTokenCookie } from "~/lib/auth-middleware";
 import { Suspense } from "react";
@@ -159,7 +160,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const productTypesResponse = await getApiProductTypes();
   const productTypes = productTypesResponse.data?.data ?? [];
   const motorcyclesType = productTypes.find((type) => type.slug === "motorcycles");
-  const cleaningType = productTypes.find((type) => type.slug === "car-care-accessiores");
+  const cleaningType = productTypes.find(isCarCareProductType);
   const ridingGearProductsResponse = enrichProductsResponseWithEnglishSlug(
     getApiProductsPublic({
       query: {
@@ -307,7 +308,7 @@ const heroBannerSlides = [
   },
   {
     key: "car-care",
-    to: "/shop/car-care-accessiores",
+    to: `/shop/${CAR_CARE_PRODUCT_TYPE_SLUG}`,
     image: (
       <picture>
         <source type="image/webp" srcSet="/hero3-400w.webp 400w, /hero3-800w.webp 800w" sizes="100vw" />
