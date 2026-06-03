@@ -7,7 +7,7 @@ import { useCartManager } from "~/lib/cart-manager";
 import { useFavoritesManager } from "~/lib/favorites-manager";
 import { defaultParams } from "~/lib/api-client";
 import type { Route } from "./+types/_main.product.$slug";
-import { capitalizeWords, formatYearRange, mergeMeta } from "~/lib/utils";
+import { capitalizeWords, cn, formatYearRange, mergeMeta } from "~/lib/utils";
 import { data, href, Link, redirect, useLocation, useRevalidator } from "react-router";
 import { accessTokenCookie } from "~/lib/auth-middleware";
 import { authContext } from "~/context";
@@ -34,6 +34,11 @@ import { CarFront } from "lucide-react";
 import { ProductDetailImage, ProductDetailThumb } from "~/components/product-detail-image";
 import { productImageWithFormatPreference } from "~/lib/product-image";
 import { resolveProductSpecsByLanguage } from "~/lib/product-specs";
+import {
+  comingSoonButtonClassName,
+  getProductAvailability,
+  isPurchasableStock,
+} from "~/lib/product-availability";
 
 const PDP_CACHE_CONTROL =
   "public, s-maxage=120, stale-while-revalidate=86400";
@@ -305,9 +310,14 @@ export const meta: Route.MetaFunction = (args) => {
           price: product.price,
           priceCurrency: "JOD",
           availability:
-            args.loaderData.product.stockQuantity > 0
+            getProductAvailability(args.loaderData.product.stockQuantity) ===
+            "in_stock"
               ? "https://schema.org/InStock"
-              : "https://schema.org/OutOfStock",
+              : getProductAvailability(
+                    args.loaderData.product.stockQuantity
+                  ) === "coming_soon"
+                ? "https://schema.org/PreOrder"
+                : "https://schema.org/OutOfStock",
         },
         url: `https://motogt.com${canonicalProductPath}`,
         brand: {
@@ -393,6 +403,7 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
 
   // Get current stock quantity
   const currentStock = currentVariant?.stockQuantity ?? product.stockQuantity;
+  const availability = getProductAvailability(currentStock);
 
   // Check if product is in favorites (prefer query data, fallback to in_favs)
   const baseIsFavorite =
@@ -466,6 +477,7 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
   };
 
   const updateQuantity = (change: number) => {
+    if (availability !== "in_stock") return;
     setQuantity((prev) => Math.max(1, Math.min(prev + change, currentStock)));
   };
 
@@ -849,7 +861,8 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
                               );
                               const isSelected = currentVariant?.size === size;
                               const isAvailable =
-                                variant && variant?.stockQuantity > 0;
+                                variant &&
+                                isPurchasableStock(variant.stockQuantity);
 
                               return (
                                 <Button
@@ -892,7 +905,8 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
                               const isSelected =
                                 currentVariant?.color === color;
                               const isAvailable =
-                                variant && variant.stockQuantity > 0;
+                                variant &&
+                                isPurchasableStock(variant.stockQuantity);
 
                               return (
                                 <Button
@@ -918,12 +932,19 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
                       )}
 
                       {/* Stock Status */}
-                      {currentStock <= 5 && currentStock > 0 && (
+                      {availability === "coming_soon" && (
+                        <p className="text-sm text-muted-foreground font-medium">
+                          {t("common:status.comingSoon")}
+                        </p>
+                      )}
+                      {availability === "in_stock" &&
+                        currentStock <= 5 &&
+                        currentStock > 0 && (
                         <p className="text-sm text-orange-600">
                           Only {currentStock} left in stock
                         </p>
                       )}
-                      {currentStock === 0 && (
+                      {availability === "out_of_stock" && (
                         <p className="text-sm text-red-600 font-medium">
                           {t("common:status.outOfStock")}
                         </p>
@@ -937,12 +958,19 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
             {!product.variants || product.variants.length === 0 ? (
               <>
                 {/* Stock Status for non-variant products */}
-                {currentStock <= 5 && currentStock > 0 && (
+                {availability === "coming_soon" && (
+                  <p className="text-sm text-muted-foreground font-medium order-7 md:order-5">
+                    {t("common:status.comingSoon")}
+                  </p>
+                )}
+                {availability === "in_stock" &&
+                  currentStock <= 5 &&
+                  currentStock > 0 && (
                   <p className="text-sm text-orange-600 order-7 md:order-5">
                     Only {currentStock} left in stock
                   </p>
                 )}
-                {currentStock === 0 && (
+                {availability === "out_of_stock" && (
                   <p className="text-sm text-red-600 font-medium order-7 md:order-5">
                     {t("common:status.outOfStock")}
                   </p>
@@ -952,25 +980,29 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
 
             {/* Quantity and Actions */}
             <div className="flex items-center justify-between order-1 md:order-6">
-              <div className="flex items-center gap-3">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => updateQuantity(-1)}
-                >
-                  <Minus className="h-4 w-4" />
-                </Button>
-                <span className="font-semibold text-sm text-primary min-w-[20px] text-center">
-                  {quantity}
-                </span>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => updateQuantity(1)}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
+              {availability === "in_stock" ? (
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => updateQuantity(-1)}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <span className="font-semibold text-sm text-primary min-w-[20px] text-center">
+                    {quantity}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => updateQuantity(1)}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div />
+              )}
 
               <FavoritesButton
                 isFavorite={isFavorite ?? false}
@@ -1018,7 +1050,10 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
             <div className="order-3 md:order-8 flex flex-col gap-2">
               {/* Add to Cart Button */}
               <Button
-                className="w-full h-12 font-koulen text-lg"
+                className={cn(
+                  "w-full h-12 font-koulen text-lg",
+                  availability === "coming_soon" && comingSoonButtonClassName
+                )}
                 onClick={() =>
                   addToCartMutation.mutate({
                     productId: product.id,
@@ -1033,7 +1068,7 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
                 }
                 disabled={
                   addToCartMutation.isPending ||
-                  currentStock === 0 ||
+                  availability !== "in_stock" ||
                   (product.variants &&
                     product.variants.length > 0 &&
                     !selectedVariant)
@@ -1044,7 +1079,9 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
                     Adding...
                   </>
-                ) : currentStock === 0 ? (
+                ) : availability === "coming_soon" ? (
+                  t("common:status.comingSoon")
+                ) : availability === "out_of_stock" ? (
                   t("common:status.outOfStock")
                 ) : product.variants &&
                   product.variants.length > 0 &&

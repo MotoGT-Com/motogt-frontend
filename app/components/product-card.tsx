@@ -32,6 +32,10 @@ import { WhatsAppButton } from "./whatsapp-button";
 import { EmptyGarageDialog } from "./empty-garage-dialog";
 import getLocalizedTranslation from "~/lib/get-locale-translation";
 import { buildProductPath } from "~/lib/product-url";
+import {
+  comingSoonButtonClassName,
+  getProductAvailability,
+} from "~/lib/product-availability";
 import { useTranslation } from "react-i18next";
 import { useCurrency } from "~/hooks/use-currency";
 import { useState as useReactState } from "react";
@@ -193,6 +197,7 @@ function ProductCard({
   const location = useLocation();
   const productName = getLocalizedTranslation(product.translations)?.name;
   const productPath = buildProductPath(product);
+  const availability = getProductAvailability(product.stockQuantity);
 
   // Warm both images cache so the hover swap is instant.
   useEffect(() => {
@@ -642,7 +647,7 @@ function ProductCard({
           />
         </div>
         <div className="flex flex-col items-center gap-2">
-          {product.stockQuantity > 0 ? (
+          {availability === "in_stock" ? (
             <Button
               className="w-full z-20 relative font-koulen"
               onClick={() =>
@@ -665,6 +670,16 @@ function ProductCard({
               ) : (
                 t("buttons.addToCart")
               )}
+            </Button>
+          ) : availability === "coming_soon" ? (
+            <Button
+              className={cn(
+                "w-full z-20 relative font-koulen",
+                comingSoonButtonClassName
+              )}
+              disabled
+            >
+              {t("status.comingSoon")}
             </Button>
           ) : (
             <Button

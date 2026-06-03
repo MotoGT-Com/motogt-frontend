@@ -162,6 +162,7 @@
     "cancelled": "Cancelled",
     "inStock": "In Stock",
     "outOfStock": "Out of Stock",
+    "comingSoon": "Coming Soon",
     "active": "Active",
     "inactive": "Inactive"
   },

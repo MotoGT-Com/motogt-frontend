@@ -5,6 +5,11 @@ import { useTranslation } from "react-i18next";
 import { ChevronLeft, ChevronRight, Heart, Loader2 } from "lucide-react";
 import { garageFeaturedProductsQueryOptions } from "~/lib/queries";
 import { buildProductPath } from "~/lib/product-url";
+import { cn } from "~/lib/utils";
+import {
+  comingSoonButtonClassName,
+  getProductAvailability,
+} from "~/lib/product-availability";
 import { getApiProductsPublic } from "~/lib/client";
 import { defaultParams } from "~/lib/api-client";
 import { config } from "~/config";
@@ -65,6 +70,7 @@ function BannerProductCard({ product, name }: { product: ProductItem; name: stri
   const path = buildProductPath(product);
   const isFavorite = favoritesQuery.data?.items.some((item: any) => item.id === product.id) ?? product.in_favs ?? false;
   const image = product.mainImage ?? product.images?.[0] ?? "";
+  const availability = getProductAvailability(product.stockQuantity);
 
   return (
     <div className="relative flex h-[170px] flex-col overflow-hidden rounded-md bg-white shadow-xl md:h-auto w-[200px] md:w-[240px]">
@@ -89,12 +95,23 @@ function BannerProductCard({ product, name }: { product: ProductItem; name: stri
               unitPrice: product.price,
               quantity: 1,
             })}
-            disabled={addToCartMutation.isPending || product.stockQuantity <= 0}
-            className="flex-1 bg-[#CF172F] disabled:opacity-50 text-white text-[10px] font-koulen font-black uppercase tracking-widest py-1.5 md:py-2 rounded-sm hover:bg-[#b01228] transition-colors flex items-center justify-center gap-1"
+            disabled={
+              addToCartMutation.isPending || availability !== "in_stock"
+            }
+            className={cn(
+              "flex-1 text-white text-[10px] font-koulen font-black uppercase tracking-widest py-1.5 md:py-2 rounded-sm transition-colors flex items-center justify-center gap-1",
+              availability === "coming_soon"
+                ? comingSoonButtonClassName
+                : "bg-[#CF172F] disabled:opacity-50 hover:bg-[#b01228]"
+            )}
           >
             {addToCartMutation.isPending
               ? <><Loader2 className="w-3 h-3 animate-spin" /> {t("featuredBanner.addingToCart")}</>
-              : product.stockQuantity <= 0 ? tCommon("status.outOfStock") : tCommon("buttons.addToCart")}
+              : availability === "coming_soon"
+                ? tCommon("status.comingSoon")
+                : availability === "out_of_stock"
+                  ? tCommon("status.outOfStock")
+                  : tCommon("buttons.addToCart")}
           </button>
           <button
             onClick={() => toggleFavoritesMutation.mutate({ ...product, isFavorite: isFavorite ?? false })}
