@@ -12,8 +12,8 @@
  * Navigation Routes:
  * - Home: "/"
  * - Car Parts: "/shop/:productType" with productType="car-parts"
- * - Riding Gear: "/shop/:productType" with productType="riding-gear"
- * - Cleaning & Accessories: "/shop/:productType" with productType="cleaning-and-accessories"
+ * - Spare Parts: "/shop/car-parts?categories=<spare-parts-category-id>"
+ * - Riding Gear: "/shop/:productType" with productType="motorcycles"
  * - Garage: "/my-garage"
  * - Wishlist: "/wishlist"
  * - Cart: "/cart"
@@ -37,7 +37,7 @@ import { useCartManager } from "~/lib/cart-manager";
 import { authContext } from "~/context";
 import { getApiProductTypes } from "~/lib/client";
 import { HeaderToast } from "~/components/header-toast";
-import { HomeNavIcon, CarPartsNavIcon, CareNavIcon, RidingGearNavIcon, GarageNavIcon, WishlistNavIcon, CartNavIcon, ProfileNavIcon, OrdersNavIcon, AddressNavIcon, SupportNavIcon, FeaturedNavIcon, } from "~/components/nav-icons";
+import { HomeNavIcon, CarPartsNavIcon, SparePartsNavIcon, CareNavIcon, RidingGearNavIcon, GarageNavIcon, WishlistNavIcon, CartNavIcon, ProfileNavIcon, OrdersNavIcon, AddressNavIcon, SupportNavIcon, FeaturedNavIcon, } from "~/components/nav-icons";
 import { LogoutButton } from "~/components/logout-button";
 import { GarageNavButton } from "~/components/garage-nav-button";
 import { LanguageSwitcher } from "~/components/language-switcher";
@@ -69,6 +69,10 @@ import { useTranslation } from "react-i18next";
 import { SiteFooter } from "~/components/site-footer";
 import { useAuthModal } from "~/context/AuthModalContext";
 import { ProductSearch } from "~/components/product-search";
+import {
+  CAR_PARTS_PRODUCT_TYPE_SLUG,
+  SPARE_PARTS_CATEGORY_ID,
+} from "~/lib/constants";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function PopupWithFallback({ Popup, children, ...rest }: any) {
@@ -142,6 +146,9 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
   
   const displayCartTotal = convertedCartTotal ?? cartTotalAmount;
   const formatCartAmount = (amount: number) => `${selectedCurrency} ${amount.toFixed(2)}`;
+  const sparePartsShopTo = `${href("/shop/:productType", {
+    productType: CAR_PARTS_PRODUCT_TYPE_SLUG,
+  })}?categories=${SPARE_PARTS_CATEGORY_ID}`;
   
   const location = useLocation();
   const navigation = useNavigation();
@@ -470,6 +477,13 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
                       {t("nav.carCareAccessories")}
                     </NavLinkButton>
                     <NavLinkButton
+                      to={sparePartsShopTo}
+                      size="lg"
+                      icon={SparePartsNavIcon}
+                    >
+                      {t("nav.spareParts")}
+                    </NavLinkButton>
+                    <NavLinkButton
                       to={href("/recommended")}
                       size="lg"
                       icon={FeaturedNavIcon}
@@ -624,6 +638,9 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
                     {t("nav.carCareAccessories")}
                   </NavLinkButton>
                 </PopupWithFallback>
+                <NavLinkButton to={sparePartsShopTo} icon={SparePartsNavIcon}>
+                  {t("nav.spareParts")}
+                </NavLinkButton>
                 <PopupWithFallback Popup={RecommendedHoverPopup}>
                   <NavLinkButton
                     to={href("/recommended")}

@@ -28,6 +28,8 @@ const recommendedOutlineIcon = "/nav-icons/recommended-outline.svg";
 const recommendedSolidIcon = "/nav-icons/recommended-solid.svg";
 const careOutlineIcon = "/nav-icons/care-outline.svg";
 const careSolidIcon = "/nav-icons/care-solid.svg";
+const sparePartsOutlineIcon = "/nav-icons/spare-parts-outline.svg";
+const sparePartsSolidIcon = "/nav-icons/spare-parts-solid.svg";
 
 export function HomeNavIcon({ isActive, className }: { isActive?: boolean; className?: string }) {
   return (
@@ -47,6 +49,17 @@ export function CarPartsNavIcon({ isActive, className }: { isActive?: boolean; c
       className={cn("size-[22px] shrink-0", className)}
       alt="Car Parts"
       src={isActive ? carPartsSolidIcon : carPartsOutlineIcon}
+    />
+  );
+}
+
+export function SparePartsNavIcon({ isActive, className }: { isActive?: boolean; className?: string }) {
+  return (
+    <img
+      loading="lazy"
+      className={cn("size-[22px] shrink-0", className)}
+      alt="Spare Parts"
+      src={isActive ? sparePartsSolidIcon : sparePartsOutlineIcon}
     />
   );
 }
