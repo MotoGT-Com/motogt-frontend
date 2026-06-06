@@ -150,7 +150,7 @@ function BlurUpImage({
  * Features:
  * - Responsive design (mobile and desktop layouts)
  * - Fitment badge showing compatibility with user's garage cars
- * - Image hover effect (shows primary image on hover)
+ * - Image hover effect (shows secondary image on hover when available)
  * - Wishlist toggle functionality
  * - Add to cart functionality
  * - Clickable card that navigates to product details page
@@ -602,11 +602,11 @@ function ProductCard({
       {/* Fixed aspect image — reserves space immediately; shimmer until loaded */}
       <div className="shrink-0 w-full mb-2 md:mb-3">
         <BlurUpImage
-          key={isHovered ? "primary" : "secondary"}
+          key={isHovered ? "secondary" : "primary"}
           src={
             isHovered
-              ? (product.mainImage ?? product.secondaryImage ?? "")
-              : (product.secondaryImage ?? product.mainImage ?? "")
+              ? (product.secondaryImage ?? product.mainImage ?? "")
+              : (product.mainImage ?? product.secondaryImage ?? "")
           }
           alt={productName || "Product Image"}
         />

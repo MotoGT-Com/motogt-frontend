@@ -27,18 +27,18 @@ const namespaces = i18nNamespaces;
 const isBrowser = typeof document !== "undefined";
 
 const loadBundledFallbackResources = () => {
-  const modules = import.meta.glob("../../public/locales/ar/*.json", {
+  const modules = import.meta.glob("../../public/locales/en/*.json", {
     eager: true,
     import: "default",
   }) as Record<string, Record<string, unknown>>;
 
-  const ar: Record<string, Record<string, unknown>> = {};
+  const en: Record<string, Record<string, unknown>> = {};
   for (const [path, data] of Object.entries(modules)) {
-    const ns = path.match(/\/ar\/(.+)\.json$/)?.[1];
-    if (ns) ar[ns] = data;
+    const ns = path.match(/\/en\/(.+)\.json$/)?.[1];
+    if (ns) en[ns] = data;
   }
 
-  return { ar };
+  return { en };
 };
 
 type InitOptions = {
@@ -69,7 +69,7 @@ const loadServerResources = async (language: string) => {
 
 export async function initI18n(options: InitOptions = {}) {
   const { language, loadPath } = options;
-  const initialLanguage = language ?? "ar";
+  const initialLanguage = language ?? "en";
 
   if (!i18n.isInitialized) {
     if (isBrowser) {
@@ -84,7 +84,7 @@ export async function initI18n(options: InitOptions = {}) {
 
     await i18n.init({
       // Default language
-      fallbackLng: "ar",
+      fallbackLng: "en",
       lng: initialLanguage,
       resources,
       partialBundledLanguages: isBrowser,

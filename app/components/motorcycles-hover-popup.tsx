@@ -287,7 +287,7 @@ export function MotorcyclesHoverPopup({ children }: { children: React.ReactNode 
                       <div className="h-[119px] w-full bg-gray-50 overflow-hidden">
                         <img
                           loading="lazy"
-                          src={fp.secondaryImage || featuredProduct.mainImage || ""}
+                          src={featuredProduct.mainImage || fp.secondaryImage || ""}
                           alt={productName}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                         />

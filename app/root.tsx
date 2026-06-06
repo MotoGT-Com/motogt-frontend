@@ -135,7 +135,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     },
   }));
   const loaderData = useLoaderData<typeof loader>();
-  const currentLang = loaderData?.locale ?? "ar";
+  const currentLang = loaderData?.locale ?? "en";
   const dir = currentLang === "ar" ? "rtl" : "ltr";
   const loadNonCriticalScripts = useIdleReady(idleReadyRootNonCriticalScripts);
 
