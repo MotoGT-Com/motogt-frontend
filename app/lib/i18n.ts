@@ -7,7 +7,7 @@ import HttpBackend from "i18next-http-backend";
 // When user logs in: read preferred_language_id from user profile and call i18n.changeLanguage()
 // When user changes language: update both localStorage and user.preferred_language_id via API
 
-const namespaces = [
+export const i18nNamespaces = [
   "common",
   "auth",
   "shop",
@@ -20,9 +20,26 @@ const namespaces = [
   "guest-checkout",
   "guest-order",
   "track-order",
-];
+] as const;
+
+const namespaces = i18nNamespaces;
 
 const isBrowser = typeof document !== "undefined";
+
+const loadBundledFallbackResources = () => {
+  const modules = import.meta.glob("../../public/locales/ar/*.json", {
+    eager: true,
+    import: "default",
+  }) as Record<string, Record<string, unknown>>;
+
+  const ar: Record<string, Record<string, unknown>> = {};
+  for (const [path, data] of Object.entries(modules)) {
+    const ns = path.match(/\/ar\/(.+)\.json$/)?.[1];
+    if (ns) ar[ns] = data;
+  }
+
+  return { ar };
+};
 
 type InitOptions = {
   language?: string;
@@ -61,13 +78,16 @@ export async function initI18n(options: InitOptions = {}) {
     }
     i18n.use(initReactI18next);
 
-    const resources = isBrowser ? undefined : await loadServerResources(initialLanguage);
+    const resources = isBrowser
+      ? loadBundledFallbackResources()
+      : await loadServerResources(initialLanguage);
 
     await i18n.init({
       // Default language
       fallbackLng: "ar",
       lng: initialLanguage,
       resources,
+      partialBundledLanguages: isBrowser,
 
       // Namespaces to load
       ns: namespaces,
