@@ -245,7 +245,7 @@
     "pageTitle": "Spare Parts - Coming Soon - MotoGT",
     "title": "Spare Parts",
     "badge": "Coming Soon",
-    "subtitle": "Genuine spare parts for your vehicle launching soon on MotoGT",
+    "subtitle": "Spare parts for your vehicle launching soon on MotoGT",
     "description": "We're building a dedicated spare parts catalog with OEM-quality components, garage fitment checks, and fast delivery across the region. In the meantime, explore our car accessories and car care collections.",
     "featuresHeading": "What's coming",
     "features": {
@@ -259,7 +259,7 @@
       },
       "catalog": {
         "title": "Wide catalog",
-        "description": "Filters, brakes, belts, fluids, and more — organized by category for easy browsing."
+        "description": "Filters, brakes, belts, fluids, and more, organized by category for easy browsing."
       }
     },
     "browseCarAccessories": "Browse Car Accessories",
