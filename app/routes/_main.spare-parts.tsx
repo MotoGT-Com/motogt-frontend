@@ -72,11 +72,11 @@ export default function SparePartsComingSoon() {
                 {t("sparePartsPage.subtitle")}
               </p>
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-3">
+            <div className="flex w-full flex-col gap-3 md:w-auto md:flex-row md:flex-wrap md:items-center md:justify-center">
               <Button
                 asChild
                 variant="secondary"
-                className="h-11 bg-white font-koulen text-base text-primary hover:bg-white/90"
+                className="h-11 w-full bg-white font-koulen text-base text-primary hover:bg-white/90 md:w-auto"
               >
                 <Link to={href("/shop/:productType", { productType: CAR_PARTS_PRODUCT_TYPE_SLUG })}>
                   {t("sparePartsPage.browseCarAccessories")}
@@ -85,7 +85,7 @@ export default function SparePartsComingSoon() {
               <Button
                 asChild
                 variant="outline"
-                className="h-11 border-white/40 bg-white/10 font-koulen text-base text-white hover:bg-white/20 hover:text-white"
+                className="h-11 w-full border-white/40 bg-white/10 font-koulen text-base text-white hover:bg-white/20 hover:text-white md:w-auto"
               >
                 <Link to={href("/shop/:productType", { productType: CAR_CARE_PRODUCT_TYPE_SLUG })}>
                   {t("sparePartsPage.browseCarCare")}
