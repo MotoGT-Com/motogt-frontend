@@ -54,12 +54,7 @@ export default function SparePartsComingSoon() {
             className="absolute inset-0 bg-gradient-to-t from-black/60 via-primary/75 to-primary/65"
             aria-hidden
           />
-          <div
-            className={cn(
-              "relative z-10 flex flex-col items-center gap-6 px-6 py-14 text-center md:px-10 md:py-20",
-              isRTL && "text-end md:items-end md:text-end"
-            )}
-          >
+          <div className="relative z-10 flex flex-col items-center gap-6 px-6 py-14 text-center md:px-10 md:py-20">
             <span className="inline-flex size-14 items-center justify-center rounded-2xl bg-white/15 ring-1 ring-white/25 backdrop-blur-sm md:size-16">
               <SparePartsNavIcon className="brightness-0 invert size-8 md:size-9" />
             </span>
@@ -77,7 +72,7 @@ export default function SparePartsComingSoon() {
                 {t("sparePartsPage.subtitle")}
               </p>
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-3 md:justify-start">
+            <div className="flex flex-wrap items-center justify-center gap-3">
               <Button
                 asChild
                 variant="secondary"
