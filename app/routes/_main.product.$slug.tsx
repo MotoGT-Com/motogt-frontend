@@ -457,15 +457,17 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
       }
       return imgs;
     }
-    const secondary = product.secondaryImage?.trim();
     const main = product.mainImage?.trim();
+    const secondary = product.secondaryImage?.trim();
     const rest = (product.images ?? []).filter(
       (u): u is string => typeof u === "string" && !!u.trim()
     );
-    if (secondary) {
-      return [secondary, ...(main ? [main] : []), ...rest];
-    }
-    return [...(main ? [main] : []), ...rest];
+    const ordered = [
+      ...(main ? [main] : []),
+      ...(secondary ? [secondary] : []),
+      ...rest,
+    ];
+    return [...new Set(ordered)];
   };
 
   const imageGallery = getImageGallery();
