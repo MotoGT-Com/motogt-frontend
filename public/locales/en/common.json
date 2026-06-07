@@ -241,6 +241,35 @@
       "accept": "We accept"
     }
   },
+  "sparePartsPage": {
+    "pageTitle": "Spare Parts - Coming Soon - MotoGT",
+    "title": "Spare Parts",
+    "badge": "Coming Soon",
+    "subtitle": "Genuine spare parts for your vehicle launching soon on MotoGT.",
+    "description": "We're building a dedicated spare parts catalog with OEM-quality components, garage fitment checks, and fast delivery across the region. In the meantime, explore our car accessories and car care collections.",
+    "featuresHeading": "What's coming",
+    "features": {
+      "fitment": {
+        "title": "Garage fitment",
+        "description": "Add your car to My Garage and see spare parts that match your make, model, and year."
+      },
+      "quality": {
+        "title": "Trusted quality",
+        "description": "Curated OEM and aftermarket spare parts from brands you can rely on."
+      },
+      "catalog": {
+        "title": "Wide catalog",
+        "description": "Filters, brakes, belts, fluids, and more — organized by category for easy browsing."
+      }
+    },
+    "browseCarAccessories": "Browse Car Accessories",
+    "browseCarCare": "Browse Car Care",
+    "contactSupport": "Contact Support",
+    "notify": {
+      "title": "Need a part now?",
+      "description": "Reach out to our team, we can help you find alternatives or notify you when spare parts go live."
+    }
+  },
   "availableCarsPage": {
     "title": "Available Cars",
     "subtitle": "Explore all supported makes and models available for fitment and product matching.",

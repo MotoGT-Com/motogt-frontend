@@ -12,7 +12,7 @@
  * Navigation Routes:
  * - Home: "/"
  * - Car Parts: "/shop/:productType" with productType="car-parts"
- * - Spare Parts: "/shop/car-parts?categories=<spare-parts-category-id>"
+ * - Spare Parts: "/spare-parts" (coming soon)
  * - Riding Gear: "/shop/:productType" with productType="motorcycles"
  * - Garage: "/my-garage"
  * - Wishlist: "/wishlist"
@@ -69,10 +69,6 @@ import { useTranslation } from "react-i18next";
 import { SiteFooter } from "~/components/site-footer";
 import { useAuthModal } from "~/context/AuthModalContext";
 import { ProductSearch } from "~/components/product-search";
-import {
-  CAR_PARTS_PRODUCT_TYPE_SLUG,
-  SPARE_PARTS_CATEGORY_ID,
-} from "~/lib/constants";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function PopupWithFallback({ Popup, children, ...rest }: any) {
@@ -146,9 +142,7 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
   
   const displayCartTotal = convertedCartTotal ?? cartTotalAmount;
   const formatCartAmount = (amount: number) => `${selectedCurrency} ${amount.toFixed(2)}`;
-  const sparePartsShopTo = `${href("/shop/:productType", {
-    productType: CAR_PARTS_PRODUCT_TYPE_SLUG,
-  })}?categories=${SPARE_PARTS_CATEGORY_ID}`;
+  const sparePartsPath = href("/spare-parts");
   
   const location = useLocation();
   const navigation = useNavigation();
@@ -477,7 +471,7 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
                       {t("nav.carCareAccessories")}
                     </NavLinkButton>
                     <NavLinkButton
-                      to={sparePartsShopTo}
+                      to={sparePartsPath}
                       size="lg"
                       icon={SparePartsNavIcon}
                     >
@@ -638,7 +632,7 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
                     {t("nav.carCareAccessories")}
                   </NavLinkButton>
                 </PopupWithFallback>
-                <NavLinkButton to={sparePartsShopTo} icon={SparePartsNavIcon}>
+                <NavLinkButton to={sparePartsPath} icon={SparePartsNavIcon}>
                   {t("nav.spareParts")}
                 </NavLinkButton>
                 <PopupWithFallback Popup={RecommendedHoverPopup}>
