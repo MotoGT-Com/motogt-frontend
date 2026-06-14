@@ -41,6 +41,15 @@ if (!CWEBP) {
   process.exit(1);
 }
 
+/** Hero carousel slides — wide banners need larger variants for sharp display up to 96rem layout */
+const CAROUSEL_VARIANTS = [
+  { width: 640, suffix: "640w" },
+  { width: 1280, suffix: "1280w" },
+  { width: 1920, suffix: "1920w" },
+  { width: 2560, suffix: "2560w" },
+];
+const CAROUSEL_QUALITY = 90;
+
 /** Each entry describes a source image and the responsive variants to generate. */
 const jobs = [
   {
@@ -52,36 +61,38 @@ const jobs = [
     ],
     quality: 82,
   },
-  /** Hero carousel “riding gear” slide source in WebP format */
+  /** Hero carousel “riding gear” slide */
   {
-    src: "hero1.webp",
-    variants: [
-      { width: 400, suffix: "400w" },
-      { width: 800, suffix: "800w" },
-      { width: 1200, suffix: "1200w" },
-    ],
-    quality: 86,
+    src: "hero-MW.png",
+    outBase: "hero1",
+    variants: CAROUSEL_VARIANTS,
+    quality: CAROUSEL_QUALITY,
+  },
+  /** Hero carousel “jetour T2” slide */
+  {
+    src: "hero2.webp",
+    outBase: "hero2",
+    variants: CAROUSEL_VARIANTS,
+    quality: CAROUSEL_QUALITY,
   },
   /** Hero carousel “exterior parts” slide */
   {
     src: "hero5.webp",
-    variants: [
-      { width: 400, suffix: "400w" },
-      { width: 800, suffix: "800w" },
-      { width: 1200, suffix: "1200w" },
-    ],
-    quality: 86,
+    variants: CAROUSEL_VARIANTS,
+    quality: CAROUSEL_QUALITY,
   },
-  /** Hero carousel “garage” slide — wider variants for sharp logos/details on large viewports */
+  /** Hero carousel “cleaning products” slide */
+  {
+    src: "hero5.png",
+    outBase: "hero3",
+    variants: CAROUSEL_VARIANTS,
+    quality: CAROUSEL_QUALITY,
+  },
+  /** Hero carousel “garage” slide */
   {
     src: "hero4.png",
-    variants: [
-      { width: 400, suffix: "400w" },
-      { width: 800, suffix: "800w" },
-      { width: 1200, suffix: "1200w" },
-      { width: 1920, suffix: "1920w" },
-    ],
-    quality: 86,
+    variants: CAROUSEL_VARIANTS,
+    quality: CAROUSEL_QUALITY,
   },
   {
     src: "garage/garage-banner.png",

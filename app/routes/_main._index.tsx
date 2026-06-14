@@ -238,27 +238,50 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 const SLIDE_DURATION = 5000;
 
+const CAROUSEL_BANNER_SIZES =
+  "(min-width: 1536px) 1472px, (min-width: 768px) calc(100vw - 4rem), calc(100vw - 2rem)";
+
+const CAROUSEL_BANNER_WIDTHS = [640, 1280, 1920, 2560] as const;
+
+function carouselSrcSet(base: string) {
+  return CAROUSEL_BANNER_WIDTHS.map((width) => `/${base}-${width}w.webp ${width}w`).join(", ");
+}
+
+function CarouselBannerImage({
+  base,
+  width,
+  height,
+  loading = "lazy",
+}: {
+  base: string;
+  width: number;
+  height: number;
+  loading?: "eager" | "lazy";
+}) {
+  return (
+    <picture>
+      <source
+        type="image/webp"
+        srcSet={carouselSrcSet(base)}
+        sizes={CAROUSEL_BANNER_SIZES}
+      />
+      <img
+        src={`/${base}-1920w.webp`}
+        aria-hidden="true"
+        width={width}
+        height={height}
+        loading={loading}
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+    </picture>
+  );
+}
+
 const heroBannerSlides = [
   {
     key: "riding-gear",
     to: "/shop/motorcycles?categories=3523d127-7fe6-4e8e-b575-8ce20b44a77d",
-    image: (
-      <picture>
-        <source
-          type="image/webp"
-          srcSet="/hero1-400w.webp 400w, /hero1-800w.webp 800w, /hero1-1200w.webp 1200w"
-          sizes="(min-width: 1280px) 1200px, 100vw"
-        />
-        <img
-          src="/hero1-1200w.webp"
-          aria-hidden="true"
-          width={1184}
-          height={317}
-          className="absolute inset-0 w-full h-full object-cover"
-          loading="eager"
-        />
-      </picture>
-    ),
+    image: <CarouselBannerImage base="hero1" width={1920} height={536} loading="eager" />,
     gradient: "bg-gradient-to-r from-black/80 via-black/20 to-transparent",
     textAlign: "items-start text-start",
     badge: null,
@@ -268,12 +291,7 @@ const heroBannerSlides = [
   {
     key: "jetour-t2",
     to: serializeShopURL({ productIds: ["59ef9ee4-4c81-4f3a-9f20-8cb2d50d118c", "c9ec9918-cc19-4552-afc1-f3b1f7ecdfaf"] }),
-    image: (
-      <picture>
-        <source type="image/webp" srcSet="/hero2.webp" />
-        <img src="/hero2.webp" aria-hidden="true" loading="eager" className="absolute inset-0 w-full h-full object-cover" />
-      </picture>
-    ),
+    image: <CarouselBannerImage base="hero2" width={1920} height={629} loading="eager" />,
     gradient: "bg-gradient-to-r from-black/80 via-black/20 to-transparent",
     textAlign: "items-start text-start",
     badge: "home:sections.limitedQuantity" as const,
@@ -283,23 +301,7 @@ const heroBannerSlides = [
   {
     key: "exterior-parts",
     to: "/shop",
-    image: (
-      <picture>
-        <source
-          type="image/webp"
-          srcSet="/hero5-400w.webp 400w, /hero5-800w.webp 800w, /hero5-1200w.webp 1200w"
-          sizes="(min-width: 1280px) 1200px, 100vw"
-        />
-        <img
-          src="/hero5-1200w.webp"
-          aria-hidden="true"
-          width={1047}
-          height={343}
-          loading="lazy"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-      </picture>
-    ),
+    image: <CarouselBannerImage base="hero5" width={1047} height={343} />,
     gradient: "bg-gradient-to-r from-black/80 via-black/20 to-transparent",
     textAlign: "items-start text-start",
     badge: null,
@@ -309,12 +311,7 @@ const heroBannerSlides = [
   {
     key: "car-care",
     to: `/shop/${CAR_CARE_PRODUCT_TYPE_SLUG}`,
-    image: (
-      <picture>
-        <source type="image/webp" srcSet="/hero3-400w.webp 400w, /hero3-800w.webp 800w" sizes="100vw" />
-        <img src="/hero3-800w.webp" aria-hidden="true" loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
-      </picture>
-    ),
+    image: <CarouselBannerImage base="hero3" width={1920} height={477} />,
     gradient: "bg-gradient-to-r from-black/80 via-black/20 to-transparent",
     textAlign: "items-start text-start",
     badge: null,
@@ -324,23 +321,7 @@ const heroBannerSlides = [
   {
     key: "garage",
     to: href("/my-garage"),
-    image: (
-      <picture>
-        <source
-          type="image/webp"
-          srcSet="/hero4-400w.webp 400w, /hero4-800w.webp 800w, /hero4-1200w.webp 1200w, /hero4-1920w.webp 1920w"
-          sizes="(min-width: 1280px) 1200px, 100vw"
-        />
-        <img
-          src="/hero4-1920w.webp"
-          aria-hidden="true"
-          width={2094}
-          height={686}
-          loading="lazy"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-      </picture>
-    ),
+    image: <CarouselBannerImage base="hero4" width={1920} height={629} />,
     gradient: "bg-gradient-to-r from-black/80 via-black/20 to-transparent",
     textAlign: "items-start text-start",
     badge: null,
@@ -456,7 +437,7 @@ function HeroBannerCarousel() {
       >
         {/* Embla viewport */}
         <div
-          className="aspect-[16/9] md:aspect-[1184/317]"
+          className="aspect-[1184/317]"
           ref={emblaRef}
         >
           <div className="flex h-full">
