@@ -39,6 +39,7 @@ import {
   getMotorcycleBrand,
   motorcycleBrandFilterMatches,
 } from "~/lib/motorcycle-brand";
+import { sortProductsByAvailability } from "~/lib/product-availability";
 
 function pickTrimmed(s: string | undefined | null): string {
   if (typeof s !== "string") return "";
@@ -607,12 +608,14 @@ function ProductsGrid({
 
   const productsByBrand = useMemo(() => {
     const selectedBrand = searchParams.brand?.trim();
-    if (!selectedBrand) return allProducts;
+    const products = selectedBrand
+      ? allProducts.filter((product) => {
+          const brand = getMotorcycleBrand(product, i18n.language);
+          return motorcycleBrandFilterMatches(selectedBrand, brand);
+        })
+      : allProducts;
 
-    return allProducts.filter((product) => {
-      const brand = getMotorcycleBrand(product, i18n.language);
-      return motorcycleBrandFilterMatches(selectedBrand, brand);
-    });
+    return sortProductsByAvailability(products);
   }, [allProducts, searchParams.brand, i18n.language]);
 
   useEffect(() => {

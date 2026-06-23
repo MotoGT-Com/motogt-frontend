@@ -33,6 +33,7 @@ import {
   loadShopSearchParams,
   shopSearchParamsSchema,
 } from "~/lib/shop-search-params";
+import { sortProductsByAvailability } from "~/lib/product-availability";
 
 const LIMIT = 30;
 
@@ -547,7 +548,7 @@ function ProductsGrid({
       });
     });
 
-    return Array.from(uniqueProducts.values())
+    return sortProductsByAvailability(Array.from(uniqueProducts.values()))
       .filter((product) =>
         product?.translations?.some(
           (translation: {

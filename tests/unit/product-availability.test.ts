@@ -4,6 +4,7 @@ import {
   getProductAvailability,
   isComingSoonStock,
   isPurchasableStock,
+  sortProductsByAvailability,
 } from "~/lib/product-availability";
 
 describe("product-availability", () => {
@@ -25,5 +26,19 @@ describe("product-availability", () => {
 
   it("does not treat large non-sentinel values as coming soon", () => {
     expect(getProductAvailability(999_999)).toBe("in_stock");
+  });
+
+  it("sorts in-stock and out-of-stock products before coming soon", () => {
+    const products = [
+      { id: "coming", stockQuantity: COMING_SOON_STOCK_QUANTITY },
+      { id: "out", stockQuantity: 0 },
+      { id: "in", stockQuantity: 4 },
+    ];
+
+    expect(sortProductsByAvailability(products).map((product) => product.id)).toEqual([
+      "in",
+      "out",
+      "coming",
+    ]);
   });
 });

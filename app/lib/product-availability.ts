@@ -22,3 +22,28 @@ export function getProductAvailability(
 export function isPurchasableStock(stockQuantity: number): boolean {
   return getProductAvailability(stockQuantity) === "in_stock";
 }
+
+/** Lower values sort earlier: in stock → out of stock → coming soon. */
+export function getAvailabilitySortRank(stockQuantity: number): number {
+  switch (getProductAvailability(stockQuantity)) {
+    case "in_stock":
+      return 0;
+    case "out_of_stock":
+      return 1;
+    case "coming_soon":
+      return 2;
+  }
+}
+
+export function compareProductsByAvailability(
+  a: { stockQuantity: number },
+  b: { stockQuantity: number }
+): number {
+  return getAvailabilitySortRank(a.stockQuantity) - getAvailabilitySortRank(b.stockQuantity);
+}
+
+export function sortProductsByAvailability<T extends { stockQuantity: number }>(
+  products: T[]
+): T[] {
+  return [...products].sort(compareProductsByAvailability);
+}
