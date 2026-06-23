@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "~/components/ui/button";
 import { ProductCard } from "~/components/product-card";
-import { Minus, Plus, ChevronLeft, ChevronRight, Loader2, CheckIcon, XIcon } from "lucide-react";
+import { Minus, Plus, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { getApiProductsPublic, getApiProductsPublicByProductId, getApiProductsPublicSlugBySlug, getApiProductTypes, } from "~/lib/client";
 import { useCartManager } from "~/lib/cart-manager";
 import { useFavoritesManager } from "~/lib/favorites-manager";
@@ -14,11 +14,10 @@ import { authContext } from "~/context";
 import { Faq } from "~/components/faq";
 import { serializeShopURL } from "~/lib/shop-search-params";
 import type { ProductItem } from "~/lib/client";
-import { garageCarsQueryOptions } from "~/lib/queries";
-import { useQuery } from "@tanstack/react-query";
-import { FitmentBadge } from "~/components/fitment-badge";
-import { GaragePopupTrigger } from "~/components/garage-popup-trigger";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "~/components/ui/hover-card";
+import {
+  ProductFitmentBadge,
+} from "~/components/product-fitment-badge";
+import { ProductCompatibleGarageBars } from "~/components/product-compatible-garage-bars";
 import { FavoritesButton } from "~/components/favorites-button";
 import { useTranslation } from "react-i18next";
 import getLocalizedTranslation from "~/lib/get-locale-translation";
@@ -29,9 +28,6 @@ import { getLocaleFromRequest } from "~/lib/i18n-cookie";
 import { config } from "~/config";
 import { buildProductPath, buildProductSlugSegment, extractProductIdFromSlugSegment } from "~/lib/product-url";
 import { useCurrency } from "~/hooks/use-currency";
-import { AddNewCarDialog } from "~/components/add-new-car-dialog";
-import { useGuestGarageCars } from "~/hooks/use-guest-garage-cars";
-import { CarFront } from "lucide-react";
 import { ProductDetailImage, ProductDetailThumb } from "~/components/product-detail-image";
 import { productImageWithFormatPreference } from "~/lib/product-image";
 import { resolveProductSpecsByLanguage } from "~/lib/product-specs";
@@ -484,170 +480,6 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
     setQuantity((prev) => Math.max(1, Math.min(prev + change, currentStock)));
   };
 
-  // Fetch all cars from the user's garage
-  const garageCarsQuery = useQuery({
-    ...garageCarsQueryOptions,
-    enabled: loaderData?.isAuthenticated,
-  });
-
-  const userCars = garageCarsQuery.data?.userCars ?? [];
-
-  const guestCars = useGuestGarageCars(!isAuthenticated);
-
-  // Unique compatible cars (deduplicated by brand+model) that are NOT in the garage
-  const unaddedCompatibleCars = (() => {
-    if (!product.carCompatibility || product.carCompatibility.length === 0) return [];
-    const allGarageCars = isAuthenticated
-      ? userCars.map((c) => `${c.carDetails.brand}|||${c.carDetails.model}`)
-      : guestCars.map((c) => `${c.carDetails.brand}|||${c.carDetails.model}`);
-
-    const seen = new Set<string>();
-    const result: { brand: string; model: string; carId: string }[] = [];
-    for (const compat of product.carCompatibility) {
-      const key = `${compat.carBrand}|||${compat.carModel}`;
-      if (!seen.has(key) && !allGarageCars.includes(key)) {
-        seen.add(key);
-        result.push({ brand: compat.carBrand, model: compat.carModel, carId: compat.carId });
-      }
-    }
-    return result;
-  })();
-
-  const [addGarageDialogCar, setAddGarageDialogCar] = useState<{ make: string; model: string } | null>(null);
-
-  const fitmentBadge = (product: ProductItem) => {
-    if (!loaderData || !product.carCompatibility || product.carCompatibility.length === 0) return null;
-
-    if (userCars.length === 0) {
-      return (
-        <HoverCard openDelay={300}>
-          <HoverCardTrigger asChild>
-            <div className="cursor-pointer">
-              <FitmentBadge variant="add-car" text="Add Car To Fit Check" />
-            </div>
-          </HoverCardTrigger>
-          <HoverCardContent className="w-[280px] z-[60] p-0" side="top">
-            <div className="bg-[#F2F2F2] rounded-[2px] border border-[#E6E6E6] overflow-hidden" style={{ boxShadow: '0 4px 10px 0 rgba(0, 0, 0, 0.10)' }}>
-              <div className="px-4 pt-4 pb-3">
-                <h4 className="text-sm font-semibold text-black leading-[1.5] mb-2">
-                  Add Your Car to Garage
-                </h4>
-                <p className="text-xs font-medium text-[rgba(0,0,0,0.7)] leading-[1.5]">
-                  Add your car to see which products fit your vehicle automatically.
-                </p>
-              </div>
-              <div className="px-4 pb-4">
-                <GaragePopupTrigger className="text-xs font-medium text-[#908B9B] hover:text-[#000000] transition-colors underline">
-                  Go to My Garage →
-                </GaragePopupTrigger>
-              </div>
-            </div>
-          </HoverCardContent>
-        </HoverCard>
-      );
-    }
-
-    // Check which cars from the garage are compatible with this product
-    const compatibleCars = userCars.filter((userCar) => {
-      return product.carCompatibility?.some((car) => {
-        const matchesCar =
-          `${car.carBrand} ${car.carModel}` ===
-          `${userCar.carDetails.brand} ${userCar.carDetails.model}`;
-
-        // Check year range compatibility if year is available
-        if (matchesCar && userCar.carDetails.yearFrom) {
-          const yearFrom = car.carYearFrom ?? 0;
-          const yearTo = car.carYearTo;
-          return (
-            yearFrom <= userCar.carDetails.yearFrom &&
-            (yearTo === null || yearTo >= userCar.carDetails.yearFrom)
-          );
-        }
-
-        return matchesCar; // Fallback if no year specified
-      });
-    });
-
-    const hasCompatibleCars = compatibleCars.length > 0;
-
-    return (
-      <HoverCard openDelay={200}>
-        <HoverCardTrigger asChild>
-          <div className="cursor-pointer">
-            <FitmentBadge
-              variant={hasCompatibleCars ? "fit" : "no-fit"}
-              text={hasCompatibleCars ? "Fits Your Car" : "Doesn't Fit Your Cars"}
-              clickable={false}
-            />
-          </div>
-        </HoverCardTrigger>
-        <HoverCardContent className="w-[320px] z-[60] p-0" side="top">
-          <div className="bg-[#F2F2F2] rounded-[2px] border border-[#E6E6E6] overflow-hidden" style={{ boxShadow: '0 4px 10px 0 rgba(0, 0, 0, 0.10)' }}>
-            {/* Header */}
-            <div className="px-4 pt-4 pb-3 border-b border-[#E6E6E6]">
-              <h4 className="text-sm font-semibold text-black leading-[1.5]">
-                Fitment for Your Garage:
-              </h4>
-            </div>
-            
-            {/* Car List */}
-            <div className="divide-y divide-[#E6E6E6]">
-              {userCars.map((userCar) => {
-                const isCompatibleCar = compatibleCars.some(
-                  (c) => c.id === userCar.id
-                );
-                return (
-                  <div
-                    key={`userCar-${userCar.id}`}
-                    className="px-4 py-3 hover:bg-[#E6E6E6] transition-colors"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      {/* Car Info */}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-black uppercase tracking-wide leading-[1.4] mb-0.5">
-                          {userCar.carDetails.brand} {userCar.carDetails.model}
-                        </p>
-                        {userCar.carDetails.yearFrom && (
-                          <p className="text-xs font-medium text-[rgba(0,0,0,0.5)] leading-[1.4]">
-                            {userCar.carDetails.yearFrom}
-                            {userCar.carDetails.yearTo &&
-                            userCar.carDetails.yearTo !==
-                              userCar.carDetails.yearFrom
-                              ? ` - ${userCar.carDetails.yearTo}`
-                              : ""}
-                          </p>
-                        )}
-                      </div>
-                      
-                      {/* Fitment Status */}
-                      <div className="flex-shrink-0">
-                        {isCompatibleCar ? (
-                          <div className="flex items-center gap-1.5">
-                            <CheckIcon className="size-4 text-[#1d9200] flex-shrink-0" />
-                            <span className="text-xs font-medium text-[#1d9200] whitespace-nowrap">
-                              Fits
-                            </span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1.5">
-                            <XIcon className="size-4 text-[#cf172f] flex-shrink-0" />
-                            <span className="text-xs font-medium text-[#cf172f] whitespace-nowrap">
-                              Doesn't Fit
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </HoverCardContent>
-      </HoverCard>
-    );
-  };
-
   return (
     <>
       <div className="bg-white pb-8">
@@ -746,7 +578,7 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
             <div className="space-y-4 order-5 md:order-1">
               <div className="flex items-center justify-between gap-2">
                 <h2 className="text-lg font-bold">{t("product:details.description")}</h2>
-                {fitmentBadge(product)}
+                <ProductFitmentBadge product={product} />
               </div>
               <p className="text-sm font-medium text-gray-700 leading-relaxed">
                 {getLocalizedTranslation(product.translations)?.description ||
@@ -789,30 +621,13 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
             <hr className="border-gray-300 order-6 md:order-4" />
 
             {/* Add Compatible Car to Garage */}
-            {unaddedCompatibleCars.length > 0 && (
-              <div className="order-6 md:order-4b space-y-2">
-                {unaddedCompatibleCars.map((car) => (
-                  <div
-                    key={`${car.brand}-${car.model}`}
-                    className="flex items-center gap-3 rounded-[4px] border border-[#e6e6e6] bg-[#f9f9f9] px-3 py-2.5"
-                  >
-                    <CarFront className="size-4 text-black/30 shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs text-black/50 leading-snug">
-                        Fits <span className="font-medium text-black/70">{car.brand} {car.model}</span> 
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setAddGarageDialogCar({ make: car.brand, model: car.model })}
-                      className="shrink-0 text-xs font-medium text-black/50 hover:text-black transition-colors duration-150 cursor-pointer whitespace-nowrap underline underline-offset-2"
-                    >
-                      Add to Garage
-                    </button>
-                  </div>
-                ))}
+            {product.carCompatibility && product.carCompatibility.length > 0 ? (
+              <div className="order-6 md:order-4b">
+                <ProductCompatibleGarageBars
+                  carCompatibility={product.carCompatibility}
+                />
               </div>
-            )}
+            ) : null}
 
             {/* Variant Selection */}
             {product.variants && product.variants.length > 0 && (
@@ -1133,18 +948,6 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
         </div>
       </div>
 
-      {/* Controlled Add-to-Garage dialog triggered from compatible cars */}
-      {addGarageDialogCar && (
-        <AddNewCarDialog
-          open={!!addGarageDialogCar}
-          onOpenChange={(open) => { if (!open) setAddGarageDialogCar(null); }}
-          prefilledCar={addGarageDialogCar}
-          lockPrefilledFields
-          onSuccess={() => {
-            setAddGarageDialogCar(null);
-          }}
-        />
-      )}
     </>
   );
 }

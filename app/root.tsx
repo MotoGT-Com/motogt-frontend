@@ -13,6 +13,7 @@ import { config } from "./config";
 import { getLocaleWithCookie } from "./lib/i18n-cookie";
 import { AuthModalProvider } from "./context/AuthModalContext";
 import { GaragePopupProvider } from "./context/GaragePopupContext";
+import { ProductQuickViewProvider } from "./context/ProductQuickViewContext";
 import { useIdleReady, idleReadyRootNonCriticalScripts } from "~/hooks/use-idle-ready";
 import { CurrencyProvider } from "~/hooks/use-currency";
 
@@ -204,12 +205,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           <QueryClientProvider client={queryClient}>
             <CurrencyProvider>
               <GaragePopupProvider>
-                <AuthModalProvider>
-                  {children}
-                  <Suspense fallback={null}>
-                    <AuthModal />
-                  </Suspense>
-                </AuthModalProvider>
+                <ProductQuickViewProvider>
+                  <AuthModalProvider>
+                    {children}
+                    <Suspense fallback={null}>
+                      <AuthModal />
+                    </Suspense>
+                  </AuthModalProvider>
+                </ProductQuickViewProvider>
               </GaragePopupProvider>
             </CurrencyProvider>
           </QueryClientProvider>

@@ -21,6 +21,7 @@ import { useDebounce } from "use-debounce";
 import { useTranslation } from "react-i18next";
 import getLocalizedTranslation from "~/lib/get-locale-translation";
 import { buildProductPath } from "~/lib/product-url";
+import { useProductQuickView } from "~/context/ProductQuickViewContext";
 import { cn } from "~/lib/utils";
 
 const anyValue = "any";
@@ -125,6 +126,7 @@ function ProductSearch({
 }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { openProductQuickView } = useProductQuickView();
   const { t, i18n } = useTranslation("shop");
   const isRTL = i18n.language === "ar";
 
@@ -516,7 +518,6 @@ function ProductSearch({
                       {t("search.results")} ({searchProductsQuery.data.length})
                     </div>
                     {searchProductsQuery.data.map((product) => {
-                      const productPath = buildProductPath(product);
                       const productName =
                         getLocalizedTranslation(product.translations)?.name ||
                         t("search.unnamedProduct");
@@ -544,23 +545,18 @@ function ProductSearch({
                         </>
                       );
 
-                      return productPath ? (
-                        <Link
+                      return (
+                        <button
                           key={product.id}
-                          to={productPath}
-                          className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md transition-colors"
-                          onClick={() => setShowDropdown(false)}
+                          type="button"
+                          className="flex w-full items-center gap-3 rounded-md p-2 text-start transition-colors hover:bg-gray-50"
+                          onClick={() => {
+                            setShowDropdown(false);
+                            openProductQuickView(String(product.id));
+                          }}
                         >
                           {content}
-                        </Link>
-                      ) : (
-                        <div
-                          key={product.id}
-                          className="flex items-center gap-3 p-2 rounded-md opacity-60 cursor-not-allowed"
-                          aria-disabled="true"
-                        >
-                          {content}
-                        </div>
+                        </button>
                       );
                     })}
                     <div className="border-t border-gray-100 mt-2 pt-2">

@@ -24,6 +24,7 @@ import {
   postApiUsersMeGarageCars,
   patchApiUsersMeGarageCarsByUserCarId,
   getApiProductsPublic,
+  getApiProductsPublicByProductId,
   getApiHomeSubcategories,
   postApiPaymentsInitiate,
   getApiPaymentsStatusByOrderId,
@@ -61,6 +62,25 @@ export const productTypesQueryOptions = queryOptions({
     return response.data.data;
   },
 });
+
+export function productByIdQueryOptions(productId: string | null) {
+  const languageId = getCurrentLanguageId();
+  return queryOptions({
+    queryKey: ["product", "quick-view", productId, languageId],
+    queryFn: async () => {
+      const response = await getApiProductsPublicByProductId({
+        path: { productId: productId! },
+        query: { languageId },
+      });
+      if (response.error) {
+        throw new Error(response.error.error?.message || "Product not found");
+      }
+      return response.data.data;
+    },
+    enabled: !!productId,
+    staleTime: 60_000,
+  });
+}
 
 export type ProductsByTypeSearchParams = {
   search?: string | null;

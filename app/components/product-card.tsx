@@ -29,6 +29,7 @@ import { useGuestGarageCars } from "~/hooks/use-guest-garage-cars";
 import { FitmentBadge } from "./fitment-badge";
 import { FavoritesButton } from "./favorites-button";
 import { GaragePopupTrigger } from "./garage-popup-trigger";
+import { useProductQuickView } from "~/context/ProductQuickViewContext";
 import { WhatsAppButton } from "./whatsapp-button";
 import getLocalizedTranslation from "~/lib/get-locale-translation";
 import { buildProductPath } from "~/lib/product-url";
@@ -196,6 +197,7 @@ function ProductCard({
   const location = useLocation();
   const productName = getLocalizedTranslation(product.translations)?.name;
   const productPath = buildProductPath(product);
+  const { openProductQuickView } = useProductQuickView();
   const availability = getProductAvailability(product.stockQuantity);
 
   // Warm both images cache so the hover swap is instant.
@@ -573,16 +575,17 @@ function ProductCard({
     >
       {/* Clickable overlay that turns the whole card into a link, while
           allowing inner buttons (wishlist / add-to-cart) to stay interactive. */}
-      {productPath ? (
-        <Link
-          to={productPath}
-          state={{ id }}
-          prefetch="viewport"
-          className="absolute right-0 bottom-0 z-10 h-full w-full"
-          onClick={handleStorageSession}
+      {product.id ? (
+        <button
+          type="button"
+          className="absolute right-0 bottom-0 z-10 h-full w-full cursor-pointer border-0 bg-transparent p-0 text-left"
+          onClick={() => {
+            handleStorageSession();
+            openProductQuickView(String(product.id));
+          }}
         >
           <span className="sr-only">{productName || "Product"}</span>
-        </Link>
+        </button>
       ) : null}
 
       {/* Header row: compatible car label + fit-check CTA / status */}

@@ -380,7 +380,10 @@ export default function AvailableCars({ loaderData }: Route.ComponentProps) {
                       onClick={() => {
                         if (!isAuthenticated) {
                           openAuthModal("register", {
-                            intent: { type: "garage" },
+                            intent: {
+                              type: "garage",
+                              returnTo: href("/my-garage"),
+                            },
                           });
                           return;
                         }

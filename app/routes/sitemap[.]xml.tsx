@@ -5,6 +5,7 @@ export async function loader() {
   const staticPages = [
     { url: "", priority: "1.0", changefreq: "daily" },
     { url: "/available-cars", priority: "0.9", changefreq: "weekly" },
+    { url: "/my-garage", priority: "0.8", changefreq: "weekly" },
     { url: "/cart", priority: "0.7", changefreq: "daily" },
     { url: "/privacy", priority: "0.5", changefreq: "monthly" },
   ];

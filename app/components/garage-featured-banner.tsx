@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { ChevronLeft, ChevronRight, Heart, Loader2 } from "lucide-react";
 import { garageFeaturedProductsQueryOptions } from "~/lib/queries";
 import { buildProductPath } from "~/lib/product-url";
+import { useProductQuickView } from "~/context/ProductQuickViewContext";
 import { cn } from "~/lib/utils";
 import {
   comingSoonButtonClassName,
@@ -67,7 +68,7 @@ function BannerProductCard({ product, name }: { product: ProductItem; name: stri
   const loaderData = useRouteLoaderData<Route.ComponentProps["loaderData"]>("routes/_main");
   const { addToCartMutation } = useCartManager(loaderData?.isAuthenticated);
   const { toggleFavoritesMutation, favoritesQuery } = useFavoritesManager(loaderData?.isAuthenticated);
-  const path = buildProductPath(product);
+  const { openProductQuickView } = useProductQuickView();
   const isFavorite = favoritesQuery.data?.items.some((item: any) => item.id === product.id) ?? product.in_favs ?? false;
   const image = product.mainImage ?? product.images?.[0] ?? "";
   const availability = getProductAvailability(product.stockQuantity);
@@ -75,7 +76,12 @@ function BannerProductCard({ product, name }: { product: ProductItem; name: stri
   return (
     <div className="relative flex h-[170px] flex-col overflow-hidden rounded-md bg-white shadow-xl md:h-auto w-[200px] md:w-[240px]">
       {/* Clickable overlay covering the whole card */}
-      <Link to={path} className="absolute inset-0 z-10" aria-label={name} />
+      <button
+        type="button"
+        className="absolute inset-0 z-10 cursor-pointer border-0 bg-transparent p-0"
+        aria-label={name}
+        onClick={() => openProductQuickView(String(product.id))}
+      />
 
       {/* Image — flex-1 fills space above actions on mobile (170px total card); fixed height on md+ */}
       <div className="flex min-h-0 flex-1 items-center justify-center bg-white px-2 pt-2 md:h-[180px] md:flex-none md:px-3 md:pt-3">
