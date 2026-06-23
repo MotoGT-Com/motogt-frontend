@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { useNavigate } from "react-router";
+import { useGaragePopup } from "./GaragePopupContext";
 
 export type AuthModalView = "register" | "login" | "forgotPassword" | "verifyOTP";
 
@@ -50,6 +51,7 @@ const AuthModalContext = createContext<AuthModalContextValue | null>(null);
 
 export function AuthModalProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
+  const { openGaragePopup } = useGaragePopup();
   const [isOpen, setIsOpen] = useState(false);
   const [view, setView] = useState<AuthModalView>("register");
   const [intent, setIntent] = useState<AuthIntent | undefined>(undefined);
@@ -96,14 +98,26 @@ export function AuthModalProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const completeAuthAndContinue = useCallback(() => {
-    const destination = intent?.returnTo ?? (intent?.type === "garage" ? "/my-garage" : intent?.type === "checkout" ? "/checkout" : "/");
+    const isGarageIntent = intent?.type === "garage";
+
+    if (isGarageIntent) {
+      setIsOpen(false);
+      setView("register");
+      setIntent(undefined);
+      clearEphemeralState();
+      openGaragePopup();
+      return;
+    }
+
+    const destination =
+      intent?.returnTo ?? (intent?.type === "checkout" ? "/checkout" : "/");
 
     setIsOpen(false);
     setView("register");
     setIntent(undefined);
     clearEphemeralState();
     navigate(destination);
-  }, [clearEphemeralState, intent, navigate]);
+  }, [clearEphemeralState, intent, navigate, openGaragePopup]);
 
   const value = useMemo<AuthModalContextValue>(
     () => ({

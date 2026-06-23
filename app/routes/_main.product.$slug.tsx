@@ -17,6 +17,7 @@ import type { ProductItem } from "~/lib/client";
 import { garageCarsQueryOptions } from "~/lib/queries";
 import { useQuery } from "@tanstack/react-query";
 import { FitmentBadge } from "~/components/fitment-badge";
+import { GaragePopupTrigger } from "~/components/garage-popup-trigger";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "~/components/ui/hover-card";
 import { FavoritesButton } from "~/components/favorites-button";
 import { useTranslation } from "react-i18next";
@@ -536,12 +537,9 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
                 </p>
               </div>
               <div className="px-4 pb-4">
-                <Link
-                  to="/my-garage"
-                  className="text-xs font-medium text-[#908B9B] hover:text-[#000000] transition-colors underline"
-                >
+                <GaragePopupTrigger className="text-xs font-medium text-[#908B9B] hover:text-[#000000] transition-colors underline">
                   Go to My Garage →
-                </Link>
+                </GaragePopupTrigger>
               </div>
             </div>
           </HoverCardContent>

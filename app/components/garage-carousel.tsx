@@ -7,6 +7,7 @@ import type { UserCarResponse } from "~/lib/client/types.gen";
 import { useQuery } from "@tanstack/react-query";
 import { garageCarsQueryOptions } from "~/lib/queries";
 import { Link } from "react-router";
+import { GaragePopupTrigger } from "~/components/garage-popup-trigger";
 import { serializeShopURL } from "~/lib/shop-search-params";
 import { useTranslation } from "react-i18next";
 import { useGuestGarageCars } from "~/hooks/use-guest-garage-cars";
@@ -249,9 +250,9 @@ export function HomeCarousel({ isAuthenticated }: { isAuthenticated: boolean }) 
         userCars={userCars}
       />
       <div className="flex justify-center mt-6">
-        <Link to="/my-garage" className="text-sm font-semibold text-primary hover:underline">
+        <GaragePopupTrigger className="text-sm font-semibold text-primary hover:underline">
           {t("homeCarousel.viewGarage")}
-        </Link>
+        </GaragePopupTrigger>
       </div>
     </div>
   );

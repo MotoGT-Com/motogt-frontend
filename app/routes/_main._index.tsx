@@ -23,6 +23,7 @@ import { getApiHomeExteriorProducts, getApiHomeInteriorProducts, getApiHomeSubca
 import { defaultParams } from "~/lib/api-client";
 import { isCarCareProductType, CAR_CARE_PRODUCT_TYPE_SLUG } from "~/lib/constants";
 import { serializeShopURL } from "~/lib/shop-search-params";
+import { useGaragePopup } from "~/context/GaragePopupContext";
 import { accessTokenCookie } from "~/lib/auth-middleware";
 import { Suspense } from "react";
 import { useIdleReady, idleReadyHomeDeferredSections } from "~/hooks/use-idle-ready";
@@ -320,7 +321,7 @@ const heroBannerSlides = [
   },
   {
     key: "garage",
-    to: href("/my-garage"),
+    opensGaragePopup: true,
     image: <CarouselBannerImage base="hero4" width={1920} height={629} />,
     gradient: "bg-gradient-to-r from-black/80 via-black/20 to-transparent",
     textAlign: "items-start text-start",
@@ -332,6 +333,7 @@ const heroBannerSlides = [
 
 function HeroBannerCarousel() {
   const { t } = useTranslation(["home", "common"]);
+  const { openGaragePopup } = useGaragePopup();
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [Fade()]);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -441,20 +443,17 @@ function HeroBannerCarousel() {
           ref={emblaRef}
         >
           <div className="flex h-full">
-            {heroBannerSlides.map((slide) => (
-              <div key={slide.key} className="flex-[0_0_100%] min-w-0 relative h-full">
-                <Link to={slide.to} prefetch="render" draggable={false} className="group block h-full">
-                  {/* Background image — zooms on hover */}
+            {heroBannerSlides.map((slide) => {
+              const slideContent = (
+                <>
                   <div className="absolute inset-0 overflow-hidden">
                     <div className="w-full h-full transition-transform duration-700 ease-out group-hover:scale-105">
                       {slide.image}
                     </div>
                   </div>
 
-                  {/* Gradient overlay — deepens on hover */}
                   <div className={`absolute inset-0 ${slide.gradient} transition-opacity duration-500 group-hover:opacity-90`} />
 
-                  {/* Text — top-left, lifts on hover */}
                   <div className={`absolute top-4 left-5 md:top-8 md:left-10 z-10 text-white flex flex-col ${slide.textAlign} gap-1 transition-transform duration-500 ease-out group-hover:-translate-y-1`}>
                     {slide.badge && (
                       <span className="font-koulen bg-primary text-white text-xs md:text-sm px-2.5 py-0.5 rounded w-fit mb-1">
@@ -468,9 +467,28 @@ function HeroBannerCarousel() {
                       {t(slide.titleKey)}
                     </h3>
                   </div>
+                </>
+              );
+
+              return (
+              <div key={slide.key} className="flex-[0_0_100%] min-w-0 relative h-full">
+                {"opensGaragePopup" in slide && slide.opensGaragePopup ? (
+                  <button
+                    type="button"
+                    onClick={() => openGaragePopup()}
+                    draggable={false}
+                    className="group block h-full w-full cursor-pointer text-left"
+                  >
+                    {slideContent}
+                  </button>
+                ) : "to" in slide ? (
+                <Link to={slide.to} prefetch="render" draggable={false} className="group block h-full">
+                  {slideContent}
                 </Link>
+                ) : null}
               </div>
-            ))}
+            );
+            })}
           </div>
         </div>
 

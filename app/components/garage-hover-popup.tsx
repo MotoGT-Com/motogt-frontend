@@ -27,7 +27,6 @@ export function GarageHoverPopupContent({
   const hasCars = userCars.length > 0;
   const strings = {
     title: isRTL ? "كراجك" : "My Garage",
-    viewGarage: isRTL ? "عرض كراجك" : "View My Garage",
     viewParts: isRTL ? "عرض القطع" : "View parts",
     noCars: isRTL ? "لا توجد سيارات" : "No cars",
     emptyTitle: isRTL
@@ -46,22 +45,13 @@ export function GarageHoverPopupContent({
       className={cn("w-[480px] max-w-[95vw]", className)}
       dir={isRTL ? "rtl" : "ltr"}
     >
-      <div className="flex items-start justify-between gap-4 mb-4">
-        <div>
-          <h3 className="text-sm font-semibold text-black">
-            {strings.title}
-          </h3>
-          <p className="text-sm text-black/50">
-            {hasCars ? strings.carCount(userCars.length) : strings.noCars}
-          </p>
-        </div>
-        <Link
-          to={href("/my-garage")}
-          onClick={() => onNavigateAway?.()}
-          className="text-sm text-black/50 hover:text-black underline"
-        >
-          {strings.viewGarage}
-        </Link>
+      <div className="mb-4">
+        <h3 className="text-sm font-semibold text-black">
+          {strings.title}
+        </h3>
+        <p className="text-sm text-black/50">
+          {hasCars ? strings.carCount(userCars.length) : strings.noCars}
+        </p>
       </div>
 
       {isLoading ? (

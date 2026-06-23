@@ -2,13 +2,13 @@ import { href, Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { ReactNode } from "react";
 import { Button } from "~/components/ui/button";
+import { GaragePopupTrigger } from "~/components/garage-popup-trigger";
 import { buildWhatsAppUrl } from "~/lib/whatsapp";
 import { config } from "~/config";
 
-type FooterLinkItem = {
-  key: string;
-  to: string;
-};
+type FooterNavLink = { key: string; to: string };
+type FooterGarageLink = { key: string; opensGaragePopup: true };
+type FooterLinkItem = FooterNavLink | FooterGarageLink;
 
 const INSTAGRAM_URL = "https://www.instagram.com/motogtofficial/";
 
@@ -40,13 +40,13 @@ export function SiteFooter() {
 
   const quickLinks: FooterLinkItem[] = [
     { key: "orders", to: href("/profile/orders") },
-    { key: "yourGarage", to: href("/my-garage") },
+    { key: "yourGarage", opensGaragePopup: true },
     { key: "availableCars", to: href("/available-cars") },
     { key: "contactUs", to: href("/support") },
     { key: "faqs", to: href("/support") },
   ];
 
-  const informationLinks: FooterLinkItem[] = [
+  const informationLinks: FooterNavLink[] = [
     { key: "recommended", to: href("/recommended") },
     { key: "bestSellers", to: href("/shop") },
     {
@@ -67,7 +67,7 @@ export function SiteFooter() {
     },
   ];
 
-  const policyLinks: FooterLinkItem[] = [
+  const policyLinks: FooterNavLink[] = [
     { key: "terms", to: href("/terms") },
     { key: "privacy", to: href("/privacy") },
     { key: "refund", to: href("/refund-policy") },
@@ -129,9 +129,15 @@ export function SiteFooter() {
             <ul className={sectionBodyClass}>
               {quickLinks.map((item) => (
                 <li key={item.key}>
-                  <Link to={item.to} className={listLinkClass}>
-                    {t(`footer.quickLinks.${item.key}`)}
-                  </Link>
+                  {"opensGaragePopup" in item ? (
+                    <GaragePopupTrigger className={listLinkClass}>
+                      {t(`footer.quickLinks.${item.key}`)}
+                    </GaragePopupTrigger>
+                  ) : (
+                    <Link to={item.to} className={listLinkClass}>
+                      {t(`footer.quickLinks.${item.key}`)}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

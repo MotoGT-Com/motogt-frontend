@@ -7,7 +7,7 @@
 import { SimpleCard } from "./ui/card";
 import { CheckIcon, Loader2, XIcon } from "lucide-react";
 import { Button } from "./ui/button";
-import { Link, useLocation, useRouteLoaderData } from "react-router";
+import { Link, href, useLocation, useRouteLoaderData } from "react-router";
 import { cn } from "~/lib/utils";
 import type { GetApiHomeExteriorProductsResponse, ProductItem, UserCarsResponse, } from "~/lib/client";
 import { useCartManager } from "~/lib/cart-manager";
@@ -28,8 +28,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useGuestGarageCars } from "~/hooks/use-guest-garage-cars";
 import { FitmentBadge } from "./fitment-badge";
 import { FavoritesButton } from "./favorites-button";
+import { GaragePopupTrigger } from "./garage-popup-trigger";
 import { WhatsAppButton } from "./whatsapp-button";
-import { EmptyGarageDialog } from "./empty-garage-dialog";
 import getLocalizedTranslation from "~/lib/get-locale-translation";
 import { buildProductPath } from "~/lib/product-url";
 import {
@@ -39,7 +39,6 @@ import {
 import { useTranslation } from "react-i18next";
 import { useCurrency } from "~/hooks/use-currency";
 import { useState as useReactState } from "react";
-import { useAuthModal } from "~/context/AuthModalContext";
 
 type UserCar = UserCarsResponse["data"]["userCars"][0];
 type FavoriteItem = ProductItem | GetApiHomeExteriorProductsResponse["data"][0];
@@ -484,12 +483,9 @@ function ProductCard({
               </p>
             </div>
             <div className="px-4 pb-4">
-              <GarageLink
-                to="/my-garage"
-                className="text-xs font-medium text-[#908B9B] hover:text-[#000000] transition-colors underline"
-              >
+              <GaragePopupTrigger className="text-xs font-medium text-[#908B9B] hover:text-[#000000] transition-colors underline">
                 {t("fitmnetLabel.linkText")}
-              </GarageLink>
+              </GaragePopupTrigger>
             </div>
           </div>
         </HoverCardContent>
@@ -760,50 +756,6 @@ function ProductCardSkeleton() {
         </div>
       </div>
     </SimpleCard>
-  );
-}
-
-/**
- * GarageLink Component
- *
- * Link that checks if user has cars in garage.
- * Shows empty garage modal if no cars, otherwise navigates to garage page.
- */
-function GarageLink({
-  to = "/my-garage",
-  className,
-  children,
-  ...props
-}: React.ComponentProps<typeof Link>) {
-  const loaderData =
-    useRouteLoaderData<Route.ComponentProps["loaderData"]>("routes/_main");
-  const isAuthenticated = !!loaderData?.isAuthenticated;
-  const { openAuthModal } = useAuthModal();
-  const [emptyDialogOpen, setEmptyDialogOpen] = useState(false);
-  const garageCarsQuery = useQuery({
-    ...garageCarsQueryOptions,
-    enabled: isAuthenticated,
-  });
-  const hasCars =
-    garageCarsQuery.data?.userCars && garageCarsQuery.data.userCars.length > 0;
-
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (isAuthenticated && garageCarsQuery.isSuccess && !hasCars) {
-      e.preventDefault();
-      setEmptyDialogOpen(true);
-    }
-  };
-
-  return (
-    <>
-      <Link to={to} className={className} onClick={handleClick} {...props}>
-        {children}
-      </Link>
-      <EmptyGarageDialog
-        open={emptyDialogOpen}
-        onOpenChange={setEmptyDialogOpen}
-      />
-    </>
   );
 }
 

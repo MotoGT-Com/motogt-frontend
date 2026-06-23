@@ -12,6 +12,7 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { config } from "./config";
 import { getLocaleWithCookie } from "./lib/i18n-cookie";
 import { AuthModalProvider } from "./context/AuthModalContext";
+import { GaragePopupProvider } from "./context/GaragePopupContext";
 import { useIdleReady, idleReadyRootNonCriticalScripts } from "~/hooks/use-idle-ready";
 import { CurrencyProvider } from "~/hooks/use-currency";
 
@@ -202,12 +203,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <I18nextProvider i18n={i18n}>
           <QueryClientProvider client={queryClient}>
             <CurrencyProvider>
-              <AuthModalProvider>
-                {children}
-                <Suspense fallback={null}>
-                  <AuthModal />
-                </Suspense>
-              </AuthModalProvider>
+              <GaragePopupProvider>
+                <AuthModalProvider>
+                  {children}
+                  <Suspense fallback={null}>
+                    <AuthModal />
+                  </Suspense>
+                </AuthModalProvider>
+              </GaragePopupProvider>
             </CurrencyProvider>
           </QueryClientProvider>
         </I18nextProvider>

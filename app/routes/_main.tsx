@@ -14,7 +14,7 @@
  * - Car Parts: "/shop/:productType" with productType="car-parts"
  * - Spare Parts: "/spare-parts" (coming soon)
  * - Riding Gear: "/shop/:productType" with productType="motorcycles"
- * - Garage: "/my-garage"
+ * - Garage: popup (no dedicated page)
  * - Wishlist: "/wishlist"
  * - Cart: "/cart"
  * - Support / contact: "/support" (public; not under /profile)
@@ -268,7 +268,6 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
           {/* Desktop: Left Garage Button */}
           <div className="hidden md:flex items-center gap-3">
             <GarageNavButton
-              to={href("/my-garage")}
               variant="outline"
               icon={GarageNavIcon}
             />
@@ -432,9 +431,9 @@ function MainContent({ matches, loaderData }: Route.ComponentProps) {
                     )}
                   >
                     <GarageNavButton
-                      to={href("/my-garage")}
                       className="justify-center"
                       icon={GarageNavIcon}
+                      onBeforeOpen={() => setIsMobileMenuOpen(false)}
                     />
                     <div className="h-px bg-border"></div>
                     <NavLinkButton
