@@ -685,6 +685,7 @@ function ProductsGrid({
             <ProductCard
               key={product.id}
               product={product}
+              imageOrder={productType.slug === "motorcycles" ? "primary-first" : "secondary-first"}
               carFilter={{
                 carBrand: searchParams.carBrand ?? null,
                 carModel: searchParams.carModel ?? null,

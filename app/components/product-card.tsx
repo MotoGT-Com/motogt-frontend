@@ -173,6 +173,7 @@ function ProductCard({
   className,
   onFavorite,
   carFilter,
+  imageOrder = "secondary-first",
 }: {
   product: ProductItem | GetApiHomeExteriorProductsResponse["data"][0];
   className?: string;
@@ -183,6 +184,8 @@ function ProductCard({
     carYear?: number | string | null;
     carId?: string | null;
   };
+  /** Default card image: secondary-first everywhere except motorcycles (primary-first). */
+  imageOrder?: "primary-first" | "secondary-first";
 }) {
   // Global layout loader gives us auth info.
   const loaderData =
@@ -201,6 +204,16 @@ function ProductCard({
   const { openProductQuickView } = useProductQuickView();
   const availability = getProductAvailabilityFromProduct(product);
   const hasVariants = productHasVariants(product);
+  const primaryImage = product.mainImage ?? product.secondaryImage ?? "";
+  const secondaryImage = product.secondaryImage ?? product.mainImage ?? "";
+  const cardImageSrc =
+    imageOrder === "primary-first"
+      ? isHovered
+        ? secondaryImage
+        : primaryImage
+      : isHovered
+        ? primaryImage
+        : secondaryImage;
 
   // Warm both images cache so the hover swap is instant.
   useEffect(() => {
@@ -603,12 +616,8 @@ function ProductCard({
       {/* Fixed aspect image — reserves space immediately; shimmer until loaded */}
       <div className="shrink-0 w-full mb-2 md:mb-3">
         <BlurUpImage
-          key={isHovered ? "secondary" : "primary"}
-          src={
-            isHovered
-              ? (product.secondaryImage ?? product.mainImage ?? "")
-              : (product.mainImage ?? product.secondaryImage ?? "")
-          }
+          key={isHovered ? "hover" : "default"}
+          src={cardImageSrc}
           alt={productName || "Product Image"}
         />
       </div>
