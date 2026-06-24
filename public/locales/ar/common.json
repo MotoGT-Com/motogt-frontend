@@ -165,6 +165,7 @@
     "inStock": "متوفر",
     "outOfStock": "غير متوفر",
     "comingSoon": "قريباً",
+    "selectOptions": "اختر الخيارات",
     "active": "نشط",
     "inactive": "غير نشط"
   },

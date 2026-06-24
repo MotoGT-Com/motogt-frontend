@@ -164,6 +164,7 @@
     "inStock": "In Stock",
     "outOfStock": "Out of Stock",
     "comingSoon": "Coming Soon",
+    "selectOptions": "Select Options",
     "active": "Active",
     "inactive": "Inactive"
   },

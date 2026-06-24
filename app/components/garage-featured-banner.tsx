@@ -9,7 +9,8 @@ import { useProductQuickView } from "~/context/ProductQuickViewContext";
 import { cn } from "~/lib/utils";
 import {
   comingSoonButtonClassName,
-  getProductAvailability,
+  getProductAvailabilityFromProduct,
+  productHasVariants,
 } from "~/lib/product-availability";
 import { getApiProductsPublic } from "~/lib/client";
 import { defaultParams } from "~/lib/api-client";
@@ -71,7 +72,8 @@ function BannerProductCard({ product, name }: { product: ProductItem; name: stri
   const { openProductQuickView } = useProductQuickView();
   const isFavorite = favoritesQuery.data?.items.some((item: any) => item.id === product.id) ?? product.in_favs ?? false;
   const image = product.mainImage ?? product.images?.[0] ?? "";
-  const availability = getProductAvailability(product.stockQuantity);
+  const availability = getProductAvailabilityFromProduct(product);
+  const hasVariants = productHasVariants(product);
 
   return (
     <div className="relative flex h-[170px] flex-col overflow-hidden rounded-md bg-white shadow-xl md:h-auto w-[200px] md:w-[240px]">
@@ -93,14 +95,20 @@ function BannerProductCard({ product, name }: { product: ProductItem; name: stri
         {/* Add to cart + wishlist in same row */}
         <div className="relative z-20 flex items-center gap-1.5">
           <button
-            onClick={() => addToCartMutation.mutate({
-              productId: product.id,
-              itemCode: product.itemCode,
-              productTranslations: product.translations.map(t => ({ name: t.name, slug: t.slug, languageCode: t.languageCode })),
-              productImage: product.mainImage || "",
-              unitPrice: product.price,
-              quantity: 1,
-            })}
+            onClick={() => {
+              if (hasVariants) {
+                openProductQuickView(String(product.id));
+                return;
+              }
+              addToCartMutation.mutate({
+                productId: product.id,
+                itemCode: product.itemCode,
+                productTranslations: product.translations.map(t => ({ name: t.name, slug: t.slug, languageCode: t.languageCode })),
+                productImage: product.mainImage || "",
+                unitPrice: product.price,
+                quantity: 1,
+              });
+            }}
             disabled={
               addToCartMutation.isPending || availability !== "in_stock"
             }
@@ -117,7 +125,9 @@ function BannerProductCard({ product, name }: { product: ProductItem; name: stri
                 ? tCommon("status.comingSoon")
                 : availability === "out_of_stock"
                   ? tCommon("status.outOfStock")
-                  : tCommon("buttons.addToCart")}
+                  : hasVariants
+                    ? tCommon("status.selectOptions")
+                    : tCommon("buttons.addToCart")}
           </button>
           <button
             onClick={() => toggleFavoritesMutation.mutate({ ...product, isFavorite: isFavorite ?? false })}

@@ -27,7 +27,10 @@ import getLocalizedTranslation from "~/lib/get-locale-translation";
 import { useInView } from "react-intersection-observer";
 import type { Route } from "./+types/_main.profile.orders";
 import { accessTokenCookie } from "~/lib/auth-middleware";
-import { isPurchasableStock } from "~/lib/product-availability";
+import {
+  getEffectiveProductStockQuantity,
+  isProductPurchasable,
+} from "~/lib/product-availability";
 
 type OrderItem = GetApiCheckoutOrdersResponse["data"]["orders"][number];
 
@@ -123,13 +126,14 @@ function useReorder(isAuthenticated?: boolean) {
             const product = response.data.data as ProductItem;
             if (
               !product.isActive ||
-              !isPurchasableStock(product.stockQuantity)
+              !isProductPurchasable(product)
             ) {
               return { status: "unavailable" as const };
             }
 
             const existingQty = cartQuantities.get(product.id) ?? 0;
-            const remainingStock = product.stockQuantity - existingQty;
+            const remainingStock =
+              getEffectiveProductStockQuantity(product) - existingQty;
             const desiredQty = Math.min(item.quantity, remainingStock);
             if (desiredQty <= 0) {
               return { status: "unavailable" as const };

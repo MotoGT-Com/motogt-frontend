@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   COMING_SOON_STOCK_QUANTITY,
+  getEffectiveProductStockQuantity,
   getProductAvailability,
+  getProductAvailabilityFromProduct,
   isComingSoonStock,
+  isProductPurchasable,
   isPurchasableStock,
   sortProductsByAvailability,
 } from "~/lib/product-availability";
@@ -40,5 +43,31 @@ describe("product-availability", () => {
       "out",
       "coming",
     ]);
+  });
+
+  it("uses variant stock when parent stock is zero", () => {
+    const product = {
+      stockQuantity: 0,
+      variants: [
+        { isActive: true, stockQuantity: 5 },
+        { isActive: true, stockQuantity: 5 },
+      ],
+    };
+
+    expect(getEffectiveProductStockQuantity(product)).toBe(10);
+    expect(getProductAvailabilityFromProduct(product)).toBe("in_stock");
+    expect(isProductPurchasable(product)).toBe(true);
+  });
+
+  it("ignores inactive variants for availability", () => {
+    const product = {
+      stockQuantity: 0,
+      variants: [
+        { isActive: false, stockQuantity: 5 },
+        { isActive: true, stockQuantity: 0 },
+      ],
+    };
+
+    expect(getProductAvailabilityFromProduct(product)).toBe("out_of_stock");
   });
 });

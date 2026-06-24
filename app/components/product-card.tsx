@@ -35,7 +35,8 @@ import getLocalizedTranslation from "~/lib/get-locale-translation";
 import { buildProductPath } from "~/lib/product-url";
 import {
   comingSoonButtonClassName,
-  getProductAvailability,
+  getProductAvailabilityFromProduct,
+  productHasVariants,
 } from "~/lib/product-availability";
 import { useTranslation } from "react-i18next";
 import { useCurrency } from "~/hooks/use-currency";
@@ -198,7 +199,8 @@ function ProductCard({
   const productName = getLocalizedTranslation(product.translations)?.name;
   const productPath = buildProductPath(product);
   const { openProductQuickView } = useProductQuickView();
-  const availability = getProductAvailability(product.stockQuantity);
+  const availability = getProductAvailabilityFromProduct(product);
+  const hasVariants = productHasVariants(product);
 
   // Warm both images cache so the hover swap is instant.
   useEffect(() => {
@@ -649,7 +651,11 @@ function ProductCard({
           {availability === "in_stock" ? (
             <Button
               className="w-full z-20 relative font-koulen"
-              onClick={() =>
+              onClick={() => {
+                if (hasVariants) {
+                  openProductQuickView(String(product.id));
+                  return;
+                }
                 addToCartMutation.mutate({
                   productId: product.id,
                   itemCode: product.itemCode,
@@ -657,8 +663,8 @@ function ProductCard({
                   productImage: product.mainImage || "",
                   unitPrice: product.price,
                   quantity: 1,
-                })
-              }
+                });
+              }}
               disabled={addToCartMutation.isPending}
             >
               {addToCartMutation.isPending ? (
@@ -666,6 +672,8 @@ function ProductCard({
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
                   Adding...
                 </>
+              ) : hasVariants ? (
+                t("status.selectOptions")
               ) : (
                 t("buttons.addToCart")
               )}
