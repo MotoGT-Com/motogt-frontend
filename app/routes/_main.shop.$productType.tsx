@@ -1,7 +1,7 @@
 import { PlusIcon, MinusIcon, FilterIcon, Loader2, X, ChevronUp, ChevronDown, } from "lucide-react";
 import { AccordionDropdownButton } from "~/components/accordion-dropdown-button";
 import { Suspense, useEffect, useMemo, useState } from "react";
-import { Await, Link, redirect, useSearchParams } from "react-router";
+import { Await, Link, href, redirect, useSearchParams } from "react-router";
 import { ProductCard, ProductCardSkeleton } from "~/components/product-card";
 import { ProductSearch } from "~/components/product-search";
 import { Button } from "~/components/ui/button";
@@ -340,9 +340,10 @@ export const meta: Route.MetaFunction = ({ data }: any) => {
 };
 
 const MOTORCYCLES_CATEGORIES = [
+  { id: "707e2adb-35e1-4cbf-b8ba-2154cf6fa6bb", labelKey: "categories.helmets",       image: "/categories/motorcycles/helmets.webp" },
   { id: "6e5d334c-3c12-4f53-91b9-0320d76eb08e", labelKey: "categories.ridingJackets", image: "/categories/motorcycles/jackets.webp" },
   { id: "301cb0c5-72cc-4560-97a8-9d376245d13a", labelKey: "categories.ridingShirts",  image: "/categories/motorcycles/shirts.webp"  },
-  { id: "4e0b6d22-3258-4fc0-947b-68cd83459ba0", labelKey: "categories.bodyArmor",     image: "/categories/motorcycles/armor.webp",   imageClassName: "-top-0.5 left-11 w-[207px] h-[149px] rotate-[14deg]" },
+  { id: "4e0b6d22-3258-4fc0-947b-68cd83459ba0", labelKey: "categories.bodyArmor",     image: "/categories/motorcycles/armor.webp"   },
   { id: "3ff9e80b-7cb8-4f7d-9f3f-80e5893eab0d", labelKey: "categories.ridingGloves", image: "/categories/motorcycles/gloves.webp"  },
   { id: "1c88251a-5669-408d-8e0c-23fa94f8bf1a", labelKey: "categories.bags",          image: "/categories/motorcycles/bags.webp"    },
   { id: "1157bae5-379a-485e-a4c4-4abeb1b8ef9b", labelKey: "categories.accessories",   image: "/categories/motorcycles/accessories.webp" },
@@ -382,11 +383,11 @@ export default function ShopByProductType({
             <h2 className="text-2xl font-bold italic mb-6">
               {t("sections.shopYourGear")}
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4">
               {MOTORCYCLES_CATEGORIES.map((cat) => (
                 <Link
                   key={cat.id}
-                  to={serializeShopURL({ categories: [cat.id] })}
+                  to={`${href("/shop/:productType", { productType: loaderData.productTypeSlug })}${serializeShopURL({ categories: [cat.id] })}`}
                   prefetch="render"
                 >
                   <SimpleCard className="aspect-[5/4] font-koulen group bg-primary text-white uppercase p-6 flex flex-col justify-end relative overflow-hidden">
@@ -394,7 +395,7 @@ export default function ShopByProductType({
                       src={cat.image}
                       alt={t(cat.labelKey)}
                       loading="lazy"
-                      className={`absolute ${cat.imageClassName ?? "top-0 -end-10 w-full h-full"} object-contain group-hover:scale-110 hover:-rotate-3 transition-all duration-500`}
+                      className="absolute -top-6 -end-12 w-[100%] h-[100%] object-contain object-right object-top origin-top-right group-hover:scale-110 group-hover:-rotate-3 transition-all duration-500"
                     />
                     <h3 className="text-2xl max-w-20 z-10">{t(cat.labelKey)}</h3>
                   </SimpleCard>
