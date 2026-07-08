@@ -27,7 +27,7 @@ import { useCartManager } from "~/lib/cart-manager";
 import { usePayment } from "~/lib/use-payment";
 import { backupCart, loadPendingPayment, clearPendingPayment, } from "~/lib/payment-utils";
 import { useCurrency } from "~/hooks/use-currency";
-import { type Currency } from "~/lib/constants";
+import { ALLOWED_COUNTRIES, ADDRESS_CITIES, type Currency } from "~/lib/constants";
 import { getExchangeRate } from "~/lib/currency-utils";
 import {
   AlertDialog,
@@ -87,66 +87,6 @@ interface ValidatedPromoCode {
   discountValue: number;
   discountAmount: number;
 }
-
-const ADDRESS_ALLOWED_COUNTRIES: RPNInput.Country[] = ["JO", "AE", "SA", "QA"];
-
-const ADDRESS_CITIES = {
-  AE: [
-    "Dubai",
-    "Abu Dhabi",
-    "Sharjah",
-    "Ajman",
-    "Ras Al Khaimah",
-    "Fujairah",
-    "Umm Al Quwain",
-    "Al Ain",
-    "Dibba Al Fujairah",
-    "Dibba Al Hisn",
-    "Kalba",
-    "Khor Fakkan",
-    "Madinat Zayed",
-    "Ruwais",
-    "Ghayathi",
-    "Liwa",
-    "Hatta",
-    "Dhaid",
-  ],
-  SA: ["Riyadh", "Jeddah", "Dammam", "Khobar"],
-  JO: [
-    "Amman",
-    "Zarqa",
-    "Irbid",
-    "Salt",
-    "Madaba",
-    "Jerash",
-    "Ajloun",
-    "Ruseifa",
-    "Fuheis",
-    "Mahis",
-  ],
-  QA: [
-    "Doha",
-    "Al Wakrah",
-    "Al Khor",
-    "Al Rayyan",
-    "Umm Salal",
-    "Al Daayen",
-    "Al Shamal",
-    "Al Shahaniya",
-    "Mesaieed",
-    "Lusail",
-    "Dukhan",
-    "Ras Laffan",
-    "Al Gharrafa",
-    "Al Thumama",
-    "Al Wukair",
-    "Abu Hamour",
-    "Al Mamoura",
-    "Madinat Khalifa",
-    "Al Hilal",
-    "Ain Khaled",
-  ],
-};
 
 /**
  * Calculate expected delivery date range (2-7 days from today)
@@ -1313,7 +1253,7 @@ function AddAddressDialog({
                 <SelectContent className="max-h-[250px] max-w-[250px]">
                   {Object.entries(flags)
                     .filter(([countryCode]) =>
-                      ADDRESS_ALLOWED_COUNTRIES.includes(countryCode as RPNInput.Country)
+                      ALLOWED_COUNTRIES.includes(countryCode as RPNInput.Country)
                     )
                     .map(([countryCode, Flag]) => (
                       <SelectItem key={countryCode} value={countryCode}>

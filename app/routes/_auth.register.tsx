@@ -16,6 +16,7 @@ import type { Route } from "./+types/_auth.register";
 import { postApiAuthOtpVerify, postApiAuthRegister } from "~/lib/client";
 import { InputOTP, InputOTPGroup, InputOTPSlot, } from "~/components/ui/input-otp";
 import { useTranslation } from "react-i18next";
+import { ALLOWED_COUNTRIES, ADDRESS_CITIES } from "~/lib/constants";
 
 // Action function to handle register form submission
 export async function action({ request }: Route.ActionArgs) {
@@ -90,69 +91,6 @@ export default function Register({ actionData }: Route.ComponentProps) {
     </>
   );
 }
-
-const ALLOWED_COUNTRIES: RPNInput.Country[] = ["JO", "AE", "SA", "QA"];
-
-const cities = {
-  AE: [
-    "Dubai",
-    "Abu Dhabi",
-    "Sharjah",
-    "Ajman",
-    "Ras Al Khaimah",
-    "Fujairah",
-    "Umm Al Quwain",
-    "Al Ain",
-    "Dibba Al Fujairah",
-    "Dibba Al Hisn",
-    "Kalba",
-    "Khor Fakkan",
-    "Madinat Zayed",
-    "Ruwais",
-    "Ghayathi",
-    "Liwa",
-    "Hatta",
-    "Dhaid",
-  ],
-
-  SA: ["Riyadh", "Jeddah", "Dammam", "Khobar"],
-
-  JO: [
-    "Amman",
-    "Zarqa",
-    "Irbid",
-    "Salt",
-    "Madaba",
-    "Jerash",
-    "Ajloun",
-    "Ruseifa",
-    "Fuheis",
-    "Mahis",
-  ],
-
-  QA: [
-    "Doha",
-    "Al Wakrah",
-    "Al Khor",
-    "Al Rayyan",
-    "Umm Salal",
-    "Al Daayen",
-    "Al Shamal",
-    "Al Shahaniya",
-    "Mesaieed",
-    "Lusail",
-    "Dukhan",
-    "Ras Laffan",
-    "Al Gharrafa",
-    "Al Thumama",
-    "Al Wukair",
-    "Abu Hamour",
-    "Al Mamoura",
-    "Madinat Khalifa",
-    "Al Hilal",
-    "Ain Khaled",
-  ],
-};
 
 const registerSchema = z.object({
   firstName: z
@@ -433,7 +371,7 @@ function RegisterForm() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {cities[form.watch("country") as keyof typeof cities].map(
+                      {(ADDRESS_CITIES[form.watch("country") as keyof typeof ADDRESS_CITIES] ?? []).map(
                         (city) => (
                           <SelectItem key={city} value={city}>
                             {city}

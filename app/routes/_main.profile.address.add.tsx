@@ -14,66 +14,7 @@ import { useMutation } from "@tanstack/react-query";
 import { addAddressMutationOptions } from "~/lib/queries";
 import * as RPNInput from "react-phone-number-input";
 import flags from "react-phone-number-input/flags";
-
-const ALLOWED_COUNTRIES: RPNInput.Country[] = ["JO", "AE", "SA", "QA"];
-
-const cities = {
-  AE: [
-    "Dubai",
-    "Abu Dhabi",
-    "Sharjah",
-    "Ajman",
-    "Ras Al Khaimah",
-    "Fujairah",
-    "Umm Al Quwain",
-    "Al Ain",
-    "Dibba Al Fujairah",
-    "Dibba Al Hisn",
-    "Kalba",
-    "Khor Fakkan",
-    "Madinat Zayed",
-    "Ruwais",
-    "Ghayathi",
-    "Liwa",
-    "Hatta",
-    "Dhaid",
-  ],
-  SA: ["Riyadh", "Jeddah", "Dammam", "Khobar"],
-  JO: [
-    "Amman",
-    "Zarqa",
-    "Irbid",
-    "Salt",
-    "Madaba",
-    "Jerash",
-    "Ajloun",
-    "Ruseifa",
-    "Fuheis",
-    "Mahis",
-  ],
-  QA: [
-    "Doha",
-    "Al Wakrah",
-    "Al Khor",
-    "Al Rayyan",
-    "Umm Salal",
-    "Al Daayen",
-    "Al Shamal",
-    "Al Shahaniya",
-    "Mesaieed",
-    "Lusail",
-    "Dukhan",
-    "Ras Laffan",
-    "Al Gharrafa",
-    "Al Thumama",
-    "Al Wukair",
-    "Abu Hamour",
-    "Al Mamoura",
-    "Madinat Khalifa",
-    "Al Hilal",
-    "Ain Khaled",
-  ],
-};
+import { ALLOWED_COUNTRIES, ADDRESS_CITIES } from "~/lib/constants";
 
 const addressSchema = z.object({
   title: z.string().min(1, { message: "Address title is required" }),
@@ -198,8 +139,8 @@ export default function AddNewAddress() {
                 control={form.control}
                 name="city"
                 render={({ field }) => {
-                  const selectedCountry = form.watch("country") as keyof typeof cities;
-                  const availableCities = selectedCountry ? cities[selectedCountry] || [] : [];
+                  const selectedCountry = form.watch("country") as keyof typeof ADDRESS_CITIES;
+                  const availableCities = selectedCountry ? ADDRESS_CITIES[selectedCountry] || [] : [];
                   
                   return (
                     <FormItem>
