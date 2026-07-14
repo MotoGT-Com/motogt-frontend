@@ -106,6 +106,7 @@ function CategoriesFilterContainer({
         typeof searchParams.carYear === "number"
           ? searchParams.carYear
           : undefined,
+      carTrim: searchParams.carTrim ?? undefined,
       carId: searchParams.carId ?? undefined,
       search: searchParams.search ?? undefined,
       productIds,
@@ -114,6 +115,7 @@ function CategoriesFilterContainer({
     searchParams.carBrand,
     searchParams.carModel,
     searchParams.carYear,
+    searchParams.carTrim,
     searchParams.carId,
     searchParams.search,
     searchParams.productIds,
@@ -124,6 +126,7 @@ function CategoriesFilterContainer({
     filters?.carBrand ||
       filters?.carModel ||
       filters?.carYear ||
+      filters?.carTrim ||
       filters?.carId ||
       filters?.search ||
       filters?.productIds ||
@@ -134,6 +137,7 @@ function CategoriesFilterContainer({
     filters?.carBrand ||
       filters?.carModel ||
       filters?.carYear ||
+      filters?.carTrim ||
       filters?.carId ||
       filters?.search ||
       filters?.productIds

@@ -175,6 +175,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     carBrand: searchParams.carBrand ?? undefined,
     carModel: searchParams.carModel ?? undefined,
     carYear: searchParams.carYear ?? undefined,
+    carTrim: searchParams.carTrim ?? undefined,
     categoryId:
       searchParams.categories && searchParams.categories.length > 0
         ? searchParams.categories.join(",")
@@ -265,12 +266,14 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     carBrand: productQueryBase.carBrand,
     carModel: productQueryBase.carModel,
     carYear: productQueryBase.carYear,
+    carTrim: productQueryBase.carTrim,
     search: productQueryBase.search,
   };
   const hasFiltersAffectingCounts = Boolean(
     countFilters.carBrand ||
       countFilters.carModel ||
       countFilters.carYear ||
+      countFilters.carTrim ||
       countFilters.search
   );
   if (hasFiltersAffectingCounts && subcategoryIds.length > 0) {
@@ -528,6 +531,7 @@ function ProductsGrid({
         searchParams.carBrand ||
         searchParams.carModel ||
         searchParams.carYear ||
+        searchParams.carTrim ||
         (searchParams.categories && searchParams.categories.length > 0) ||
         resolvedSortBy ||
         resolvedSortOrder
@@ -538,6 +542,7 @@ function ProductsGrid({
     searchParams.carBrand,
     searchParams.carModel,
     searchParams.carYear,
+    searchParams.carTrim,
     searchParams.categories,
     resolvedSortBy,
     resolvedSortOrder,
@@ -548,6 +553,7 @@ function ProductsGrid({
       carBrand: searchParams.carBrand ?? null,
       carModel: searchParams.carModel ?? null,
       carYear: searchParams.carYear ?? null,
+      carTrim: searchParams.carTrim ?? null,
       categories: searchParams.categories ?? null,
       sortBy: resolvedSortBy ?? null,
       sortOrder: resolvedSortOrder ?? null,
@@ -557,6 +563,7 @@ function ProductsGrid({
       searchParams.carBrand,
       searchParams.carModel,
       searchParams.carYear,
+      searchParams.carTrim,
       searchParams.categories,
       resolvedSortBy,
       resolvedSortOrder,
@@ -690,6 +697,7 @@ function ProductsGrid({
                 carBrand: searchParams.carBrand ?? null,
                 carModel: searchParams.carModel ?? null,
                 carYear: searchParams.carYear ?? null,
+                carTrim: searchParams.carTrim ?? null,
               }}
             />
           );

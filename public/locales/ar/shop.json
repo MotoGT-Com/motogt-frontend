@@ -21,6 +21,9 @@
     "carBrand": "ماركة السيارة",
     "carModel": "موديل السيارة",
     "productionYear": "سنة الصنع",
+    "trim": "الفئة",
+    "optional": "اختياري",
+    "filterByVehicle": "تصفية حسب المركبة",
     "any": "الكل",
     "searchButton": "بحث"
   },

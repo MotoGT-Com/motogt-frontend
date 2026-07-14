@@ -29,6 +29,7 @@ export const shopSearchParamsSchema = {
   carBrand: parseAsString,
   carModel: parseAsString,
   carYear: parseAsInteger,
+  carTrim: parseAsString,
   productType: parseAsStringEnum(["car_parts", "riding_gear"]),
 };
 

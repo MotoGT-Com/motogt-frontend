@@ -577,7 +577,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       {/* Free Delivery Banner */}
       <AnnouncementBar />
       {/* Search Section */}
-      <section className="relative w-full min-h-[200px] md:min-h-[300px] flex items-center justify-center mb-8 overflow-x-hidden">
+      <section className="relative w-full min-h-[200px] md:min-h-[320px] flex items-center justify-center mb-8 overflow-x-hidden">
         {/* Background Image */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           <picture>
@@ -598,19 +598,19 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             />
           </picture>
           {/* Overlay for better text readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/45 to-black/70" />
         </div>
         
         {/* Content */}
-        <div className="relative z-10 w-full max-w-[96rem] mx-auto px-4 md:px-8 py-6 md:py-8">
-          <div className="mb-4 flex flex-col gap-2 md:mb-6 md:flex-row md:items-end md:justify-between md:gap-6">
-            <h1 className="text-2xl font-bold italic text-white md:text-4xl min-w-0">
+        <div className="relative z-10 w-full max-w-[96rem] mx-auto px-4 md:px-8 py-7 md:py-10">
+          <div className="mb-5 flex flex-col items-start gap-2.5 md:mb-7 md:flex-row md:items-end md:justify-between md:gap-6">
+            <h1 className="text-[1.65rem] leading-tight font-bold italic text-white md:text-4xl lg:text-[2.75rem] min-w-0 max-w-xl">
               {t("home:hero.searchTitle")}
             </h1>
             <Link
               to={href("/available-cars")}
               prefetch="render"
-              className="font-koulen text-sm uppercase tracking-wide text-white/90 underline decoration-white/35 underline-offset-[5px] transition-colors hover:text-white hover:decoration-white md:shrink-0 md:pb-1 md:text-base"
+              className="font-koulen text-xs uppercase tracking-wide text-white underline decoration-white/50 underline-offset-[5px] transition-colors hover:decoration-white md:shrink-0 md:pb-1.5 md:text-sm"
             >
               {t("home:hero.viewAllCars")}
             </Link>

@@ -11,7 +11,7 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormControl, FormField, FormItem, FormLabel, Form, } from "~/components/ui/form";
 import { useQuery } from "@tanstack/react-query";
-import { carBrandsQueryOptions, carModelsQueryOptions, productsQueryOptions, } from "~/lib/queries";
+import { carBrandsQueryOptions, carModelsQueryOptions, carTrimsQueryOptions, productsQueryOptions, } from "~/lib/queries";
 import { createSerializer, useQueryStates } from "nuqs";
 import {
   serializeShopURL,
@@ -58,10 +58,18 @@ const searchSchema = z
       .string()
       .optional()
       .transform(normalizeCarField),
+    carTrim: z
+      .string()
+      .optional()
+      .transform(normalizeCarField),
   })
   .refine((data) => {
     return (
-      !!data.search || !!data.carBrand || !!data.carModel || !!data.carYear
+      !!data.search ||
+      !!data.carBrand ||
+      !!data.carModel ||
+      !!data.carYear ||
+      !!data.carTrim
     );
   });
 
@@ -70,6 +78,7 @@ type ProductSearchFormValues = {
   carBrand?: string;
   carModel?: string;
   carYear?: string;
+  carTrim?: string;
 };
 
 /** Merge URL state (sort, categories, …) with live form values so carModel cannot be lost to stale nuqs or "". */
@@ -83,12 +92,14 @@ function shopParamsFromFormState<S extends Record<string, unknown>>(
   const carYearRaw = normalizeCarField(formValues.carYear);
   const carYearParsed = carYearRaw ? parseInt(carYearRaw, 10) : undefined;
   const carYear = Number.isFinite(carYearParsed) ? carYearParsed : undefined;
+  const carTrim = normalizeCarField(formValues.carTrim);
   return {
     ...searchParams,
     search,
     carBrand,
     carModel,
     carYear,
+    carTrim,
   };
 }
 
@@ -150,6 +161,7 @@ function ProductSearch({
         carBrand: merged.carBrand ?? null,
         carModel: merged.carModel ?? null,
         carYear: merged.carYear ?? null,
+        carTrim: merged.carTrim ?? null,
       });
     },
     [searchParams, setSearchParams]
@@ -166,6 +178,7 @@ function ProductSearch({
           carBrand: merged.carBrand,
           carModel: merged.carModel,
           carYear: merged.carYear,
+          carTrim: merged.carTrim,
         })
       );
     },
@@ -180,12 +193,14 @@ function ProductSearch({
       carBrand: searchParams.carBrand || anyValue,
       carModel: searchParams.carModel || anyValue,
       carYear: searchParams.carYear?.toString() || anyValue,
+      carTrim: searchParams.carTrim || anyValue,
     }),
     [
       searchParams.search,
       searchParams.carBrand,
       searchParams.carModel,
       searchParams.carYear,
+      searchParams.carTrim,
     ]
   );
 
@@ -206,6 +221,7 @@ function ProductSearch({
             carBrand: anyValue,
             carModel: anyValue,
             carYear: anyValue,
+            carTrim: anyValue,
           },
         }),
   });
@@ -215,10 +231,12 @@ function ProductSearch({
     carBrand: string;
     carModel: string;
     carYear: string;
+    carTrim: string;
   }>({
     carBrand: form.getValues("carBrand") ?? anyValue,
     carModel: form.getValues("carModel") ?? anyValue,
     carYear: form.getValues("carYear") ?? anyValue,
+    carTrim: form.getValues("carTrim") ?? anyValue,
   });
 
   const carBrands = useQuery(carBrandsQueryOptions);
@@ -234,9 +252,26 @@ function ProductSearch({
   useEffect(() => {
     latestCarFiltersRef.current.carYear = carYearWatch ?? anyValue;
   }, [carYearWatch]);
+  const carTrimWatch = form.watch("carTrim");
+  useEffect(() => {
+    latestCarFiltersRef.current.carTrim = carTrimWatch ?? anyValue;
+  }, [carTrimWatch]);
   const carModels = useQuery(
     carModelsQueryOptions(carBrand === anyValue ? undefined : carBrand)
   );
+  const trimBrand =
+    carBrand !== anyValue ? normalizeCarField(carBrand) : undefined;
+  const trimModel =
+    carModelWatch !== anyValue ? normalizeCarField(carModelWatch) : undefined;
+  const trimYear = carYearQueryFromSelectValue(carYearWatch ?? anyValue) ?? undefined;
+  const carTrims = useQuery(
+    carTrimsQueryOptions({
+      brand: trimBrand,
+      model: trimModel,
+      year: trimYear ?? undefined,
+    })
+  );
+  const canSelectTrim = Boolean(trimBrand && trimModel);
   
   // Optimized search with faster debounce and minimum character requirement
   const searchValue = form.watch("search") || "";
@@ -413,6 +448,8 @@ function ProductSearch({
           : v.carYear != null && String(v.carYear).trim() !== ""
           ? String(v.carYear)
           : anyValue,
+      carTrim:
+        latestCarFiltersRef.current.carTrim || v.carTrim || anyValue,
     };
     if (isShopListingRoute) {
       applyShopFiltersFromForm(formPayload);
@@ -422,31 +459,53 @@ function ProductSearch({
     onSubmitSuccess?.();
   };
 
+  const filterCellClass = cn(
+    "min-w-0 flex items-center focus-within:ring-ring/50 focus-within:ring-[3px]",
+    isCompact
+      ? "px-2 py-1 border md:border-0"
+      : [
+          "px-3.5 py-3.5 transition-colors hover:bg-gray-50/80",
+          // Mobile 2x2 grid lines (matches design)
+          "[&:nth-child(-n+2)]:border-b [&:nth-child(odd)]:border-e border-border/60",
+          // Desktop single row
+          "md:border-b-0 md:border-e md:last:border-e-0 md:flex-1 md:py-3.5 md:px-4",
+        ].join(" ")
+  );
+
+  const filterLabelClass = cn(
+    "text-gray-400 uppercase tracking-wide font-medium",
+    isCompact ? "text-xs" : "text-[10px] md:text-[11px]"
+  );
+
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className={cn(
-          "flex gap-4 flex-col relative",
+          "flex gap-3 relative",
           isCompact
-            ? "md:flex-row rtl:md:flex-row-reverse md:h-14"
-            : "md:flex-row rtl:md:flex-row-reverse md:h-20",
+            ? "flex-col md:flex-row rtl:md:flex-row-reverse md:h-14 md:gap-4"
+            : "flex-col md:flex-row rtl:md:flex-row-reverse md:items-stretch md:gap-3 lg:gap-4",
           className
         )}
         dir={isRTL ? "rtl" : "ltr"}
       >
         <SimpleCard
           className={cn(
-            "flex flex-col md:flex-row flex-1 p-4 md:p-0 space-y-3 md:space-y-0 md:divide-x rtl:md:divide-x-reverse divide-border bg-white shadow-lg",
-            isCompact && "p-2 md:p-0",
+            "flex flex-1 bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] overflow-hidden border-0",
+            isCompact
+              ? "flex-col md:flex-row rounded-md p-2 md:p-0 space-y-3 md:space-y-0 md:divide-x rtl:md:divide-x-reverse divide-border"
+              : "flex-col rounded-2xl md:rounded-xl",
             cardClassName
           )}
         >
-          <div 
+          <div
             ref={searchInputRef}
             className={cn(
-              "relative flex-1 focus-within:ring-ring/50 focus-within:ring-[3px] border md:border-0",
-              isCompact ? "py-2 md:py-0" : "py-4 md:py-0",
+              "relative flex-1",
+              isCompact
+                ? "py-2 md:py-0 border md:border-0"
+                : "px-1 py-3.5 md:py-4 border-b border-border/70",
               searchSectionClassName
             )}
           >
@@ -464,7 +523,8 @@ function ProductSearch({
                     <Input
                       placeholder={searchPlaceholder ?? t("search.selectCarPart")}
                       className={cn(
-                        "border-0 focus-visible:ring-0 h-auto w-full px-0 py-0 ps-12 text-start",
+                        "border-0 shadow-none rounded-none bg-transparent h-auto w-full px-0 py-0 ps-12 text-start",
+                        "focus-visible:border-0 focus-visible:shadow-none focus-visible:bg-transparent focus-visible:ring-0",
                         isCompact ? "text-base" : "text-sm"
                       )}
                       {...field}
@@ -585,16 +645,29 @@ function ProductSearch({
           </div>
           <div
             className={cn(
-              "flex flex-col md:flex-row space-y-3 md:space-y-0 md:divide-x rtl:md:divide-x-reverse divide-border",
-              isCompact && "sm:flex-row sm:space-y-0 sm:divide-x rtl:sm:divide-x-reverse"
+              isCompact
+                ? "flex flex-col md:flex-row space-y-3 md:space-y-0 md:divide-x rtl:md:divide-x-reverse divide-border sm:flex-row sm:space-y-0 sm:divide-x rtl:sm:divide-x-reverse"
+                : "flex flex-col"
             )}
           >
-            <div className="flex items-center focus-within:ring-ring/50 focus-within:ring-[3px] px-2 py-1 border md:border-0">
+            {!isCompact && (
+              <p className="px-4 pt-3.5 pb-1.5 text-[10px] md:text-[11px] uppercase tracking-[0.08em] text-gray-400 font-medium">
+                {t("carSearch.filterByVehicle")}
+              </p>
+            )}
+            <div
+              className={cn(
+                isCompact
+                  ? "flex flex-col space-y-3 divide-border md:flex-row md:space-y-0 md:divide-x rtl:md:divide-x-reverse"
+                  : "grid grid-cols-2 md:flex md:flex-row md:divide-x rtl:md:divide-x-reverse divide-border border-t border-border/60"
+              )}
+            >
+            <div className={filterCellClass}>
               <FormField
                 control={form.control}
                 name="carBrand"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="w-full">
                     <FormLabel className="sr-only">{t("carSearch.carBrand")}</FormLabel>
                     <FormControl>
                       <Select
@@ -603,7 +676,11 @@ function ProductSearch({
                           field.onChange(value);
                           latestCarFiltersRef.current.carBrand = value;
                           latestCarFiltersRef.current.carModel = anyValue;
+                          latestCarFiltersRef.current.carTrim = anyValue;
                           form.setValue("carModel", anyValue, {
+                            shouldDirty: false,
+                          });
+                          form.setValue("carTrim", anyValue, {
                             shouldDirty: false,
                           });
                           if (isShopListingRoute) {
@@ -611,6 +688,7 @@ function ProductSearch({
                             setSearchParams({
                               carBrand: normalizeCarField(value) ?? null,
                               carModel: null,
+                              carTrim: null,
                             });
                           } else if (isShopProductPdp) {
                             queueMicrotask(() => {
@@ -619,6 +697,7 @@ function ProductSearch({
                                 carBrand: value,
                                 carModel: anyValue,
                                 carYear: form.getValues("carYear") ?? anyValue,
+                                carTrim: anyValue,
                               });
                             });
                           }
@@ -626,27 +705,21 @@ function ProductSearch({
                       >
                         <SelectTrigger
                           className={cn(
-                            "border-0 focus-visible:ring-0",
-                            isCompact ? compactSelectWidth : "w-36"
+                            "border-0 focus-visible:ring-0 shadow-none h-auto py-0 w-full",
+                            isCompact ? compactSelectWidth : "min-w-0"
                           )}
                         >
                           <div
                             className={cn(
-                              "text-start",
-                              isCompact ? "space-y-1" : "space-y-2"
+                              "text-start w-full",
+                              isCompact ? "space-y-1" : "space-y-1.5"
                             )}
                           >
-                            <div
-                              className={cn(
-                                "text-gray-500",
-                                isCompact ? "text-xs" : "text-sm"
-                              )}
-                              aria-hidden="true"
-                            >
+                            <div className={filterLabelClass} aria-hidden="true">
                               {t("carSearch.carBrand")}
                             </div>
                             <SelectValue
-                              className="uppercase"
+                              className="uppercase font-semibold text-sm text-foreground"
                               placeholder={t("carSearch.any")}
                             />
                           </div>
@@ -665,12 +738,12 @@ function ProductSearch({
                 )}
               />
             </div>
-            <div className="flex items-center focus-within:ring-ring/50 focus-within:ring-[3px] px-2 py-1 border md:border-0">
+            <div className={filterCellClass}>
               <FormField
                 control={form.control}
                 name="carModel"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="w-full">
                     <FormLabel className="sr-only">{t("carSearch.carModel")}</FormLabel>
                     <FormControl>
                       <Select
@@ -678,9 +751,14 @@ function ProductSearch({
                         onValueChange={(value) => {
                           field.onChange(value);
                           latestCarFiltersRef.current.carModel = value;
+                          latestCarFiltersRef.current.carTrim = anyValue;
+                          form.setValue("carTrim", anyValue, {
+                            shouldDirty: false,
+                          });
                           if (isShopListingRoute) {
                             setSearchParams({
                               carModel: normalizeCarField(value) ?? null,
+                              carTrim: null,
                             });
                           } else if (isShopProductPdp) {
                             queueMicrotask(() => {
@@ -689,6 +767,7 @@ function ProductSearch({
                                 carBrand: form.getValues("carBrand") ?? anyValue,
                                 carModel: value,
                                 carYear: form.getValues("carYear") ?? anyValue,
+                                carTrim: anyValue,
                               });
                             });
                           }
@@ -697,26 +776,23 @@ function ProductSearch({
                       >
                         <SelectTrigger
                           className={cn(
-                            "border-0 focus-visible:ring-0",
-                            isCompact ? compactSelectWidth : "w-36"
+                            "border-0 focus-visible:ring-0 shadow-none h-auto py-0 w-full",
+                            isCompact ? compactSelectWidth : "min-w-0"
                           )}
                         >
                           <div
                             className={cn(
-                              "text-start",
-                              isCompact ? "space-y-1" : "space-y-2"
+                              "text-start w-full",
+                              isCompact ? "space-y-1" : "space-y-1.5"
                             )}
                           >
-                            <div
-                              className={cn(
-                                "text-gray-500",
-                                isCompact ? "text-xs" : "text-sm"
-                              )}
-                              aria-hidden="true"
-                            >
+                            <div className={filterLabelClass} aria-hidden="true">
                               {t("carSearch.carModel")}
                             </div>
-                            <SelectValue placeholder={t("carSearch.any")} />
+                            <SelectValue
+                              className="font-semibold text-sm text-foreground"
+                              placeholder={t("carSearch.any")}
+                            />
                           </div>
                         </SelectTrigger>
                         <SelectContent className="max-h-[200px]">
@@ -733,12 +809,12 @@ function ProductSearch({
                 )}
               />
             </div>
-            <div className="flex items-center focus-within:ring-ring/50 focus-within:ring-[3px] px-2 py-1 border md:border-0">
+            <div className={filterCellClass}>
               <FormField
                 control={form.control}
                 name="carYear"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="w-full">
                     <FormLabel className="sr-only">{t("carSearch.productionYear")}</FormLabel>
                     <FormControl>
                       <Select
@@ -746,9 +822,14 @@ function ProductSearch({
                         onValueChange={(value) => {
                           field.onChange(value);
                           latestCarFiltersRef.current.carYear = value;
+                          latestCarFiltersRef.current.carTrim = anyValue;
+                          form.setValue("carTrim", anyValue, {
+                            shouldDirty: false,
+                          });
                           if (isShopListingRoute) {
                             setSearchParams({
                               carYear: carYearQueryFromSelectValue(value),
+                              carTrim: null,
                             });
                           } else if (isShopProductPdp) {
                             queueMicrotask(() => {
@@ -757,6 +838,7 @@ function ProductSearch({
                                 carBrand: form.getValues("carBrand") ?? anyValue,
                                 carModel: form.getValues("carModel") ?? anyValue,
                                 carYear: value,
+                                carTrim: anyValue,
                               });
                             });
                           }
@@ -764,26 +846,23 @@ function ProductSearch({
                       >
                         <SelectTrigger
                           className={cn(
-                            "border-0 focus-visible:ring-0",
-                            isCompact ? compactSelectWidth : "w-36"
+                            "border-0 focus-visible:ring-0 shadow-none h-auto py-0 w-full",
+                            isCompact ? compactSelectWidth : "min-w-0"
                           )}
                         >
                           <div
                             className={cn(
-                              "text-start",
-                              isCompact ? "space-y-1" : "space-y-2"
+                              "text-start w-full",
+                              isCompact ? "space-y-1" : "space-y-1.5"
                             )}
                           >
-                            <div
-                              className={cn(
-                                "text-gray-500",
-                                isCompact ? "text-xs" : "text-sm"
-                              )}
-                              aria-hidden="true"
-                            >
+                            <div className={filterLabelClass} aria-hidden="true">
                               {t("carSearch.productionYear")}
                             </div>
-                            <SelectValue placeholder={t("carSearch.any")} />
+                            <SelectValue
+                              className="font-semibold text-sm text-foreground"
+                              placeholder={t("carSearch.any")}
+                            />
                           </div>
                         </SelectTrigger>
                         <SelectContent className="max-h-[200px]">
@@ -800,16 +879,93 @@ function ProductSearch({
                 )}
               />
             </div>
+
+            <div className={filterCellClass}>
+              <FormField
+                control={form.control}
+                name="carTrim"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel className="sr-only">{t("carSearch.trim")}</FormLabel>
+                    <FormControl>
+                      <Select
+                        value={field.value}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          latestCarFiltersRef.current.carTrim = value;
+                          if (isShopListingRoute) {
+                            setSearchParams({
+                              carTrim: normalizeCarField(value) ?? null,
+                            });
+                          } else if (isShopProductPdp) {
+                            queueMicrotask(() => {
+                              navigateToShopListing({
+                                search: form.getValues("search") ?? "",
+                                carBrand: form.getValues("carBrand") ?? anyValue,
+                                carModel: form.getValues("carModel") ?? anyValue,
+                                carYear: form.getValues("carYear") ?? anyValue,
+                                carTrim: value,
+                              });
+                            });
+                          }
+                        }}
+                        disabled={!canSelectTrim}
+                      >
+                        <SelectTrigger
+                          className={cn(
+                            "border-0 focus-visible:ring-0 shadow-none h-auto py-0 w-full",
+                            isCompact ? compactSelectWidth : "min-w-0"
+                          )}
+                        >
+                          <div
+                            className={cn(
+                              "text-start w-full",
+                              isCompact ? "space-y-1" : "space-y-1.5"
+                            )}
+                          >
+                            <div
+                              className={cn(
+                                filterLabelClass,
+                                "flex items-center gap-1.5 flex-wrap"
+                              )}
+                              aria-hidden="true"
+                            >
+                              <span>{t("carSearch.trim")}</span>
+                              <span className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[8px] md:text-[9px] font-semibold tracking-wide uppercase bg-gray-200/90 text-gray-500 leading-none">
+                                {t("carSearch.optional")}
+                              </span>
+                            </div>
+                            <SelectValue
+                              className="font-semibold text-sm text-foreground"
+                              placeholder={t("carSearch.any")}
+                            />
+                          </div>
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[200px]">
+                          <SelectItem value={anyValue}>{t("carSearch.any")}</SelectItem>
+                          {carTrims.data?.map((trim) => (
+                            <SelectItem key={trim} value={trim}>
+                              {trim}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+            </div>
           </div>
         </SimpleCard>
         <Button
           type="submit"
           disabled={!form.formState.isValid}
           className={cn(
-            "w-full md:w-auto min-w-[12rem] font-koulen font-normal bg-[#CF172F] hover:bg-[#CF172F]/90 text-white",
+            "w-full font-koulen font-normal bg-[#CF172F] hover:bg-[#b91428] active:bg-[#a61224] text-white shrink-0 shadow-md transition-colors",
             isCompact
-              ? "h-14 md:h-full text-lg md:min-w-[12rem]"
-              : "h-auto text-xl"
+              ? "h-14 md:h-full text-lg rounded-xl md:w-auto md:min-w-[12rem] md:rounded-md"
+              : "h-[3.5rem] text-xl tracking-wide rounded-2xl md:h-auto md:w-auto md:min-w-[11.5rem] lg:min-w-[12.5rem] md:self-stretch md:px-10 md:rounded-xl"
           )}
         >
           {t("carSearch.searchButton")}

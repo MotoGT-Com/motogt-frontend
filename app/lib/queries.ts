@@ -16,6 +16,7 @@ import {
   putApiUsersMeAddressesByAddressId,
   getApiCarsBrands,
   getApiCarsModels,
+  getApiCarsTrims,
   postApiAuthConfirmPasswordReset,
   postApiAuthForgotPassword,
   putApiAuthMe,
@@ -87,6 +88,7 @@ export type ProductsByTypeSearchParams = {
   carBrand?: string | null;
   carModel?: string | null;
   carYear?: number | null;
+  carTrim?: string | null;
   categories?: string[] | null;
   sortBy?: string | null;
   sortOrder?: string | null;
@@ -102,6 +104,7 @@ const buildProductsByTypeQueryKey = (
   params.carBrand ?? "",
   params.carModel ?? "",
   params.carYear ?? null,
+  params.carTrim ?? "",
   params.sortBy ?? null,
   params.sortOrder ?? null,
   params.categories?.slice().sort().join(",") ?? "",
@@ -114,6 +117,7 @@ export type SubcategoryCountFilters = {
   carBrand?: string;
   carModel?: string;
   carYear?: number;
+  carTrim?: string;
   carId?: string;
   search?: string;
   productIds?: string;
@@ -129,6 +133,7 @@ const buildSubcategoryCountsQueryKey = (
   filters.carBrand ?? "",
   filters.carModel ?? "",
   filters.carYear ?? null,
+  filters.carTrim ?? "",
   filters.carId ?? "",
   filters.search ?? "",
   filters.productIds ?? "",
@@ -166,6 +171,7 @@ export const subcategoryCountsQueryOptions = ({
                 carBrand: filters.carBrand,
                 carModel: filters.carModel,
                 carYear: filters.carYear,
+                carTrim: filters.carTrim,
                 carId: filters.carId,
                 search: filters.search,
                 productIds: filters.productIds,
@@ -222,6 +228,7 @@ export const productsByTypeInfiniteQueryOptions = ({
             carBrand: params.carBrand ?? undefined,
             carModel: params.carModel ?? undefined,
             carYear: params.carYear ?? undefined,
+            carTrim: params.carTrim ?? undefined,
             categoryId:
               params.categories && params.categories.length > 0
                 ? params.categories.join(",")
@@ -749,6 +756,34 @@ export const carModelsQueryOptions = (brand?: string) => queryOptions({
   },
   enabled: !!brand,
 });
+
+export const carTrimsQueryOptions = ({
+  brand,
+  model,
+  year,
+}: {
+  brand?: string;
+  model?: string;
+  year?: number;
+}) =>
+  queryOptions({
+    queryKey: ["carTrims", brand, model, year ?? null],
+    queryFn: async () => {
+      const response = await getApiCarsTrims({
+        query: {
+          store_id: defaultParams.storeId,
+          brand: brand!,
+          model: model!,
+          ...(year != null ? { year } : {}),
+        },
+      });
+      if (response.error) {
+        throw response.error;
+      }
+      return response.data.data ?? [];
+    },
+    enabled: !!brand && !!model,
+  });
 
 // Auth mutation options
 export const resetPasswordMutationOptions = (token: string) => mutationOptions({

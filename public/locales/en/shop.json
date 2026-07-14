@@ -17,6 +17,9 @@
     "carBrand": "Car Brand",
     "carModel": "Car Model",
     "productionYear": "Production Year",
+    "trim": "Trim",
+    "optional": "Optional",
+    "filterByVehicle": "Filter by vehicle",
     "any": "Any",
     "searchButton": "Search"
   },

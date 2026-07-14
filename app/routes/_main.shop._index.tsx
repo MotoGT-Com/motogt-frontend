@@ -139,6 +139,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     carBrand: searchParams.carBrand,
     carModel: searchParams.carModel,
     carYear: searchParams.carYear,
+    carTrim: searchParams.carTrim,
     categoryId:
       searchParams.categories && searchParams.categories.length > 0
         ? searchParams.categories.join(",")
@@ -215,6 +216,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     carBrand: productQueryBase.carBrand,
     carModel: productQueryBase.carModel,
     carYear: productQueryBase.carYear,
+    carTrim: productQueryBase.carTrim,
     search: productQueryBase.search,
     productIds: productQueryBase.productIds,
   };
@@ -223,6 +225,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       countFilters.carBrand ||
       countFilters.carModel ||
       countFilters.carYear ||
+      countFilters.carTrim ||
       countFilters.search ||
       countFilters.productIds
   );
@@ -387,6 +390,7 @@ function ProductsGrid({
       searchParams.carBrand ?? "",
       searchParams.carModel ?? "",
       searchParams.carYear ?? null,
+      searchParams.carTrim ?? "",
       searchParams.categories?.sort().join(",") ?? "",
       searchParams.productIds?.sort().join(",") ?? "",
       resolvedSortBy ?? null,
@@ -398,6 +402,7 @@ function ProductsGrid({
       searchParams.carBrand,
       searchParams.carModel,
       searchParams.carYear,
+      searchParams.carTrim,
       searchParams.categories,
       searchParams.productIds,
       resolvedSortBy,
@@ -419,6 +424,7 @@ function ProductsGrid({
       // Use initial data only for first page when no filters are applied
       if (pageParam === 1 && !searchParams.search && !searchParams.carId && 
           !searchParams.carBrand && !searchParams.carModel && !searchParams.carYear &&
+          !searchParams.carTrim &&
           (!searchParams.categories || searchParams.categories.length === 0) &&
           (!searchParams.productIds || searchParams.productIds.length === 0) &&
           !resolvedSortBy && !resolvedSortOrder) {
@@ -440,6 +446,7 @@ function ProductsGrid({
           carBrand: searchParams.carBrand ?? undefined,
           carModel: searchParams.carModel ?? undefined,
           carYear: searchParams.carYear ?? undefined,
+          carTrim: searchParams.carTrim ?? undefined,
           categoryId: searchParams.categories?.join(",") ?? undefined,
           productIds: searchParams.productIds?.join(",") ?? undefined,
           sortBy: resolvedSortBy as
@@ -569,6 +576,7 @@ function ProductsGrid({
             carBrand: searchParams.carBrand ?? null,
             carModel: searchParams.carModel ?? null,
             carYear: searchParams.carYear ?? null,
+            carTrim: searchParams.carTrim ?? null,
             carId: searchParams.carId ?? null,
           }}
         />

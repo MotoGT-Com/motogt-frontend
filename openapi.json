@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "MotoGT Backend API",
-    "description": "\n# MotoGT Complete Multi-Store Car Parts E-commerce API\n\nThis is the **COMPLETE** API documentation for the MotoGT platform - a comprehensive multi-store, multi-language car parts e-commerce system.\n\n## Key Features\n- 🏪 **Multi-Store Support**: Each store operates independently with its own products and orders\n- 🌍 **Multi-Language**: Full internationalization support for product content *(languageId required)*\n- 🚗 **Car Compatibility**: Advanced filtering system based on car models and compatibility\n- 🛒 **Shopping Cart**: Store-specific cart management with session persistence\n- 🚚 **Checkout System**: Complete order processing with address management and promo codes\n- 🎯 **Promo Codes**: Discount system with validation (use \"test123\" for 50% discount)\n- 🔧 **User Garage**: Personal car management for compatibility filtering\n- ❤️ **Favourites System**: Personal product favourites management\n- 📍 **Address Management**: Complete shipping/billing address system\n- 🔐 **Secure Authentication**: JWT-based auth with role-based access control\n- 📱 **Admin Panel**: Comprehensive admin tools for store and product management\n\n## Authentication\nMost endpoints require authentication via JWT Bearer tokens:\n```\nAuthorization: Bearer <your-jwt-token>\n```\n\n## Language Support\n⚠️ **Important**: Product endpoints require languageId parameter to return localized content.\n\n## API Structure\n- **Public APIs**: Product/category browsing (minimal auth required)\n- **User APIs**: Cart, checkout, garage, favourites, addresses (requires user auth)\n- **Admin APIs**: Product management, store administration (requires admin auth)\n- **System APIs**: Health checks and API information\n\n## Rate Limiting\nAPI endpoints are rate-limited in production. See response headers for current limits.\n    ",
+    "description": "\n# MotoGT Complete Multi-Store Car Parts E-commerce API\n\nThis is the **COMPLETE** API documentation for the MotoGT platform - a comprehensive multi-store, multi-language car parts e-commerce system.\n\n## Key Features\n- \ud83c\udfea **Multi-Store Support**: Each store operates independently with its own products and orders\n- \ud83c\udf0d **Multi-Language**: Full internationalization support for product content *(languageId required)*\n- \ud83d\ude97 **Car Compatibility**: Advanced filtering system based on car models and compatibility\n- \ud83d\uded2 **Shopping Cart**: Store-specific cart management with session persistence\n- \ud83d\ude9a **Checkout System**: Complete order processing with address management and promo codes\n- \ud83c\udfaf **Promo Codes**: Discount system with validation (use \"test123\" for 50% discount)\n- \ud83d\udd27 **User Garage**: Personal car management for compatibility filtering\n- \u2764\ufe0f **Favourites System**: Personal product favourites management\n- \ud83d\udccd **Address Management**: Complete shipping/billing address system\n- \ud83d\udd10 **Secure Authentication**: JWT-based auth with role-based access control\n- \ud83d\udcf1 **Admin Panel**: Comprehensive admin tools for store and product management\n\n## Authentication\nMost endpoints require authentication via JWT Bearer tokens:\n```\nAuthorization: Bearer <your-jwt-token>\n```\n\n## Language Support\n\u26a0\ufe0f **Important**: Product endpoints require languageId parameter to return localized content.\n\n## API Structure\n- **Public APIs**: Product/category browsing (minimal auth required)\n- **User APIs**: Cart, checkout, garage, favourites, addresses (requires user auth)\n- **Admin APIs**: Product management, store administration (requires admin auth)\n- **System APIs**: Health checks and API information\n\n## Rate Limiting\nAPI endpoints are rate-limited in production. See response headers for current limits.\n    ",
     "version": "1.0.0",
     "contact": {
       "name": "MotoGT API Support",
@@ -117,9 +117,7 @@
         ],
         "summary": "Get all supported currencies",
         "description": "Returns a list of all supported currencies for multi-currency conversion. No authentication required.",
-        "security": [
-          
-        ],
+        "security": [],
         "responses": {
           "200": {
             "description": "List of supported currencies",
@@ -172,9 +170,7 @@
         ],
         "summary": "Get exchange rate for currency pair",
         "description": "Retrieves the current exchange rate between two currencies. Rates are updated daily at 2 AM. No authentication required.",
-        "security": [
-          
-        ],
+        "security": [],
         "parameters": [
           {
             "name": "from",
@@ -287,9 +283,7 @@
         ],
         "summary": "Convert amount between currencies",
         "description": "Converts a monetary amount from one currency to another using current exchange rates. Perfect for real-time price conversion in the frontend. No authentication required.",
-        "security": [
-          
-        ],
+        "security": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -422,9 +416,7 @@
         ],
         "summary": "Register new user",
         "description": "Registers a new user and emails a 6-digit OTP for verification (expires in 10 minutes).",
-        "security": [
-          
-        ],
+        "security": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -504,9 +496,7 @@
           "Authentication"
         ],
         "summary": "Confirm password reset",
-        "security": [
-          
-        ],
+        "security": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -649,9 +639,7 @@
           "Authentication"
         ],
         "summary": "User login",
-        "security": [
-          
-        ],
+        "security": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -709,9 +697,7 @@
                           "dateOfBirth": null,
                           "gender": null,
                           "avatarUrl": null,
-                          "additionalInfo": {
-                            
-                          },
+                          "additionalInfo": {},
                           "createdAt": "2025-01-01T00:00:00.000Z",
                           "updatedAt": "2025-01-01T00:00:00.000Z",
                           "lastLoginAt": "2025-01-02T00:00:00.000Z"
@@ -744,9 +730,7 @@
                           "dateOfBirth": null,
                           "gender": null,
                           "avatarUrl": null,
-                          "additionalInfo": {
-                            
-                          },
+                          "additionalInfo": {},
                           "createdAt": "2025-01-01T00:00:00.000Z",
                           "updatedAt": "2025-01-01T00:00:00.000Z",
                           "lastLoginAt": null
@@ -777,9 +761,7 @@
           "Authentication"
         ],
         "summary": "Refresh access token",
-        "security": [
-          
-        ],
+        "security": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -856,9 +838,7 @@
         "summary": "Get current user",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "responses": {
@@ -898,9 +878,7 @@
         "description": "Update current user profile information. Email address cannot be changed via this endpoint.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "requestBody": {
@@ -1039,9 +1017,7 @@
         "summary": "Reset password (authenticated)",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "requestBody": {
@@ -1100,9 +1076,7 @@
           "Authentication"
         ],
         "summary": "Forgot password",
-        "security": [
-          
-        ],
+        "security": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -1178,9 +1152,7 @@
         "summary": "Logout user",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "responses": {
@@ -1208,9 +1180,7 @@
         "summary": "List users (admin)",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -1435,9 +1405,7 @@
         ],
         "summary": "Admin login",
         "description": "Authenticate an admin user and receive access/refresh tokens.",
-        "security": [
-          
-        ],
+        "security": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -1551,9 +1519,7 @@
         "summary": "Get user details (admin)",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -1715,9 +1681,7 @@
         "summary": "Verify user (admin)",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -1814,9 +1778,7 @@
         "summary": "Unverify user (admin)",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -1913,9 +1875,7 @@
         "summary": "List orders (admin)",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -2130,9 +2090,7 @@
         "summary": "Get order details (admin)",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -2352,9 +2310,7 @@
         "summary": "Update order status (admin)",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -2454,9 +2410,7 @@
         ],
         "summary": "List all stores",
         "description": "Get paginated list of all stores in the system. Public endpoint.",
-        "security": [
-          
-        ],
+        "security": [],
         "parameters": [
           {
             "name": "page",
@@ -2567,9 +2521,7 @@
         "description": "Create a new store with supported languages. Admin only.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "requestBody": {
@@ -2693,9 +2645,7 @@
         ],
         "summary": "Get store by ID",
         "description": "Retrieve detailed information about a specific store. Public endpoint.",
-        "security": [
-          
-        ],
+        "security": [],
         "parameters": [
           {
             "name": "storeId",
@@ -2741,9 +2691,7 @@
         "description": "Update an existing store's details and/or supported languages. Admin only.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -2846,9 +2794,7 @@
         "description": "Delete a store from the system. Admin only.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -2902,9 +2848,7 @@
         ],
         "summary": "List all cars",
         "description": "Get paginated list of all cars in the database for compatibility filtering.",
-        "security": [
-          
-        ],
+        "security": [],
         "parameters": [
           {
             "name": "page",
@@ -2981,9 +2925,7 @@
         "summary": "Create car (admin)",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "requestBody": {
@@ -3063,9 +3005,7 @@
         ],
         "summary": "Get car by ID",
         "description": "Get detailed information about a specific car.",
-        "security": [
-          
-        ],
+        "security": [],
         "parameters": [
           {
             "name": "carId",
@@ -3100,9 +3040,7 @@
         "summary": "Update car (admin)",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -3191,9 +3129,7 @@
         "summary": "Delete car (admin)",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -3230,16 +3166,105 @@
         }
       }
     },
+    "/api/cars/trims": {
+      "get": {
+        "tags": [
+          "Cars"
+        ],
+        "summary": "Get car trims",
+        "description": "Get all unique trim values for a brand and model within a store. Year is optional.",
+        "security": [],
+        "parameters": [
+          {
+            "name": "store_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Store ID to get trims for"
+          },
+          {
+            "name": "brand",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "description": "Car brand",
+            "example": "BMW"
+          },
+          {
+            "name": "model",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "description": "Car model",
+            "example": "320i"
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1900,
+              "maximum": 2100
+            },
+            "description": "Optional model year used to narrow compatibility ranges",
+            "example": 2020
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Car trims retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "g30",
+                        "M Sport",
+                        "Base"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
     "/api/cars/models": {
       "get": {
         "tags": [
           "Cars"
         ],
         "summary": "Get car models",
-        "description": "Get all unique car models for a store, optionally filtered by brand.\n        \n**Features:**\n- ✅ **Store-specific**: Returns models available in the specified store only\n- ✅ **Brand filtering**: Optional brand parameter to filter models for specific manufacturer\n- ✅ **No pagination**: Returns all models at once (optimized for dropdowns/selects)\n- ✅ **Unique models**: Deduplicates model names from database\n- ✅ **Fast performance**: Optimized query with proper indexing\n\n**Use Cases:**\n- Frontend dropdowns for car model selection\n- Filter products by specific car models\n- Build car selection wizards\n- API integration for third-party services\n\n**Examples:**\n- Get all models: `GET /api/cars/models?store_id=19bf2cb6-1b50-4b95-80d6-9da6560588fc`\n- Get BMW models only: `GET /api/cars/models?store_id=19bf2cb6-1b50-4b95-80d6-9da6560588fc&brand=BMW`\n- Get Mercedes models: `GET /api/cars/models?store_id=19bf2cb6-1b50-4b95-80d6-9da6560588fc&brand=MERCEDES`\n        ",
-        "security": [
-          
-        ],
+        "description": "Get all unique car models for a store, optionally filtered by brand.\n        \n**Features:**\n- \u2705 **Store-specific**: Returns models available in the specified store only\n- \u2705 **Brand filtering**: Optional brand parameter to filter models for specific manufacturer\n- \u2705 **No pagination**: Returns all models at once (optimized for dropdowns/selects)\n- \u2705 **Unique models**: Deduplicates model names from database\n- \u2705 **Fast performance**: Optimized query with proper indexing\n\n**Use Cases:**\n- Frontend dropdowns for car model selection\n- Filter products by specific car models\n- Build car selection wizards\n- API integration for third-party services\n\n**Examples:**\n- Get all models: `GET /api/cars/models?store_id=19bf2cb6-1b50-4b95-80d6-9da6560588fc`\n- Get BMW models only: `GET /api/cars/models?store_id=19bf2cb6-1b50-4b95-80d6-9da6560588fc&brand=BMW`\n- Get Mercedes models: `GET /api/cars/models?store_id=19bf2cb6-1b50-4b95-80d6-9da6560588fc&brand=MERCEDES`\n        ",
+        "security": [],
         "parameters": [
           {
             "name": "store_id",
@@ -3289,10 +3314,8 @@
           "Cars"
         ],
         "summary": "Get car brands",
-        "description": "Get all unique car brands for a store.\n        \n**Features:**\n- ✅ **Store-specific**: Returns brands available in the specified store only\n- ✅ **No filtering**: Returns all brands (no brand parameter needed)\n- ✅ **No pagination**: Returns all brands at once (optimized for dropdowns/selects)\n- ✅ **Unique brands**: Deduplicates brand names from database\n- ✅ **Fast performance**: Optimized query with proper indexing\n\n**Use Cases:**\n- Frontend dropdowns for car brand selection\n- Filter products by specific car brands\n- Build car selection wizards\n- API integration for third-party services\n\n**Examples:**\n- Get all brands: `GET /api/cars/brands?store_id=19bf2cb6-1b50-4b95-80d6-9da6560588fc`\n        ",
-        "security": [
-          
-        ],
+        "description": "Get all unique car brands for a store.\n        \n**Features:**\n- \u2705 **Store-specific**: Returns brands available in the specified store only\n- \u2705 **No filtering**: Returns all brands (no brand parameter needed)\n- \u2705 **No pagination**: Returns all brands at once (optimized for dropdowns/selects)\n- \u2705 **Unique brands**: Deduplicates brand names from database\n- \u2705 **Fast performance**: Optimized query with proper indexing\n\n**Use Cases:**\n- Frontend dropdowns for car brand selection\n- Filter products by specific car brands\n- Build car selection wizards\n- API integration for third-party services\n\n**Examples:**\n- Get all brands: `GET /api/cars/brands?store_id=19bf2cb6-1b50-4b95-80d6-9da6560588fc`\n        ",
+        "security": [],
         "parameters": [
           {
             "name": "store_id",
@@ -3332,7 +3355,7 @@
           "Home"
         ],
         "summary": "Get exterior products for home page",
-        "description": "\nGet products from the Exterior Parts category for home page display.\n\n⚠️ **Critical Requirements:**\n- storeId is **REQUIRED** - Products are store-specific\n- languageId is **OPTIONAL** - Returns localized product content when provided\n\n**🎯 Features:**\n- Pre-filtered for exterior parts category (ID: 41d4ba95-90e9-477b-97b5-470a497d81b6)\n- Supports pagination with page/limit parameters\n- Stock filtering with inStock parameter\n- User favorites included when authenticated\n- Sorted by creation date (newest first)\n\n**📊 Response:**\n- Complete product information with images\n- Localized translations\n- Specifications by language\n- User favorite status (if authenticated)\n- Pagination metadata\n        ",
+        "description": "\nGet products from the Exterior Parts category for home page display.\n\n\u26a0\ufe0f **Critical Requirements:**\n- storeId is **REQUIRED** - Products are store-specific\n- languageId is **OPTIONAL** - Returns localized product content when provided\n\n**\ud83c\udfaf Features:**\n- Pre-filtered for exterior parts category (ID: 41d4ba95-90e9-477b-97b5-470a497d81b6)\n- Supports pagination with page/limit parameters\n- Stock filtering with inStock parameter\n- User favorites included when authenticated\n- Sorted by creation date (newest first)\n\n**\ud83d\udcca Response:**\n- Complete product information with images\n- Localized translations\n- Specifications by language\n- User favorite status (if authenticated)\n- Pagination metadata\n        ",
         "parameters": [
           {
             "name": "storeId",
@@ -3429,13 +3452,9 @@
         },
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           },
-          {
-            
-          }
+          {}
         ]
       }
     },
@@ -3445,7 +3464,7 @@
           "Home"
         ],
         "summary": "Get interior products for home page",
-        "description": "\nGet products from the Interior Parts category for home page display.\n\n⚠️ **Critical Requirements:**\n- storeId is **REQUIRED** - Products are store-specific\n- languageId is **OPTIONAL** - Returns localized product content when provided\n\n**🎯 Features:**\n- Pre-filtered for interior parts category (ID: a24585f2-3a46-488a-b85d-1e9c227712a6)\n- Supports pagination with page/limit parameters\n- Stock filtering with inStock parameter\n- User favorites included when authenticated\n- Sorted by creation date (newest first)\n\n**📊 Response:**\n- Complete product information with images\n- Localized translations\n- Specifications by language\n- User favorite status (if authenticated)\n- Pagination metadata\n        ",
+        "description": "\nGet products from the Interior Parts category for home page display.\n\n\u26a0\ufe0f **Critical Requirements:**\n- storeId is **REQUIRED** - Products are store-specific\n- languageId is **OPTIONAL** - Returns localized product content when provided\n\n**\ud83c\udfaf Features:**\n- Pre-filtered for interior parts category (ID: a24585f2-3a46-488a-b85d-1e9c227712a6)\n- Supports pagination with page/limit parameters\n- Stock filtering with inStock parameter\n- User favorites included when authenticated\n- Sorted by creation date (newest first)\n\n**\ud83d\udcca Response:**\n- Complete product information with images\n- Localized translations\n- Specifications by language\n- User favorite status (if authenticated)\n- Pagination metadata\n        ",
         "parameters": [
           {
             "name": "storeId",
@@ -3542,13 +3561,9 @@
         },
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           },
-          {
-            
-          }
+          {}
         ]
       }
     },
@@ -3558,7 +3573,7 @@
           "Home"
         ],
         "summary": "Get homepage subcategories",
-        "description": "\nGet specific predefined subcategories for homepage display in exact order.\n\n⚠️ **Critical Requirements:**\n- storeId is **REQUIRED** - Subcategories are store-specific\n- languageId is **OPTIONAL** - Returns localized subcategory content when provided\n\n**🎯 Features:**\n- Returns exactly 10 predefined subcategories in fixed order\n- Includes both Exterior and Interior subcategories\n- Parent category information included\n- Sorted in predefined sequence for homepage consistency\n- User favorites integration when authenticated\n\n**📊 Predefined Subcategories (in order):**\n1. Front Splitter (Exterior)\n2. Vents (Exterior)  \n3. Front Bumper (Exterior)\n4. Spoiler (Exterior)\n5. Diffuser (Exterior)\n6. Steering Trim (Interior)\n7. Rims (Exterior)\n8. Control Trim (Interior)\n9. Floor Mat (Interior)\n10. Ladder (Exterior)\n\n**📋 Response:**\n- Complete subcategory information\n- Parent category details\n- Localized translations\n- Fixed sort order for consistency\n        ",
+        "description": "\nGet specific predefined subcategories for homepage display in exact order.\n\n\u26a0\ufe0f **Critical Requirements:**\n- storeId is **REQUIRED** - Subcategories are store-specific\n- languageId is **OPTIONAL** - Returns localized subcategory content when provided\n\n**\ud83c\udfaf Features:**\n- Returns exactly 10 predefined subcategories in fixed order\n- Includes both Exterior and Interior subcategories\n- Parent category information included\n- Sorted in predefined sequence for homepage consistency\n- User favorites integration when authenticated\n\n**\ud83d\udcca Predefined Subcategories (in order):**\n1. Front Splitter (Exterior)\n2. Vents (Exterior)  \n3. Front Bumper (Exterior)\n4. Spoiler (Exterior)\n5. Diffuser (Exterior)\n6. Steering Trim (Interior)\n7. Rims (Exterior)\n8. Control Trim (Interior)\n9. Floor Mat (Interior)\n10. Ladder (Exterior)\n\n**\ud83d\udccb Response:**\n- Complete subcategory information\n- Parent category details\n- Localized translations\n- Fixed sort order for consistency\n        ",
         "parameters": [
           {
             "name": "storeId",
@@ -3603,13 +3618,9 @@
         },
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           },
-          {
-            
-          }
+          {}
         ]
       }
     },
@@ -3620,9 +3631,7 @@
         ],
         "summary": "List categories (public)",
         "description": "\nGet paginated list of product categories. \n\n**Required Parameters:**\n- storeId: Filter categories by store\n- languageId: Language for category translations\n\n**Filtering by Product Type:**\nYou can filter categories by product type using either:\n- productTypeId (UUID) - Recommended\n- productType (code/slug) - Deprecated, use productTypeId instead\n\n**Example:**\n```\nGET /api/categories/public?storeId=xxx&languageId=yyy&productTypeId=f2c4e0b1-5d3a-4f8e-9a7b-1c2d3e4f5a6b\n```\n        ",
-        "security": [
-          
-        ],
+        "security": [],
         "parameters": [
           {
             "name": "storeId",
@@ -3632,7 +3641,7 @@
               "type": "string",
               "format": "uuid"
             },
-            "description": "⚠️ REQUIRED: Store ID to filter categories",
+            "description": "\u26a0\ufe0f REQUIRED: Store ID to filter categories",
             "example": "19bf2cb6-1b50-4b95-80d6-9da6560588fc"
           },
           {
@@ -3644,7 +3653,7 @@
               "format": "uuid",
               "default": "3a59981f-5f2d-4b3e-a12a-2c2b25b4680b"
             },
-            "description": "⚠️ REQUIRED: Language for category translations",
+            "description": "\u26a0\ufe0f REQUIRED: Language for category translations",
             "example": "3a59981f-5f2d-4b3e-a12a-2c2b25b4680b"
           },
           {
@@ -3762,9 +3771,7 @@
         ],
         "summary": "Get category by ID (public)",
         "description": "Get detailed information about a specific category.",
-        "security": [
-          
-        ],
+        "security": [],
         "parameters": [
           {
             "name": "categoryId",
@@ -3784,7 +3791,7 @@
               "format": "uuid",
               "default": "3a59981f-5f2d-4b3e-a12a-2c2b25b4680b"
             },
-            "description": "⚠️ REQUIRED: Language for category translations",
+            "description": "\u26a0\ufe0f REQUIRED: Language for category translations",
             "example": "3a59981f-5f2d-4b3e-a12a-2c2b25b4680b"
           }
         ],
@@ -3895,9 +3902,7 @@
         ],
         "summary": "List active product types",
         "description": "\nGet all active product types with translations.\n\n**Use Case:** Product type selector in filters, product creation forms\n**Response:** Active product types sorted by sortOrder\n        ",
-        "security": [
-          
-        ],
+        "security": [],
         "parameters": [
           {
             "name": "languageCode",
@@ -3966,9 +3971,7 @@
         ],
         "summary": "Get product type by ID",
         "description": "Retrieve a specific product type by its UUID",
-        "security": [
-          
-        ],
+        "security": [],
         "parameters": [
           {
             "name": "id",
@@ -4026,9 +4029,7 @@
         ],
         "summary": "Get product type by code or slug",
         "description": "\nRetrieve a product type using its code or slug (backward compatibility).\n\n**Examples:**\n- GET /api/product-types/code/car_parts\n- GET /api/product-types/code/car-parts\n- GET /api/product-types/code/motorcycles\n        ",
-        "security": [
-          
-        ],
+        "security": [],
         "parameters": [
           {
             "name": "codeOrSlug",
@@ -4088,9 +4089,7 @@
         "description": "Get all product types with pagination (admin only)",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -4193,9 +4192,7 @@
         "description": "\nCreate a new product type with translations.\n\n**Important:**\n- Code must be unique and immutable (cannot be changed later)\n- Slug is auto-generated from code if not provided\n- At least one translation is required\n        ",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "requestBody": {
@@ -4330,9 +4327,7 @@
         "description": "\nUpdate an existing product type.\n\n**Note:** Code and slug are immutable and cannot be changed.\n        ",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -4445,9 +4440,7 @@
         "description": "\nDelete a product type.\n\n**Warning:** This will fail if:\n- Any products are using this product type\n- Any categories are linked to this product type\n        ",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -4518,16 +4511,12 @@
           "Products"
         ],
         "summary": "List products (public)",
-        "description": "\nBrowse products with advanced filtering and search capabilities.\n\n⚠️ **Critical Requirements:**\n- storeId is **REQUIRED** - Products are store-specific\n- languageId is **REQUIRED** - Returns localized product content\n\n**🔍 Search & Filtering Options:**\n- **Text Search**: Search in product titles/names only (focused search)\n- **Price Filtering**: Set minPrice and maxPrice ranges with full support\n- **Stock Filtering**: Filter by inStock status (true = only products with stock > 0)\n- **Category Filtering**: Filter by single or multiple categories/sub-categories (comma-separated UUIDs)\n- **Product IDs Filtering**: Get specific products by IDs (single UUID or comma-separated UUIDs)\n- **Car Compatibility**: Advanced car-based filtering by brand, model, year, or user's garage\n\n**🚗 Car-Based Filtering:**\n- **carBrand/carModel/carYear**: Filter by specific car specifications\n- **useMyPrimaryCar**: Use authenticated user's primary car (requires auth)\n- **carCompatibility sorting**: Products exactly matching car specs appear first\n\n**🎯 Combined Filtering:**\n- **✅ NEW**: Search, price, and stock filters now work seamlessly WITH car filtering\n- **Example**: Search \"FLOOR MAT\" + carBrand=\"BYD\" + minPrice=30 + inStock=true\n- **All combinations supported**: Mix any search/price/stock filters with car filters\n\n**📊 Sorting Options:**\n- **price**: High to low or low to high price sorting\n- **name**: Alphabetical A-Z or Z-A sorting  \n- **createdAt**: Newest or oldest first (default)\n- **stockQuantity**: Most or least stock first\n\n**✨ Response Features:**\n- **in_favs**: Indicates if product is in user's favorites (requires authentication)\n- **Localized Content**: Product names, descriptions, and specs in requested language\n- **Correct Pagination**: Fixed total counts and page calculations\n- **Real-time Stock**: Accurate inventory and availability status\n\n**🔧 Example API Calls:**\n```\n# Search BMW products with price 25-100 JOD, sorted by price (high to low)\nGET /api/products/public?storeId=19bf2cb6-1b50-4b95-80d6-9da6560588fc&languageId=3a59981f-5f2d-4b3e-a12a-2c2b25b4680b&search=BMW&minPrice=25&maxPrice=100&sortBy=price&sortOrder=desc\n\n# Find in-stock products compatible with BMW 320i 2020 (by brand/model/year)\nGET /api/products/public?storeId=19bf2cb6-1b50-4b95-80d6-9da6560588fc&languageId=3a59981f-5f2d-4b3e-a12a-2c2b25b4680b&carBrand=BMW&carModel=320i&carYear=2020&inStock=true\n\n# ✅ NEW: Filter by specific car ID and year (uses product_car_compatibility table)\nGET /api/products/public?storeId=19bf2cb6-1b50-4b95-80d6-9da6560588fc&languageId=3a59981f-5f2d-4b3e-a12a-2c2b25b4680b&carId=33d36d84-757c-45b9-acc6-863e3669b8c3&year=2022\n\n# ✅ NEW: Filter by car ID only (all years)\nGET /api/products/public?storeId=19bf2cb6-1b50-4b95-80d6-9da6560588fc&languageId=3a59981f-5f2d-4b3e-a12a-2c2b25b4680b&carId=33d36d84-757c-45b9-acc6-863e3669b8c3\n\n# ✅ FIXED: Combined search + car filtering (search \"FLOOR MAT\" for BYD cars only)\nGET /api/products/public?storeId=19bf2cb6-1b50-4b95-80d6-9da6560588fc&languageId=3a59981f-5f2d-4b3e-a12a-2c2b25b4680b&search=FLOOR%20MAT&carBrand=BYD&inStock=true&minPrice=30&sortBy=price&sortOrder=desc\n\n# ✅ NEW: Multiple category filtering (comma-separated category IDs)\nGET /api/products/public?storeId=19bf2cb6-1b50-4b95-80d6-9da6560588fc&languageId=3a59981f-5f2d-4b3e-a12a-2c2b25b4680b&categoryId=19bf2cb6-1b50-4b95-80d6-9da6560588fc,29bf2cb6-1b50-4b95-80d6-9da6560588fc&minPrice=20\n\n# ✅ NEW: Get specific products by IDs (single or comma-separated product IDs)\nGET /api/products/public?storeId=19bf2cb6-1b50-4b95-80d6-9da6560588fc&languageId=3a59981f-5f2d-4b3e-a12a-2c2b25b4680b&productIds=042da6e7-ce7e-4aa2-9858-dc7aa63c1cd4,58eceeb7-0c64-43a8-8cd2-92ee75827bd4\n\n# Browse all products sorted A-Z by name\nGET /api/products/public?storeId=19bf2cb6-1b50-4b95-80d6-9da6560588fc&languageId=3a59981f-5f2d-4b3e-a12a-2c2b25b4680b&sortBy=name&sortOrder=asc\n```\n        ",
+        "description": "\nBrowse products with advanced filtering and search capabilities.\n\n\u26a0\ufe0f **Critical Requirements:**\n- storeId is **REQUIRED** - Products are store-specific\n- languageId is **REQUIRED** - Returns localized product content\n\n**\ud83d\udd0d Search & Filtering Options:**\n- **Text Search**: Search in product titles/names only (focused search)\n- **Price Filtering**: Set minPrice and maxPrice ranges with full support\n- **Stock Filtering**: Filter by inStock status (true = only products with stock > 0)\n- **Category Filtering**: Filter by single or multiple categories/sub-categories (comma-separated UUIDs)\n- **Product IDs Filtering**: Get specific products by IDs (single UUID or comma-separated UUIDs)\n- **Car Compatibility**: Advanced car-based filtering by brand, model, year, or user's garage\n\n**\ud83d\ude97 Car-Based Filtering:**\n- **carBrand/carModel/carYear**: Filter by specific car specifications\n- **useMyPrimaryCar**: Use authenticated user's primary car (requires auth)\n- **carCompatibility sorting**: Products exactly matching car specs appear first\n\n**\ud83c\udfaf Combined Filtering:**\n- **\u2705 NEW**: Search, price, and stock filters now work seamlessly WITH car filtering\n- **Example**: Search \"FLOOR MAT\" + carBrand=\"BYD\" + minPrice=30 + inStock=true\n- **All combinations supported**: Mix any search/price/stock filters with car filters\n\n**\ud83d\udcca Sorting Options:**\n- **price**: High to low or low to high price sorting\n- **name**: Alphabetical A-Z or Z-A sorting  \n- **createdAt**: Newest or oldest first (default)\n- **stockQuantity**: Most or least stock first\n\n**\u2728 Response Features:**\n- **in_favs**: Indicates if product is in user's favorites (requires authentication)\n- **Localized Content**: Product names, descriptions, and specs in requested language\n- **Correct Pagination**: Fixed total counts and page calculations\n- **Real-time Stock**: Accurate inventory and availability status\n\n**\ud83d\udd27 Example API Calls:**\n```\n# Search BMW products with price 25-100 JOD, sorted by price (high to low)\nGET /api/products/public?storeId=19bf2cb6-1b50-4b95-80d6-9da6560588fc&languageId=3a59981f-5f2d-4b3e-a12a-2c2b25b4680b&search=BMW&minPrice=25&maxPrice=100&sortBy=price&sortOrder=desc\n\n# Find in-stock products compatible with BMW 320i 2020 (by brand/model/year)\nGET /api/products/public?storeId=19bf2cb6-1b50-4b95-80d6-9da6560588fc&languageId=3a59981f-5f2d-4b3e-a12a-2c2b25b4680b&carBrand=BMW&carModel=320i&carYear=2020&inStock=true\n\n# \u2705 NEW: Filter by specific car ID and year (uses product_car_compatibility table)\nGET /api/products/public?storeId=19bf2cb6-1b50-4b95-80d6-9da6560588fc&languageId=3a59981f-5f2d-4b3e-a12a-2c2b25b4680b&carId=33d36d84-757c-45b9-acc6-863e3669b8c3&year=2022\n\n# \u2705 NEW: Filter by car ID only (all years)\nGET /api/products/public?storeId=19bf2cb6-1b50-4b95-80d6-9da6560588fc&languageId=3a59981f-5f2d-4b3e-a12a-2c2b25b4680b&carId=33d36d84-757c-45b9-acc6-863e3669b8c3\n\n# \u2705 FIXED: Combined search + car filtering (search \"FLOOR MAT\" for BYD cars only)\nGET /api/products/public?storeId=19bf2cb6-1b50-4b95-80d6-9da6560588fc&languageId=3a59981f-5f2d-4b3e-a12a-2c2b25b4680b&search=FLOOR%20MAT&carBrand=BYD&inStock=true&minPrice=30&sortBy=price&sortOrder=desc\n\n# \u2705 NEW: Multiple category filtering (comma-separated category IDs)\nGET /api/products/public?storeId=19bf2cb6-1b50-4b95-80d6-9da6560588fc&languageId=3a59981f-5f2d-4b3e-a12a-2c2b25b4680b&categoryId=19bf2cb6-1b50-4b95-80d6-9da6560588fc,29bf2cb6-1b50-4b95-80d6-9da6560588fc&minPrice=20\n\n# \u2705 NEW: Get specific products by IDs (single or comma-separated product IDs)\nGET /api/products/public?storeId=19bf2cb6-1b50-4b95-80d6-9da6560588fc&languageId=3a59981f-5f2d-4b3e-a12a-2c2b25b4680b&productIds=042da6e7-ce7e-4aa2-9858-dc7aa63c1cd4,58eceeb7-0c64-43a8-8cd2-92ee75827bd4\n\n# Browse all products sorted A-Z by name\nGET /api/products/public?storeId=19bf2cb6-1b50-4b95-80d6-9da6560588fc&languageId=3a59981f-5f2d-4b3e-a12a-2c2b25b4680b&sortBy=name&sortOrder=asc\n```\n        ",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           },
-          {
-            
-          }
+          {}
         ],
         "parameters": [
           {
@@ -4550,7 +4539,7 @@
               "format": "uuid",
               "default": "3a59981f-5f2d-4b3e-a12a-2c2b25b4680b"
             },
-            "description": "⚠️ REQUIRED: Language for product translations",
+            "description": "\u26a0\ufe0f REQUIRED: Language for product translations",
             "example": "3a59981f-5f2d-4b3e-a12a-2c2b25b4680b"
           },
           {
@@ -4578,7 +4567,7 @@
               "type": "number",
               "minimum": 0
             },
-            "description": "✅ FIXED: Minimum price filter. Now works with all filters including car filtering",
+            "description": "\u2705 FIXED: Minimum price filter. Now works with all filters including car filtering",
             "example": 25
           },
           {
@@ -4588,7 +4577,7 @@
               "type": "number",
               "minimum": 0
             },
-            "description": "✅ FIXED: Maximum price filter. Now works with all filters including car filtering",
+            "description": "\u2705 FIXED: Maximum price filter. Now works with all filters including car filtering",
             "example": 100
           },
           {
@@ -4598,7 +4587,7 @@
               "type": "string",
               "maxLength": 255
             },
-            "description": "✅ UPDATED: Text search in product titles/names only. Works with all filters including car filtering",
+            "description": "\u2705 UPDATED: Text search in product titles/names only. Works with all filters including car filtering",
             "example": "FLOOR MAT"
           },
           {
@@ -4607,7 +4596,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "✅ NEW: Filter by specific product IDs (supports single UUID or comma-separated UUIDs for multiple products)",
+            "description": "\u2705 NEW: Filter by specific product IDs (supports single UUID or comma-separated UUIDs for multiple products)",
             "example": "042da6e7-ce7e-4aa2-9858-dc7aa63c1cd4,58eceeb7-0c64-43a8-8cd2-92ee75827bd4"
           },
           {
@@ -4616,7 +4605,7 @@
             "schema": {
               "type": "boolean"
             },
-            "description": "✅ FIXED: Filter by stock availability. Now works with car filtering (true = only products with stock > 0)",
+            "description": "\u2705 FIXED: Filter by stock availability. Now works with car filtering (true = only products with stock > 0)",
             "example": true
           },
           {
@@ -4626,7 +4615,7 @@
               "type": "string",
               "format": "uuid"
             },
-            "description": "✅ NEW: Filter by specific car UUID from product_car_compatibility table. Use with year parameter for year-specific filtering.",
+            "description": "\u2705 NEW: Filter by specific car UUID from product_car_compatibility table. Use with year parameter for year-specific filtering.",
             "example": "33d36d84-757c-45b9-acc6-863e3669b8c3"
           },
           {
@@ -4657,8 +4646,18 @@
               "minimum": 1900,
               "maximum": 2030
             },
-            "description": "✅ NEW: Filter by car year. When used with carId, filters products compatible with that car in the specified year using year_from/year_to ranges from product_car_compatibility table.",
+            "description": "\u2705 NEW: Filter by car year. When used with carId, filters products compatible with that car in the specified year using year_from/year_to ranges from product_car_compatibility table.",
             "example": 2022
+          },
+          {
+            "name": "carTrim",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "description": "Optional filter by car trim level",
+            "example": "M Sport"
           },
           {
             "name": "useMyPrimaryCar",
@@ -4704,7 +4703,7 @@
               ],
               "default": "createdAt"
             },
-            "description": "✅ UPDATED: Sort field - name (A-Z), price (High/Low), createdAt (Newest/Oldest), stockQuantity, carCompatibility (best fit first)",
+            "description": "\u2705 UPDATED: Sort field - name (A-Z), price (High/Low), createdAt (Newest/Oldest), stockQuantity, carCompatibility (best fit first)",
             "example": "price"
           },
           {
@@ -4718,7 +4717,7 @@
               ],
               "default": "desc"
             },
-            "description": "✅ UPDATED: Sort direction - asc (Low to High, A-Z), desc (High to Low, Z-A)",
+            "description": "\u2705 UPDATED: Sort direction - asc (Low to High, A-Z), desc (High to Low, Z-A)",
             "example": "desc"
           }
         ],
@@ -4745,16 +4744,12 @@
           "Products"
         ],
         "summary": "Get product details (public)",
-        "description": "\nGet comprehensive product details including:\n- **Localized Content**: Product names, descriptions, and specifications in requested language\n- **Technical Specifications**: Detailed product specs with filtering capabilities  \n- **✅ NEW Car Compatibility**: Complete list of compatible vehicles with year ranges (year_from to year_to) from product_car_compatibility table\n- **Pricing & Stock**: Real-time pricing and availability\n- **Images**: High-quality product images and gallery\n- **Category Information**: Product categorization (categoryId, subCategoryId) plus full category/subCategory objects with translations\n- **Favorites Status**: in_favs field indicates if product is in user's favorites (requires authentication)\n\n⚠️ **Critical**: languageId is **REQUIRED** - Determines which language content to return\n\n✨ **New**: `category` and `subCategory` fields now include full category details with translations, subcategories, and product counts\n✨ **New**: `compatibleCars` array includes carId, carBrand, carModel, carYearFrom, and carYearTo for each compatible vehicle\n        ",
+        "description": "\nGet comprehensive product details including:\n- **Localized Content**: Product names, descriptions, and specifications in requested language\n- **Technical Specifications**: Detailed product specs with filtering capabilities  \n- **\u2705 NEW Car Compatibility**: Complete list of compatible vehicles with year ranges (year_from to year_to) from product_car_compatibility table\n- **Pricing & Stock**: Real-time pricing and availability\n- **Images**: High-quality product images and gallery\n- **Category Information**: Product categorization (categoryId, subCategoryId) plus full category/subCategory objects with translations\n- **Favorites Status**: in_favs field indicates if product is in user's favorites (requires authentication)\n\n\u26a0\ufe0f **Critical**: languageId is **REQUIRED** - Determines which language content to return\n\n\u2728 **New**: `category` and `subCategory` fields now include full category details with translations, subcategories, and product counts\n\u2728 **New**: `compatibleCars` array includes carId, carBrand, carModel, carYearFrom, and carYearTo for each compatible vehicle\n        ",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           },
-          {
-            
-          }
+          {}
         ],
         "parameters": [
           {
@@ -4776,7 +4771,7 @@
               "format": "uuid",
               "default": "3a59981f-5f2d-4b3e-a12a-2c2b25b4680b"
             },
-            "description": "⚠️ REQUIRED: Language for product translations",
+            "description": "\u26a0\ufe0f REQUIRED: Language for product translations",
             "example": "3a59981f-5f2d-4b3e-a12a-2c2b25b4680b"
           }
         ],
@@ -4808,9 +4803,7 @@
         "summary": "Upload product image (admin)",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -4872,9 +4865,7 @@
         "summary": "Generate product images from S3 (admin)",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -4942,9 +4933,7 @@
         "summary": "Delete product image (admin)",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "requestBody": {
@@ -4998,9 +4987,7 @@
         "description": "Check if a product is in the authenticated user's favourites.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -5070,9 +5057,7 @@
         "summary": "Create product (admin)",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "requestBody": {
@@ -5115,9 +5100,7 @@
         "description": "Admin endpoint to list all products with full details and management capabilities. languageId required for localized content. Category filtering matches both category and sub-category when only categoryId is provided.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -5129,7 +5112,7 @@
               "type": "string",
               "format": "uuid"
             },
-            "description": "⚠️ REQUIRED: Store ID to filter products"
+            "description": "\u26a0\ufe0f REQUIRED: Store ID to filter products"
           },
           {
             "name": "languageId",
@@ -5139,7 +5122,7 @@
               "type": "string",
               "format": "uuid"
             },
-            "description": "⚠️ REQUIRED: Language for product translations"
+            "description": "\u26a0\ufe0f REQUIRED: Language for product translations"
           },
           {
             "name": "categoryId",
@@ -5213,9 +5196,7 @@
         "summary": "List categories (admin)",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -5299,9 +5280,7 @@
         "summary": "Get category by ID (admin)",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -5354,9 +5333,7 @@
         "summary": "Get product (admin)",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -5377,7 +5354,7 @@
               "type": "string",
               "format": "uuid"
             },
-            "description": "⚠️ REQUIRED: Language for product translations"
+            "description": "\u26a0\ufe0f REQUIRED: Language for product translations"
           }
         ],
         "responses": {
@@ -5409,9 +5386,7 @@
         "summary": "Update product (admin)",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -5467,9 +5442,7 @@
         "summary": "Delete product (admin)",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -5515,9 +5488,7 @@
         "description": "Admin endpoint to set/update a category's image URL (S3 URL expected).",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -5612,13 +5583,9 @@
         "description": "Add a product to the cart. Supports both authenticated users (via Bearer token) and guest sessions (via x-guest-session cookie).",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           },
-          {
-            
-          }
+          {}
         ],
         "parameters": [
           {
@@ -5687,13 +5654,9 @@
         "description": "Update the quantity of a cart item. Supports both authenticated users (via Bearer token) and guest sessions (via x-guest-session cookie).",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           },
-          {
-            
-          }
+          {}
         ],
         "parameters": [
           {
@@ -5766,13 +5729,9 @@
         "description": "Remove a product from the cart. Supports both authenticated users (via Bearer token) and guest sessions (via x-guest-session cookie).",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           },
-          {
-            
-          }
+          {}
         ],
         "parameters": [
           {
@@ -5823,13 +5782,9 @@
         "description": "Retrieve current cart contents. Supports both authenticated users (via Bearer token) and guest sessions (via x-guest-session cookie).",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           },
-          {
-            
-          }
+          {}
         ],
         "parameters": [
           {
@@ -5875,13 +5830,9 @@
         "description": "Clear all items from the cart. Supports both authenticated users (via Bearer token) and guest sessions (via x-guest-session cookie).",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           },
-          {
-            
-          }
+          {}
         ],
         "parameters": [
           {
@@ -5917,12 +5868,10 @@
           "Cart"
         ],
         "summary": "Initialize cart with multiple items",
-        "description": "\nInitialize user's cart with multiple products at once. This endpoint is designed for syncing local storage cart data when a user logs in.\n\n**🎯 Key Features:**\n- **Batch Processing**: Add multiple products in a single request (1-50 items)\n- **Smart Merging**: Updates existing cart items or adds new ones as needed\n- **Partial Success**: Continues processing even if some items fail validation\n- **Detailed Feedback**: Returns which items were added/updated and which were skipped\n\n**🔄 Use Case:**\nWhen a user logs in, the frontend can sync their local storage cart with the database by sending all items at once.\n\n**📊 Response Details:**\n- `addedItems`: Successfully processed items with their final quantities\n- `skippedItems`: Items that failed validation with specific error reasons\n- `cartSummary`: Updated cart totals after processing\n\n**⚡ Performance:**\n- Optimized for batch processing\n- Atomic operations per item (failures don't affect successful items)\n- Efficient database transactions\n        ",
+        "description": "\nInitialize user's cart with multiple products at once. This endpoint is designed for syncing local storage cart data when a user logs in.\n\n**\ud83c\udfaf Key Features:**\n- **Batch Processing**: Add multiple products in a single request (1-50 items)\n- **Smart Merging**: Updates existing cart items or adds new ones as needed\n- **Partial Success**: Continues processing even if some items fail validation\n- **Detailed Feedback**: Returns which items were added/updated and which were skipped\n\n**\ud83d\udd04 Use Case:**\nWhen a user logs in, the frontend can sync their local storage cart with the database by sending all items at once.\n\n**\ud83d\udcca Response Details:**\n- `addedItems`: Successfully processed items with their final quantities\n- `skippedItems`: Items that failed validation with specific error reasons\n- `cartSummary`: Updated cart totals after processing\n\n**\u26a1 Performance:**\n- Optimized for batch processing\n- Atomic operations per item (failures don't affect successful items)\n- Efficient database transactions\n        ",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -5975,9 +5924,7 @@
         "description": "Get the total count of items in the cart for UI badges.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -6041,10 +5988,8 @@
           "Promo Codes"
         ],
         "summary": "Validate promo code",
-        "description": "Validate a promo code and preview the discount before checkout. This endpoint allows frontend to show discount preview to users before they proceed with the order.\n\n**Features:**\n- ✅ **Public Endpoint**: No authentication required for validation\n- ✅ **Real-time Validation**: Checks if code exists, is active, and within valid date range\n- ✅ **Usage Limits**: Verifies if code hasn't exceeded usage limits\n- ✅ **Minimum Order**: Validates minimum order subtotal requirements\n- ✅ **Discount Preview**: Calculates and returns exact discount amount\n- ✅ **Multiple Discount Types**: Supports both PERCENTAGE and FIXED discounts\n\n**Validation Checks:**\n1. Promo code exists in database\n2. Code is currently active (isActive = true)\n3. Current date is within valid range (startsAt/endsAt)\n4. Order subtotal meets minimum requirement (if set)\n5. Total usage limit not exceeded (if set)\n6. Currency matches (for FIXED discount type)\n\n**Response:**\n- If valid: Returns promo code details and calculated discount\n- If invalid: Returns validation errors with specific reasons\n\n**Example Flow:**\n1. User enters promo code \"SUMMER50\" in cart\n2. Frontend calls this endpoint with code and cart subtotal\n3. Backend validates and returns discount amount\n4. Frontend displays discount to user\n5. User proceeds to checkout with validated code",
-        "security": [
-          
-        ],
+        "description": "Validate a promo code and preview the discount before checkout. This endpoint allows frontend to show discount preview to users before they proceed with the order.\n\n**Features:**\n- \u2705 **Public Endpoint**: No authentication required for validation\n- \u2705 **Real-time Validation**: Checks if code exists, is active, and within valid date range\n- \u2705 **Usage Limits**: Verifies if code hasn't exceeded usage limits\n- \u2705 **Minimum Order**: Validates minimum order subtotal requirements\n- \u2705 **Discount Preview**: Calculates and returns exact discount amount\n- \u2705 **Multiple Discount Types**: Supports both PERCENTAGE and FIXED discounts\n\n**Validation Checks:**\n1. Promo code exists in database\n2. Code is currently active (isActive = true)\n3. Current date is within valid range (startsAt/endsAt)\n4. Order subtotal meets minimum requirement (if set)\n5. Total usage limit not exceeded (if set)\n6. Currency matches (for FIXED discount type)\n\n**Response:**\n- If valid: Returns promo code details and calculated discount\n- If invalid: Returns validation errors with specific reasons\n\n**Example Flow:**\n1. User enters promo code \"SUMMER50\" in cart\n2. Frontend calls this endpoint with code and cart subtotal\n3. Backend validates and returns discount amount\n4. Frontend displays discount to user\n5. User proceeds to checkout with validated code",
+        "security": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -6206,9 +6151,7 @@
                             "type": "string"
                           },
                           "description": "Validation error messages (empty if valid=true)",
-                          "example": [
-                            
-                          ]
+                          "example": []
                         }
                       }
                     }
@@ -6233,9 +6176,7 @@
                           "currency": "JOD",
                           "percentage": 50
                         },
-                        "errors": [
-                          
-                        ]
+                        "errors": []
                       }
                     }
                   },
@@ -6256,9 +6197,7 @@
                           "amount": 20,
                           "currency": "JOD"
                         },
-                        "errors": [
-                          
-                        ]
+                        "errors": []
                       }
                     }
                   },
@@ -6331,12 +6270,10 @@
           "Checkout"
         ],
         "summary": "Create order from cart",
-        "description": "🔒 SECURITY: Convert cart items into an order. All amounts (tax, shipping, discount) are calculated ONLY on the backend. Use promo code \"test123\" for 50% discount on subtotal.",
+        "description": "\ud83d\udd12 SECURITY: Convert cart items into an order. All amounts (tax, shipping, discount) are calculated ONLY on the backend. Use promo code \"test123\" for 50% discount on subtotal.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "requestBody": {
@@ -6438,9 +6375,7 @@
         "description": "Get detailed information about a specific order.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -6483,9 +6418,7 @@
         "description": "Get paginated list of user's orders.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -6587,9 +6520,7 @@
         ],
         "summary": "Create guest order",
         "description": "Create an order as a guest (non-authenticated) user. Requires a guest session (x-guest-session cookie).\n\n**Key Differences from Authenticated Checkout:**\n- No user account required\n- Guest contact info (email, phone, name) must be provided in the request body\n- Inline shipping/billing addresses instead of address IDs\n- Guest orders can be looked up later via order number + email\n- Guest orders can be claimed by creating an account with the same email\n\n**Guest Session:**\nThe guest session is automatically created when adding items to cart without authentication.\nThe session is tracked via the `x-guest-session` cookie.",
-        "security": [
-          
-        ],
+        "security": [],
         "parameters": [
           {
             "name": "x-guest-session",
@@ -6703,9 +6634,7 @@
         ],
         "summary": "Look up guest order",
         "description": "Look up a guest order by order number and email address. This is a public endpoint that allows guests to track their orders without creating an account.\n\n**Security:** No authentication required, but both order number and email must match.",
-        "security": [
-          
-        ],
+        "security": [],
         "parameters": [
           {
             "name": "orderNumber",
@@ -6760,9 +6689,7 @@
         "summary": "Add car to garage",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "requestBody": {
@@ -6847,9 +6774,7 @@
         "description": "Get paginated list of cars in the user's garage. **storeId is REQUIRED** for store context.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -6861,7 +6786,7 @@
               "type": "string",
               "format": "uuid"
             },
-            "description": "⚠️ REQUIRED: Store ID for context",
+            "description": "\u26a0\ufe0f REQUIRED: Store ID for context",
             "example": "19bf2cb6-1b50-4b95-80d6-9da6560588fc"
           },
           {
@@ -6909,9 +6834,7 @@
         "summary": "Update car in garage",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -6985,9 +6908,7 @@
         "summary": "Remove car from garage",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -7029,9 +6950,7 @@
         "summary": "Set primary car",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -7094,9 +7013,7 @@
         "description": "Add a product to user's favourites list.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "requestBody": {
@@ -7181,9 +7098,7 @@
         "description": "Remove a product from user's favourites list.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "requestBody": {
@@ -7236,9 +7151,7 @@
         "description": "Get user's favourite products with pagination.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -7309,9 +7222,7 @@
         "description": "Initialize user favourites with a list of product IDs. Already favourited items are skipped.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "requestBody": {
@@ -7456,9 +7367,7 @@
         "description": "Get user's shipping and billing addresses with pagination.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -7506,9 +7415,7 @@
         "description": "Create a new shipping or billing address for the user.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "requestBody": {
@@ -7592,9 +7499,7 @@
         "summary": "Get address by ID",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -7634,9 +7539,7 @@
         "summary": "Update address",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -7719,9 +7622,7 @@
         "summary": "Delete address",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -7764,9 +7665,7 @@
         "description": "Set an address as the user's default shipping/billing address.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -7807,9 +7706,7 @@
         ],
         "summary": "Health check",
         "description": "Check the overall health status of the API and its dependencies.",
-        "security": [
-          
-        ],
+        "security": [],
         "responses": {
           "200": {
             "description": "System is healthy",
@@ -7894,9 +7791,7 @@
         ],
         "summary": "API info",
         "description": "Get basic information about the API including version and available endpoints.",
-        "security": [
-          
-        ],
+        "security": [],
         "responses": {
           "200": {
             "description": "API information",
@@ -7960,9 +7855,7 @@
         ],
         "summary": "Auth service health check",
         "description": "Check the health status of the authentication service.",
-        "security": [
-          
-        ],
+        "security": [],
         "responses": {
           "200": {
             "description": "Auth service is healthy",
@@ -8013,13 +7906,9 @@
         "description": "Retrieve a single product using its slug. Requires storeId and languageId for proper scoping and localization. Returns the same response shape as get product by ID.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           },
-          {
-            
-          }
+          {}
         ],
         "parameters": [
           {
@@ -8083,9 +7972,7 @@
         ],
         "summary": "Get category by slug",
         "description": "Retrieve a single category using its slug. Requires storeId and languageId for proper scoping and localization.",
-        "security": [
-          
-        ],
+        "security": [],
         "parameters": [
           {
             "name": "slug",
@@ -8161,12 +8048,10 @@
           "Car Compatibility"
         ],
         "summary": "Add car compatibility to product (admin)",
-        "description": "\nAdd a car compatibility record to a product with year range support.\n\n**✨ New Data Model:**\n- Year ranges are now stored in `product_car_compatibility` table\n- Each record has `year_from` and `year_to` (optional, NULL means \"current\")\n- Same car can have multiple year ranges for a product\n- Unique constraint: (product_id, car_id, year_from, COALESCE(year_to, 9999))\n\n**Example Use Cases:**\n- BMW 320i 2015-2020 → year_from: 2015, year_to: 2020\n- Toyota Camry 2018-current → year_from: 2018, year_to: NULL\n- Porsche 911 (all years) → year_from: 1900, year_to: NULL\n        ",
+        "description": "\nAdd a car compatibility record to a product with year range support.\n\n**\u2728 New Data Model:**\n- Year ranges are now stored in `product_car_compatibility` table\n- Each record has `year_from` and `year_to` (optional, NULL means \"current\")\n- Same car can have multiple year ranges for a product\n- Unique constraint: (product_id, car_id, year_from, COALESCE(year_to, 9999))\n\n**Example Use Cases:**\n- BMW 320i 2015-2020 \u2192 year_from: 2015, year_to: 2020\n- Toyota Camry 2018-current \u2192 year_from: 2018, year_to: NULL\n- Porsche 911 (all years) \u2192 year_from: 1900, year_to: NULL\n        ",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -8279,9 +8164,7 @@
         "description": "Get all car compatibility records for a product, including year ranges.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -8366,9 +8249,7 @@
         "description": "Update year range for an existing product-car compatibility record.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -8439,9 +8320,7 @@
         "description": "Remove a car compatibility record from a product.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -8490,9 +8369,7 @@
         "description": "\nGet all cars compatible with a product, with optional year filtering.\n\nThis endpoint queries the `product_car_compatibility` table and returns cars\nthat match the compatibility criteria, including year range information.\n        ",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -8579,9 +8456,7 @@
         "description": "Creates a payment session with MEPS/PayTabs and returns a redirect URL to the hosted payment page. The user completes payment on MEPS page, then is redirected back.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "requestBody": {
@@ -8756,9 +8631,7 @@
         "description": "Retrieves the current payment status and details for a specific order.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -8928,9 +8801,7 @@
         "description": "Retrieves the full history of payment events (initiated, webhook received, captured, failed, etc.) for an order.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -9074,9 +8945,7 @@
         ],
         "summary": "MEPS payment webhook callback",
         "description": "**Internal webhook endpoint** - Called by MEPS/PayTabs after payment completion. Not meant to be called directly by frontend. MEPS posts payment result here, which updates payment and order status.",
-        "security": [
-          
-        ],
+        "security": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -9187,9 +9056,7 @@
         "description": "Allows user to cancel their order before shipment. Releases stock and initiates refund if payment was completed.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -9297,9 +9164,7 @@
         "description": "Admin confirms order after verifying stock availability, address validity, and payment status. Commits stock reservations.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -9386,9 +9251,7 @@
         "description": "Admin marks order as shipped with tracking information. Sends shipping notification email to customer.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -9454,9 +9317,7 @@
         "description": "Admin marks order as delivered. For COD orders, automatically creates and completes payment record.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -9532,9 +9393,7 @@
         "description": "Admin processes refund via PayTabs API. Supports full or partial refunds.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -9653,9 +9512,7 @@
         "description": "Admin cancels order at any stage. Releases stock and initiates refund if payment was completed.",
         "security": [
           {
-            "bearerAuth": [
-              
-            ]
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -10435,8 +10292,8 @@
                 "description": "Parts for vehicles"
               },
               "ar": {
-                "name": "قطع غيار السيارات",
-                "description": "قطع غيار للمركبات"
+                "name": "\u0642\u0637\u0639 \u063a\u064a\u0627\u0631 \u0627\u0644\u0633\u064a\u0627\u0631\u0627\u062a",
+                "description": "\u0642\u0637\u0639 \u063a\u064a\u0627\u0631 \u0644\u0644\u0645\u0631\u0643\u0628\u0627\u062a"
               }
             }
           }
@@ -11564,9 +11421,7 @@
                         "items": {
                           "type": "string"
                         },
-                        "example": [
-                          
-                        ]
+                        "example": []
                       },
                       "slug": {
                         "type": "string",
@@ -12181,9 +12036,7 @@
                 "action": "added"
               }
             ],
-            "skippedItems": [
-              
-            ],
+            "skippedItems": [],
             "cartSummary": {
               "totalItems": 6,
               "uniqueProducts": 3
@@ -12223,7 +12076,7 @@
           "validateStock": {
             "type": "boolean",
             "default": true,
-            "description": "🔒 Controls stock validation during checkout. Set to false for pre-orders or special orders."
+            "description": "\ud83d\udd12 Controls stock validation during checkout. Set to false for pre-orders or special orders."
           },
           "paymentMethod": {
             "type": "string",
@@ -12258,7 +12111,7 @@
             "description": "Shipping method affects shipping cost calculation"
           }
         },
-        "description": "🔒 SECURITY: Tax, shipping, and discount amounts are calculated ONLY on the backend. Frontend cannot override these values."
+        "description": "\ud83d\udd12 SECURITY: Tax, shipping, and discount amounts are calculated ONLY on the backend. Frontend cannot override these values."
       },
       "CheckoutResponse": {
         "type": "object",
@@ -14688,9 +14541,7 @@
   },
   "security": [
     {
-      "bearerAuth": [
-        
-      ]
+      "bearerAuth": []
     }
   ]
 }

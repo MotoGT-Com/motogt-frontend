@@ -182,6 +182,7 @@ function ProductCard({
     carBrand?: string | null;
     carModel?: string | null;
     carYear?: number | string | null;
+    carTrim?: string | null;
     carId?: string | null;
   };
   /** Default card image: secondary-first everywhere except motorcycles (primary-first). */

@@ -400,21 +400,6 @@ export type ProductItem = {
     isActive: boolean;
     mainImage: string | null;
     images: Array<string>;
-    /** Optional secondary image for card hover (some list endpoints) */
-    secondaryImage?: string | null;
-    /** English slug hint merged client-side for Arabic sessions */
-    slug_en?: string | null;
-    /** SKU variants (public PDP) */
-    variants?: Array<{
-        id: string;
-        isActive: boolean;
-        size?: string | null;
-        color?: string | null;
-        priceAdjustment: number;
-        stockQuantity: number;
-        mainImage?: string | null;
-        images?: Array<string>;
-    }>;
     specs?: ProductSpecs;
     /**
      * Whether the product is in authenticated user's favorites
@@ -2880,6 +2865,55 @@ export type PutApiCarsByCarIdResponses = {
 
 export type PutApiCarsByCarIdResponse = PutApiCarsByCarIdResponses[keyof PutApiCarsByCarIdResponses];
 
+export type GetApiCarsTrimsData = {
+    body?: never;
+    path?: never;
+    query: {
+        /**
+         * Store ID to get trims for
+         */
+        store_id: string;
+        /**
+         * Car brand
+         */
+        brand: string;
+        /**
+         * Car model
+         */
+        model: string;
+        /**
+         * Optional model year used to narrow compatibility ranges
+         */
+        year?: number;
+    };
+    url: '/api/cars/trims';
+};
+
+export type GetApiCarsTrimsErrors = {
+    /**
+     * Bad Request - Validation Error
+     */
+    400: ErrorResponse;
+    /**
+     * Internal Server Error
+     */
+    500: ErrorResponse;
+};
+
+export type GetApiCarsTrimsError = GetApiCarsTrimsErrors[keyof GetApiCarsTrimsErrors];
+
+export type GetApiCarsTrimsResponses = {
+    /**
+     * Car trims retrieved successfully
+     */
+    200: {
+        success?: boolean;
+        data?: Array<string>;
+    };
+};
+
+export type GetApiCarsTrimsResponse = GetApiCarsTrimsResponses[keyof GetApiCarsTrimsResponses];
+
 export type GetApiCarsModelsData = {
     body?: never;
     path?: never;
@@ -3595,10 +3629,6 @@ export type GetApiProductsPublicData = {
          */
         productIds?: string;
         /**
-         * Filter by product type UUID (store-specific)
-         */
-        productTypeId?: string;
-        /**
          * ✅ FIXED: Filter by stock availability. Now works with car filtering (true = only products with stock > 0)
          */
         inStock?: boolean;
@@ -3618,6 +3648,10 @@ export type GetApiProductsPublicData = {
          * ✅ NEW: Filter by car year. When used with carId, filters products compatible with that car in the specified year using year_from/year_to ranges from product_car_compatibility table.
          */
         carYear?: number;
+        /**
+         * Optional filter by car trim level
+         */
+        carTrim?: string;
         /**
          * Filter by authenticated user primary car (requires auth)
          */
@@ -4172,7 +4206,6 @@ export type PostApiStoresByStoreIdCartItemsData = {
     body: {
         productId: string;
         quantity: number;
-        variantId?: string;
     };
     path: {
         storeId: string;
