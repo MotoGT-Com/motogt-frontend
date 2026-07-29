@@ -578,6 +578,8 @@ function ProductCard({
     );
   };
 
+  const fitmentBadgeEl = fitmentBadge();
+
   return (
     <SimpleCard
       id={`product-card-${product.id}`}
@@ -605,14 +607,21 @@ function ProductCard({
       ) : null}
 
       {/* Header row: compatible car label + fit-check CTA / status */}
-      <div className="flex shrink-0 items-center justify-start md:justify-between mb-3 md:mb-4">
-        {displayLabel ? (
-          <p className="hidden md:block text-sm capitalize font-semibold text-muted-foreground">
-            {displayLabel.toLocaleLowerCase()}
-          </p>
-        ) : null}
-        {fitmentBadge()}
-      </div>
+      {displayLabel || fitmentBadgeEl ? (
+        <div
+          className={cn(
+            "mb-2 flex shrink-0 items-center justify-start md:mb-4 md:justify-between",
+            !fitmentBadgeEl && "hidden md:flex"
+          )}
+        >
+          {displayLabel ? (
+            <p className="hidden md:block text-sm capitalize font-semibold text-muted-foreground">
+              {displayLabel.toLocaleLowerCase()}
+            </p>
+          ) : null}
+          {fitmentBadgeEl}
+        </div>
+      ) : null}
 
       {/* Fixed aspect image — reserves space immediately; shimmer until loaded */}
       <div className="shrink-0 w-full mb-2 md:mb-3">
@@ -634,16 +643,16 @@ function ProductCard({
       {/* Title + commerce: flex-1 keeps bottom actions aligned in grid rows */}
       <div className="flex min-h-0 flex-1 flex-col justify-between gap-2">
         <h3
-          className="min-h-[2.75rem] font-semibold capitalize text-sm md:text-lg leading-snug line-clamp-2 md:min-h-[3.25rem]"
+          className="min-h-[3.75rem] break-words font-semibold capitalize text-sm md:text-lg leading-snug line-clamp-3 md:line-clamp-2 md:min-h-[3.25rem]"
           aria-hidden="true"
         >
           {(productName || "Product").toLocaleLowerCase()}
         </h3>
 
         {/* Price + wishlist + add-to-cart actions */}
-        <div className="shrink-0 space-y-4">
-        <div className="flex items-center justify-between">
-          <span className="font-bold text-sm">
+        <div className="shrink-0 space-y-2.5 md:space-y-4">
+        <div className="flex items-center justify-between gap-1">
+          <span className="font-bold text-sm tabular-nums">
             {isLoadingPrice ? (
               <span className="inline-block w-16 h-4 bg-gray-200 animate-pulse rounded"></span>
             ) : (
@@ -654,10 +663,10 @@ function ProductCard({
             isFavorite={isFavorite ?? false}
             isLoading={toggleFavoritesMutation.isPending}
             onClick={handleFavoriteClick}
-            className="z-20 relative"
+            className="z-20 relative shrink-0"
           />
         </div>
-        <div className="flex flex-col items-center gap-2">
+        <div className="flex flex-col items-center gap-1.5 md:gap-2">
           {availability === "in_stock" ? (
             <Button
               className="w-full z-20 relative font-koulen"
@@ -752,7 +761,7 @@ function ProductCardSkeleton() {
         "flex h-full min-h-0 min-w-0 flex-shrink-0 flex-col rounded-lg p-3"
       )}
     >
-      <div className="mb-3 flex h-6 shrink-0 items-center justify-between md:mb-4">
+      <div className="mb-2 flex h-6 shrink-0 items-center justify-between md:mb-4">
         <span className="skeleton-shimmer h-4 w-24 rounded-md" aria-hidden />
         <span className="skeleton-shimmer h-8 w-16 rounded-md" aria-hidden />
       </div>
@@ -762,18 +771,21 @@ function ProductCardSkeleton() {
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col justify-between gap-2">
-        <div className="min-h-[2.75rem] space-y-2 md:min-h-[3.25rem]">
+        <div className="min-h-[3.75rem] space-y-2 md:min-h-[3.25rem]">
           <div className="skeleton-shimmer h-4 w-full rounded-md" aria-hidden />
           <div className="skeleton-shimmer h-4 w-[85%] rounded-md" aria-hidden />
+          <div className="skeleton-shimmer h-4 w-[70%] rounded-md md:hidden" aria-hidden />
         </div>
 
-        <div className="shrink-0 space-y-4">
+        <div className="shrink-0 space-y-2.5 md:space-y-4">
           <div className="flex items-center justify-between">
             <span className="skeleton-shimmer h-4 w-20 rounded-md" aria-hidden />
             <span className="skeleton-shimmer size-8 rounded-md" aria-hidden />
           </div>
-          <div className="skeleton-shimmer h-9 w-full rounded-md" aria-hidden />
-          <div className="skeleton-shimmer h-9 w-full rounded-md" aria-hidden />
+          <div className="flex flex-col gap-1.5 md:gap-2">
+            <div className="skeleton-shimmer h-9 w-full rounded-md" aria-hidden />
+            <div className="skeleton-shimmer h-9 w-full rounded-md" aria-hidden />
+          </div>
         </div>
       </div>
     </SimpleCard>
