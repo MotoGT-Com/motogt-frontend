@@ -10,7 +10,7 @@ import { ProductCompatibleGarageBars } from "~/components/product-compatible-gar
 import { ProductFitmentBadge, isCarPartProduct } from "~/components/product-fitment-badge";
 import { useCartManager } from "~/lib/cart-manager";
 import { useFavoritesManager } from "~/lib/favorites-manager";
-import { productByIdQueryOptions } from "~/lib/queries";
+import { carTrimsQueryOptions, productByIdQueryOptions } from "~/lib/queries";
 import getLocalizedTranslation from "~/lib/get-locale-translation";
 import { buildProductPath } from "~/lib/product-url";
 import { capitalizeWords, cn, formatYearRange } from "~/lib/utils";
@@ -43,6 +43,16 @@ export function ProductQuickViewPanel({
   const { data: product, isPending, isError, error } = useQuery(
     productByIdQueryOptions(productId)
   );
+
+  const compatibleCarBrand = product?.carCompatibility?.[0]?.carBrand;
+  const compatibleCarModel = product?.carCompatibility?.[0]?.carModel;
+  const { data: productTrims = [] } = useQuery({
+    ...carTrimsQueryOptions({
+      brand: compatibleCarBrand,
+      model: compatibleCarModel,
+    }),
+    staleTime: 5 * 60_000,
+  });
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -315,6 +325,26 @@ export function ProductQuickViewPanel({
                       <span className="rounded-e border border-gray-200 bg-gray-50 px-2 py-1 font-medium">
                         {capitalizeWords(specData.value)}
                         {specData.unit ? ` ${specData.unit}` : ""}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {productTrims.length > 0 ? (
+              <div className="space-y-2">
+                <h3 className="text-sm font-bold">
+                  {t("product:details.trims")}
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {productTrims.map((trim) => (
+                    <div key={trim} className="flex text-xs">
+                      <span className="rounded-s border border-e-0 border-gray-200 bg-gray-50 px-2 py-1 capitalize text-gray-500">
+                        {t("product:details.trim")}
+                      </span>
+                      <span className="rounded-e border border-gray-200 bg-gray-50 px-2 py-1 font-medium">
+                        {capitalizeWords(trim)}
                       </span>
                     </div>
                   ))}

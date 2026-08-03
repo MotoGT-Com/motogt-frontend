@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "~/components/ui/button";
 import { ProductCard } from "~/components/product-card";
 import { Minus, Plus, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
@@ -6,6 +7,7 @@ import { getApiProductsPublic, getApiProductsPublicByProductId, getApiProductsPu
 import { useCartManager } from "~/lib/cart-manager";
 import { useFavoritesManager } from "~/lib/favorites-manager";
 import { defaultParams } from "~/lib/api-client";
+import { carTrimsQueryOptions } from "~/lib/queries";
 import type { Route } from "./+types/_main.product.$slug";
 import { capitalizeWords, cn, formatYearRange, mergeMeta } from "~/lib/utils";
 import { data, href, Link, redirect, useLocation, useRevalidator } from "react-router";
@@ -443,6 +445,14 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
     Object.keys(localizedSpecs).length > 0 ||
     Object.keys(carSpecSource).length > 0;
 
+  const { data: productTrims = [] } = useQuery({
+    ...carTrimsQueryOptions({
+      brand: compatibleCar?.carBrand,
+      model: compatibleCar?.carModel,
+    }),
+    staleTime: 5 * 60_000,
+  });
+
   // Create image gallery - prioritize variant images if available
   const getImageGallery = (): string[] => {
     if (currentVariant?.images && currentVariant.images.length > 0) {
@@ -611,6 +621,25 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
                       <div className="bg-gray-50 border border-gray-200 px-2 py-1.5 text-sm font-medium rounded-e">
                         {capitalizeWords(specData.value)}
                         {specData.unit && ` ${specData.unit}`}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Trims */}
+            {productTrims.length > 0 && (
+              <div className="space-y-2 order-7 md:order-3">
+                <h2 className="text-lg font-bold">{t("product:details.trims")}</h2>
+                <div className="flex flex-wrap gap-2">
+                  {productTrims.map((trim) => (
+                    <div key={trim} className="flex">
+                      <div className="bg-gray-50 border border-gray-200 border-e-0 px-3 py-1.5 text-sm text-gray-500 rounded-s capitalize">
+                        {t("product:details.trim")}
+                      </div>
+                      <div className="bg-gray-50 border border-gray-200 px-2 py-1.5 text-sm font-medium rounded-e">
+                        {capitalizeWords(trim)}
                       </div>
                     </div>
                   ))}
