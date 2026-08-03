@@ -605,20 +605,20 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
                 <div className="flex flex-wrap gap-2">
                   {Object.entries(carSpecSource).map(([key, value]) => (
                     <div key={`car-${key}`} className="flex">
-                      <div className="bg-gray-50 border border-gray-200 border-e-0 px-3 py-1.5 text-sm text-gray-500 rounded-s capitalize">
+                      <div className="bg-gray-50 border border-gray-200 border-e-0 px-3 py-1.5 text-sm text-gray-600 rounded-s capitalize">
                         {key}
                       </div>
-                      <div className="bg-gray-50 border border-gray-200 px-2 py-1.5 text-sm font-medium rounded-e">
+                      <div className="bg-gray-50 border border-gray-200 px-2 py-1.5 text-sm font-semibold text-neutral-900 rounded-e">
                         {capitalizeWords(value?.toString() ?? "")}
                       </div>
                     </div>
                   ))}
                   {Object.entries(localizedSpecs).map(([specKey, specData]) => (
                     <div key={`spec-${specKey}`} className="flex">
-                      <div className="bg-gray-50 border border-gray-200 border-e-0 px-3 py-1.5 text-sm text-gray-500 rounded-s capitalize">
+                      <div className="bg-gray-50 border border-gray-200 border-e-0 px-3 py-1.5 text-sm text-gray-600 rounded-s capitalize">
                         {specKey}
                       </div>
-                      <div className="bg-gray-50 border border-gray-200 px-2 py-1.5 text-sm font-medium rounded-e">
+                      <div className="bg-gray-50 border border-gray-200 px-2 py-1.5 text-sm font-semibold text-neutral-900 rounded-e">
                         {capitalizeWords(specData.value)}
                         {specData.unit && ` ${specData.unit}`}
                       </div>
@@ -635,10 +635,10 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
                 <div className="flex flex-wrap gap-2">
                   {productTrims.map((trim) => (
                     <div key={trim} className="flex">
-                      <div className="bg-gray-50 border border-gray-200 border-e-0 px-3 py-1.5 text-sm text-gray-500 rounded-s capitalize">
+                      <div className="bg-gray-50 border border-gray-200 border-e-0 px-3 py-1.5 text-sm text-gray-600 rounded-s capitalize">
                         {t("product:details.trim")}
                       </div>
-                      <div className="bg-gray-50 border border-gray-200 px-2 py-1.5 text-sm font-medium rounded-e">
+                      <div className="bg-gray-50 border border-gray-200 px-2 py-1.5 text-sm font-semibold text-neutral-900 rounded-e">
                         {capitalizeWords(trim)}
                       </div>
                     </div>

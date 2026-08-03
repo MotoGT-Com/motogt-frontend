@@ -309,20 +309,20 @@ export function ProductQuickViewPanel({
                 <div className="flex flex-wrap gap-2">
                   {Object.entries(carSpecSource).map(([key, value]) => (
                     <div key={`car-${key}`} className="flex text-xs">
-                      <span className="rounded-s border border-e-0 border-gray-200 bg-gray-50 px-2 py-1 capitalize text-gray-500">
+                      <span className="rounded-s border border-e-0 border-gray-200 bg-gray-50 px-2 py-1 capitalize text-gray-600">
                         {key}
                       </span>
-                      <span className="rounded-e border border-gray-200 bg-gray-50 px-2 py-1 font-medium">
+                      <span className="rounded-e border border-gray-200 bg-gray-50 px-2 py-1 font-semibold text-neutral-900">
                         {capitalizeWords(String(value))}
                       </span>
                     </div>
                   ))}
                   {Object.entries(localizedSpecs).map(([specKey, specData]) => (
                     <div key={`spec-${specKey}`} className="flex text-xs">
-                      <span className="rounded-s border border-e-0 border-gray-200 bg-gray-50 px-2 py-1 capitalize text-gray-500">
+                      <span className="rounded-s border border-e-0 border-gray-200 bg-gray-50 px-2 py-1 capitalize text-gray-600">
                         {specKey}
                       </span>
-                      <span className="rounded-e border border-gray-200 bg-gray-50 px-2 py-1 font-medium">
+                      <span className="rounded-e border border-gray-200 bg-gray-50 px-2 py-1 font-semibold text-neutral-900">
                         {capitalizeWords(specData.value)}
                         {specData.unit ? ` ${specData.unit}` : ""}
                       </span>
@@ -340,10 +340,10 @@ export function ProductQuickViewPanel({
                 <div className="flex flex-wrap gap-2">
                   {productTrims.map((trim) => (
                     <div key={trim} className="flex text-xs">
-                      <span className="rounded-s border border-e-0 border-gray-200 bg-gray-50 px-2 py-1 capitalize text-gray-500">
+                      <span className="rounded-s border border-e-0 border-gray-200 bg-gray-50 px-2 py-1 capitalize text-gray-600">
                         {t("product:details.trim")}
                       </span>
-                      <span className="rounded-e border border-gray-200 bg-gray-50 px-2 py-1 font-medium">
+                      <span className="rounded-e border border-gray-200 bg-gray-50 px-2 py-1 font-semibold text-neutral-900">
                         {capitalizeWords(trim)}
                       </span>
                     </div>
