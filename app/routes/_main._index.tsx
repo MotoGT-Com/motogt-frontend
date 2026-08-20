@@ -639,66 +639,104 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             ))}
           >
             <Await resolve={categoriesResponse}>
-              {(categoriesResponse) =>
-                categoriesResponse.data &&
-                categoriesResponse.data.data.map((category, index) => {
-                  // Home API returns localized slug/name (often Arabic); Vents is fixed at position 2.
-                  const slug = (category.slug ?? "").toLowerCase();
-                  const name = (category.name ?? "").toLowerCase();
-                  const imageUrl = (category.image_url ?? "").toLowerCase();
-                  const isVentsSlot =
-                    category.sortOrder === 1 ||
-                    index === 1 ||
-                    slug === "vents" ||
-                    slug.includes("vents") ||
-                    slug.includes("تهوية") ||
-                    name === "vents" ||
-                    name.includes("vent") ||
-                    name.includes("تهوية") ||
-                    imageUrl.includes("vents");
-                  const hrefTo = isVentsSlot
-                    ? href("/shop/:productType", { productType: "motorcycles" })
-                    : serializeShopURL({
-                        categories: [category.id],
-                      });
-                  const imageSrc = isVentsSlot
-                    ? "/categories/motorcycles/jackets.webp"
-                    : (category.image_url ?? "");
-                  const label = isVentsSlot
-                    ? t("common:nav.motorcycles")
-                    : (() => {
-                        const c = category as {
-                          name: string;
-                          translations?: Array<{
-                            languageCode: string;
-                            name: string;
-                          }>;
-                        };
-                        return c.translations?.length
-                          ? getLocalizedTranslation(c.translations)?.name ??
-                              c.name
-                          : c.name;
-                      })();
+              {(categoriesResponse) => {
+                const categories = categoriesResponse.data?.data ?? [];
+                // Real Vents subcategory (home slot 2) — reused when we remap Steering Trim → Vents
+                const ventsCategory =
+                  categories.find(
+                    (c, i) =>
+                      c.sortOrder === 1 ||
+                      i === 1 ||
+                      (c.image_url ?? "").toLowerCase().includes("vents") ||
+                      (c.slug ?? "").toLowerCase().includes("تهوية") ||
+                      (c.slug ?? "").toLowerCase().includes("vents")
+                  ) ?? null;
 
-                  return (
-                    <Link key={category.id} to={hrefTo} prefetch="render">
-                      <SimpleCard className="aspect-[5/4] font-koulen group bg-primary text-white uppercase p-6 flex flex-col justify-end relative overflow-hidden">
-                        <img
-                          src={imageSrc}
-                          alt={label}
-                          loading="lazy"
-                          className={
-                            isVentsSlot
-                              ? "absolute -top-2 -end-6 w-[110%] h-[110%] object-contain object-[right_12%] group-hover:scale-110 hover:-rotate-3 transition-all duration-500"
-                              : "absolute -top-10 -end-10 w-full h-full object-contain group-hover:scale-110 hover:-rotate-3 transition-all duration-500"
-                          }
-                        />
-                        <h3 className="text-2xl max-w-20 z-10">{label}</h3>
-                      </SimpleCard>
-                    </Link>
-                  );
-                })
-              }
+                return (
+                  categories.length > 0 &&
+                  categories.map((category, index) => {
+                    const slug = (category.slug ?? "").toLowerCase();
+                    const name = (category.name ?? "").toLowerCase();
+                    const imageUrl = (category.image_url ?? "").toLowerCase();
+
+                    // Slot 2 (former Vents) → Motorcycles
+                    const isMotorcyclesSlot =
+                      category.sortOrder === 1 ||
+                      index === 1 ||
+                      slug === "vents" ||
+                      slug.includes("vents") ||
+                      slug.includes("تهوية") ||
+                      name === "vents" ||
+                      name.includes("vent") ||
+                      name.includes("تهوية") ||
+                      imageUrl.includes("vents");
+
+                    // Slot 6 (Steering Trim / Interior Trim Accessories) → Vents
+                    const isVentsDisplaySlot =
+                      !isMotorcyclesSlot &&
+                      (category.sortOrder === 5 ||
+                        index === 5 ||
+                        imageUrl.includes("steerim") ||
+                        imageUrl.includes("steering") ||
+                        name.includes("interior trim") ||
+                        name.includes("تزيين داخلية") ||
+                        slug.includes("تزيين-داخلية"));
+
+                    const hrefTo = isMotorcyclesSlot
+                      ? href("/shop/:productType", { productType: "motorcycles" })
+                      : serializeShopURL({
+                          categories: [
+                            isVentsDisplaySlot && ventsCategory
+                              ? ventsCategory.id
+                              : category.id,
+                          ],
+                        });
+                    const imageSrc = isMotorcyclesSlot
+                      ? "/categories/motorcycles/jackets.webp"
+                      : isVentsDisplaySlot
+                        ? (ventsCategory?.image_url ??
+                          "/categories/vents.webp")
+                        : (category.image_url ?? "");
+                    const label = isMotorcyclesSlot
+                      ? t("common:nav.motorcycles")
+                      : isVentsDisplaySlot
+                        ? t("common:nav.carPartsHoverFallback.vents", {
+                            defaultValue: "Vents",
+                          })
+                        : (() => {
+                            const c = category as {
+                              name: string;
+                              translations?: Array<{
+                                languageCode: string;
+                                name: string;
+                              }>;
+                            };
+                            return c.translations?.length
+                              ? getLocalizedTranslation(c.translations)
+                                  ?.name ?? c.name
+                              : c.name;
+                          })();
+
+                    return (
+                      <Link key={category.id} to={hrefTo} prefetch="render">
+                        <SimpleCard className="aspect-[5/4] font-koulen group bg-primary text-white uppercase p-6 flex flex-col justify-end relative overflow-hidden">
+                          <img
+                            src={imageSrc}
+                            alt={label}
+                            loading="lazy"
+                            className={
+                              isMotorcyclesSlot
+                                ? "absolute -top-2 -end-6 w-[110%] h-[110%] object-contain object-[right_12%] group-hover:scale-110 hover:-rotate-3 transition-all duration-500"
+                                : "absolute -top-10 -end-10 w-full h-full object-contain group-hover:scale-110 hover:-rotate-3 transition-all duration-500"
+                            }
+                          />
+                          <h3 className="text-2xl max-w-20 z-10">{label}</h3>
+                        </SimpleCard>
+                      </Link>
+                    );
+                  })
+                );
+              }}
             </Await>
           </Suspense>
         </div>
