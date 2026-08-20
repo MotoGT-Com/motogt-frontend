@@ -641,37 +641,59 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             <Await resolve={categoriesResponse}>
               {(categoriesResponse) =>
                 categoriesResponse.data &&
-                categoriesResponse.data.data.map((category) => {
-                  return (
-                    <Link
-                      key={category.id}
-                      to={serializeShopURL({
+                categoriesResponse.data.data.map((category, index) => {
+                  // Home API returns localized slug/name (often Arabic); Vents is fixed at position 2.
+                  const slug = (category.slug ?? "").toLowerCase();
+                  const name = (category.name ?? "").toLowerCase();
+                  const imageUrl = (category.image_url ?? "").toLowerCase();
+                  const isVentsSlot =
+                    category.sortOrder === 1 ||
+                    index === 1 ||
+                    slug === "vents" ||
+                    slug.includes("vents") ||
+                    slug.includes("تهوية") ||
+                    name === "vents" ||
+                    name.includes("vent") ||
+                    name.includes("تهوية") ||
+                    imageUrl.includes("vents");
+                  const hrefTo = isVentsSlot
+                    ? href("/shop/:productType", { productType: "motorcycles" })
+                    : serializeShopURL({
                         categories: [category.id],
-                      })}
-                      prefetch="render"
-                    >
+                      });
+                  const imageSrc = isVentsSlot
+                    ? "/categories/motorcycles/jackets.webp"
+                    : (category.image_url ?? "");
+                  const label = isVentsSlot
+                    ? t("common:nav.motorcycles")
+                    : (() => {
+                        const c = category as {
+                          name: string;
+                          translations?: Array<{
+                            languageCode: string;
+                            name: string;
+                          }>;
+                        };
+                        return c.translations?.length
+                          ? getLocalizedTranslation(c.translations)?.name ??
+                              c.name
+                          : c.name;
+                      })();
+
+                  return (
+                    <Link key={category.id} to={hrefTo} prefetch="render">
                       <SimpleCard className="aspect-[5/4] font-koulen group bg-primary text-white uppercase p-6 flex flex-col justify-end relative overflow-hidden">
                         <img
-                          src={category.image_url ?? ""}
-                          alt={category.name}
+                          src={imageSrc}
+                          alt={label}
                           loading="lazy"
-                          className="absolute -top-10 -end-10 w-full h-full object-contain group-hover:scale-110 hover:-rotate-3 transition-all duration-500"
+                          className={
+                            isVentsSlot
+                              ? "absolute -top-2 -end-6 w-[110%] h-[110%] object-contain object-[right_12%] group-hover:scale-110 hover:-rotate-3 transition-all duration-500"
+                              : "absolute -top-10 -end-10 w-full h-full object-contain group-hover:scale-110 hover:-rotate-3 transition-all duration-500"
+                          }
                         />
-                        <h3 className="text-2xl max-w-20 z-10">
-                          {(() => {
-                            const c = category as {
-                              name: string;
-                              translations?: Array<{
-                                languageCode: string;
-                                name: string;
-                              }>;
-                            };
-                            return c.translations?.length
-                              ? getLocalizedTranslation(c.translations)?.name ??
-                                  c.name
-                              : c.name;
-                          })()}
-                        </h3>
+                        <h3 className="text-2xl max-w-20 z-10">{label}</h3>
                       </SimpleCard>
                     </Link>
                   );
