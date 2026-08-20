@@ -641,26 +641,41 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             <Await resolve={categoriesResponse}>
               {(categoriesResponse) => {
                 const categories = categoriesResponse.data?.data ?? [];
-                // Real Vents subcategory (home slot 2) — reused when we remap Steering Trim → Vents
-                const ventsCategory =
-                  categories.find(
-                    (c, i) =>
-                      c.sortOrder === 1 ||
-                      i === 1 ||
-                      (c.image_url ?? "").toLowerCase().includes("vents") ||
-                      (c.slug ?? "").toLowerCase().includes("تهوية") ||
-                      (c.slug ?? "").toLowerCase().includes("vents")
-                  ) ?? null;
+                if (!categories.length) return null;
 
-                return (
-                  categories.length > 0 &&
-                  categories.map((category, index) => {
+                const MOTORCYCLE_ACCESSORIES_CATEGORY_ID =
+                  "1157bae5-379a-485e-a4c4-4abeb1b8ef9b";
+
+                type HomeCategoryCard = {
+                  key: string;
+                  hrefTo: string;
+                  imageSrc: string;
+                  label: string;
+                  imageClassName: string;
+                  kind: "apparel" | "accessories" | "default";
+                };
+
+                const categoryLabel = (category: (typeof categories)[number]) => {
+                  const c = category as {
+                    name: string;
+                    translations?: Array<{
+                      languageCode: string;
+                      name: string;
+                    }>;
+                  };
+                  return c.translations?.length
+                    ? getLocalizedTranslation(c.translations)?.name ?? c.name
+                    : c.name;
+                };
+
+                const cards: HomeCategoryCard[] = categories.map(
+                  (category, index) => {
                     const slug = (category.slug ?? "").toLowerCase();
                     const name = (category.name ?? "").toLowerCase();
                     const imageUrl = (category.image_url ?? "").toLowerCase();
 
-                    // Slot 2 (former Vents) → Motorcycles
-                    const isMotorcyclesSlot =
+                    // Slot 2 (former Vents) → Motorcycle Apparel
+                    const isApparelSlot =
                       category.sortOrder === 1 ||
                       index === 1 ||
                       slug === "vents" ||
@@ -671,9 +686,9 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                       name.includes("تهوية") ||
                       imageUrl.includes("vents");
 
-                    // Slot 6 (Steering Trim / Interior Trim Accessories) → Vents
-                    const isVentsDisplaySlot =
-                      !isMotorcyclesSlot &&
+                    // Slot 6 (Steering Trim) → Motorcycle Accessories
+                    const isAccessoriesSlot =
+                      !isApparelSlot &&
                       (category.sortOrder === 5 ||
                         index === 5 ||
                         imageUrl.includes("steerim") ||
@@ -682,60 +697,77 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                         name.includes("تزيين داخلية") ||
                         slug.includes("تزيين-داخلية"));
 
-                    const hrefTo = isMotorcyclesSlot
-                      ? href("/shop/:productType", { productType: "motorcycles" })
-                      : serializeShopURL({
-                          categories: [
-                            isVentsDisplaySlot && ventsCategory
-                              ? ventsCategory.id
-                              : category.id,
-                          ],
-                        });
-                    const imageSrc = isMotorcyclesSlot
-                      ? "/categories/motorcycles/jackets.webp"
-                      : isVentsDisplaySlot
-                        ? (ventsCategory?.image_url ??
-                          "/categories/vents.webp")
-                        : (category.image_url ?? "");
-                    const label = isMotorcyclesSlot
-                      ? t("common:nav.motorcycles")
-                      : isVentsDisplaySlot
-                        ? t("common:nav.carPartsHoverFallback.vents", {
-                            defaultValue: "Vents",
-                          })
-                        : (() => {
-                            const c = category as {
-                              name: string;
-                              translations?: Array<{
-                                languageCode: string;
-                                name: string;
-                              }>;
-                            };
-                            return c.translations?.length
-                              ? getLocalizedTranslation(c.translations)
-                                  ?.name ?? c.name
-                              : c.name;
-                          })();
+                    if (isApparelSlot) {
+                      return {
+                        key: `apparel-${category.id}`,
+                        hrefTo: href("/shop/:productType", {
+                          productType: "motorcycles",
+                        }),
+                        imageSrc: "/categories/motorcycles/jackets.webp",
+                        label: t("home:sections.motorcycleApparel", {
+                          defaultValue: "Motorcycle Apparel",
+                        }),
+                        imageClassName:
+                          "absolute -top-2 -end-6 w-[110%] h-[110%] object-contain object-[right_12%] group-hover:scale-110 hover:-rotate-3 transition-all duration-500",
+                        kind: "apparel" as const,
+                      };
+                    }
 
-                    return (
-                      <Link key={category.id} to={hrefTo} prefetch="render">
-                        <SimpleCard className="aspect-[5/4] font-koulen group bg-primary text-white uppercase p-6 flex flex-col justify-end relative overflow-hidden">
-                          <img
-                            src={imageSrc}
-                            alt={label}
-                            loading="lazy"
-                            className={
-                              isMotorcyclesSlot
-                                ? "absolute -top-2 -end-6 w-[110%] h-[110%] object-contain object-[right_12%] group-hover:scale-110 hover:-rotate-3 transition-all duration-500"
-                                : "absolute -top-10 -end-10 w-full h-full object-contain group-hover:scale-110 hover:-rotate-3 transition-all duration-500"
-                            }
-                          />
-                          <h3 className="text-2xl max-w-20 z-10">{label}</h3>
-                        </SimpleCard>
-                      </Link>
-                    );
-                  })
+                    if (isAccessoriesSlot) {
+                      return {
+                        key: `accessories-${category.id}`,
+                        hrefTo: `${href("/shop/:productType", {
+                          productType: "motorcycles",
+                        })}?categories=${MOTORCYCLE_ACCESSORIES_CATEGORY_ID}`,
+                        imageSrc: "/categories/motorcycles/accessories.webp",
+                        label: t("home:sections.motorcycleAccessories", {
+                          defaultValue: "Motorcycle Accessories",
+                        }),
+                        imageClassName:
+                          "absolute -top-10 -end-10 w-full h-full object-contain group-hover:scale-110 hover:-rotate-3 transition-all duration-500",
+                        kind: "accessories" as const,
+                      };
+                    }
+
+                    return {
+                      key: category.id,
+                      hrefTo: serializeShopURL({
+                        categories: [category.id],
+                      }),
+                      imageSrc: category.image_url ?? "",
+                      label: categoryLabel(category),
+                      imageClassName:
+                        "absolute -top-10 -end-10 w-full h-full object-contain group-hover:scale-110 hover:-rotate-3 transition-all duration-500",
+                      kind: "default" as const,
+                    };
+                  }
                 );
+
+                // Keep Motorcycle Apparel + Accessories adjacent (first row on mobile + desktop)
+                const apparel = cards.find((c) => c.kind === "apparel");
+                const accessories = cards.find((c) => c.kind === "accessories");
+                const others = cards.filter(
+                  (c) => c.kind === "default"
+                );
+                const orderedCards = [
+                  ...(apparel ? [apparel] : []),
+                  ...(accessories ? [accessories] : []),
+                  ...others,
+                ];
+
+                return orderedCards.map((card) => (
+                  <Link key={card.key} to={card.hrefTo} prefetch="render">
+                    <SimpleCard className="aspect-[5/4] font-koulen group bg-primary text-white uppercase p-6 flex flex-col justify-end relative overflow-hidden">
+                      <img
+                        src={card.imageSrc}
+                        alt={card.label}
+                        loading="lazy"
+                        className={card.imageClassName}
+                      />
+                      <h3 className="text-2xl max-w-20 z-10">{card.label}</h3>
+                    </SimpleCard>
+                  </Link>
+                ));
               }}
             </Await>
           </Suspense>
