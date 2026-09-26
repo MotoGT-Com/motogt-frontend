@@ -64,6 +64,7 @@
   },
   "productTypes": {
     "carParts": "قطع السيارات",
+    "spareParts": "قطع غيار",
     "motorcycles": "الدراجات النارية",
     "carCareAccessories": "العناية بالسيارة"
   },

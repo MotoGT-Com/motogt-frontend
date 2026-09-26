@@ -12,7 +12,7 @@
  * Navigation Routes:
  * - Home: "/"
  * - Car Parts: "/shop/:productType" with productType="car-parts"
- * - Spare Parts: "/spare-parts" (coming soon)
+ * - Spare Parts: "/spare-parts"
  * - Riding Gear: "/shop/:productType" with productType="motorcycles"
  * - Garage: popup (no dedicated page)
  * - Wishlist: "/wishlist"

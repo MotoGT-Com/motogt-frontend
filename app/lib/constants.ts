@@ -167,10 +167,27 @@ export function currencyFromGeoCountry(
 export const CAR_CARE_PRODUCT_TYPE_SLUG = "car-care" as const;
 export const LEGACY_CAR_CARE_PRODUCT_TYPE_SLUG = "car-care-accessiores" as const;
 export const CAR_PARTS_PRODUCT_TYPE_SLUG = "car-parts" as const;
+export const SPARE_PARTS_PRODUCT_TYPE_SLUG = "spare-parts" as const;
 export const SPARE_PARTS_PATH = "/spare-parts" as const;
 /** Top-level "Spare Parts" category under car parts (API slug: spare-parts). */
 export const SPARE_PARTS_CATEGORY_ID =
   "58f413fe-4af6-428b-9774-12941bc80a88" as const;
+
+/** Car accessories and spare parts share vehicle fitment (make, model, year, trim). */
+export function isVehicleFitmentProductType(pt: {
+  slug?: string | null;
+  code?: string | null;
+}): boolean {
+  const slug = pt.slug?.toLowerCase();
+  const code = pt.code?.toLowerCase().replace(/-/g, "_");
+  return (
+    slug === CAR_PARTS_PRODUCT_TYPE_SLUG ||
+    slug === SPARE_PARTS_PRODUCT_TYPE_SLUG ||
+    slug === "car_parts" ||
+    code === "car_parts" ||
+    code === "spare_parts"
+  );
+}
 
 export function isCarCareProductType(pt: {
   slug?: string | null;
@@ -184,6 +201,19 @@ export function isCarCareProductType(pt: {
     code === "car_care" ||
     code === "car_care_accessiores" ||
     code === "car_care_accessories"
+  );
+}
+
+export function isSparePartsProductType(pt: {
+  slug?: string | null;
+  code?: string | null;
+}): boolean {
+  const slug = pt.slug?.toLowerCase();
+  const code = pt.code?.toLowerCase().replace(/-/g, "_");
+  return (
+    slug === SPARE_PARTS_PRODUCT_TYPE_SLUG ||
+    slug === "spare_parts" ||
+    code === "spare_parts"
   );
 }
 

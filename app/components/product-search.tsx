@@ -148,8 +148,12 @@ function ProductSearch({
     location.pathname.startsWith("/shop/product/") ||
     location.pathname.startsWith("/products/");
   /** Shop listing only: `/shop`, `/shop/car-parts`, … — safe to sync filters via nuqs on current URL. */
+  const isSparePartsListing =
+    location.pathname === "/spare-parts" ||
+    location.pathname.startsWith("/spare-parts/");
   const isShopListingRoute =
-    location.pathname.startsWith("/shop") && !isShopProductPdp;
+    (location.pathname.startsWith("/shop") && !isShopProductPdp) ||
+    isSparePartsListing;
   const isCompact = size === "compact";
   const isUrlDrivenFormState = isShopListingRoute || isShopProductPdp;
 

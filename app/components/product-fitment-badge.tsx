@@ -13,6 +13,7 @@ import {
 import { useGuestGarageCars } from "~/hooks/use-guest-garage-cars";
 import { garageCarsQueryOptions } from "~/lib/queries";
 import type { ProductItem, UserCarsResponse } from "~/lib/client";
+import { isVehicleFitmentProductType } from "~/lib/constants";
 import type { Route } from "../routes/+types/_main";
 
 type UserCar = UserCarsResponse["data"]["userCars"][number];
@@ -42,12 +43,7 @@ export function isCarPartProduct(
     return false;
   }
 
-  return (
-    code === "car_parts" ||
-    code === "car-parts" ||
-    slug === "car-parts" ||
-    slug === "car_parts"
-  );
+  return isVehicleFitmentProductType({ code, slug });
 }
 
 function normalizeGarageCars(

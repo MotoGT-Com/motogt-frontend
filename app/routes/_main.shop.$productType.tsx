@@ -16,8 +16,12 @@ import {
 import { defaultParams } from "~/lib/api-client";
 import {
   CAR_CARE_PRODUCT_TYPE_SLUG,
+  CAR_PARTS_PRODUCT_TYPE_SLUG,
   LEGACY_CAR_CARE_PRODUCT_TYPE_SLUG,
+  SPARE_PARTS_CATEGORY_ID,
+  SPARE_PARTS_PRODUCT_TYPE_SLUG,
   isCarCareProductType,
+  isSparePartsProductType,
 } from "~/lib/constants";
 import { InlineAccordion, InlineAccordionContent, InlineAccordionItem, InlineAccordionTrigger, } from "~/components/ui/inline-accordion";
 import { dehydrate, HydrationBoundary, QueryClient, useInfiniteQuery } from "@tanstack/react-query";
@@ -125,6 +129,16 @@ async function getSubcategoryCountsById({
 export async function loader({ request, params }: Route.LoaderArgs) {
   const productTypeSlug = params.productType;
 
+  if (productTypeSlug === SPARE_PARTS_PRODUCT_TYPE_SLUG) {
+    const url = new URL(request.url);
+    url.pathname = `/${SPARE_PARTS_PRODUCT_TYPE_SLUG}`;
+    throw redirect(`${url.pathname}${url.search}`, 301);
+  }
+
+  return loadShopCatalog(request, productTypeSlug);
+}
+
+export async function loadShopCatalog(request: Request, productTypeSlug: string) {
   if (productTypeSlug === LEGACY_CAR_CARE_PRODUCT_TYPE_SLUG) {
     const url = new URL(request.url);
     url.pathname = url.pathname.replace(
@@ -147,13 +161,35 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   
   const productTypes = productTypesResponse.data?.data || [];
   
-  // Find matching product type by slug (car-care accepts legacy API slug during migration)
-  const productType =
+  // Find matching product type by slug (car-care / spare-parts accept legacy codes during migration)
+  let productType: ProductType | undefined =
     productTypes.find((pt) => pt.slug === productTypeSlug) ??
     (productTypeSlug === CAR_CARE_PRODUCT_TYPE_SLUG
       ? productTypes.find(isCarCareProductType)
+      : undefined) ??
+    (productTypeSlug === SPARE_PARTS_PRODUCT_TYPE_SLUG
+      ? productTypes.find(isSparePartsProductType)
       : undefined);
-  
+
+  // Prod may not have spare_parts yet — fall back to car_parts + Spare Parts category.
+  let sparePartsCategoryFallback = false;
+  if (!productType && productTypeSlug === SPARE_PARTS_PRODUCT_TYPE_SLUG) {
+    const carPartsType = productTypes.find(
+      (pt) =>
+        pt.slug === CAR_PARTS_PRODUCT_TYPE_SLUG ||
+        pt.code?.toLowerCase() === "car_parts"
+    );
+    if (carPartsType) {
+      productType = {
+        ...carPartsType,
+        code: "spare_parts",
+        slug: SPARE_PARTS_PRODUCT_TYPE_SLUG,
+        name: "Spare Parts",
+      };
+      sparePartsCategoryFallback = true;
+    }
+  }
+
   if (!productType) {
     throw new Response("Invalid product type", { status: 404 });
   }
@@ -162,15 +198,30 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     productTypeSlug === CAR_CARE_PRODUCT_TYPE_SLUG ||
     isCarCareProductType(productType)
       ? CAR_CARE_PRODUCT_TYPE_SLUG
-      : productTypeSlug;
+      : productTypeSlug === SPARE_PARTS_PRODUCT_TYPE_SLUG ||
+          isSparePartsProductType(productType)
+        ? SPARE_PARTS_PRODUCT_TYPE_SLUG
+        : productTypeSlug;
 
   const searchParams = stripNulls(loadSearchParams(request));
   const queryClient = new QueryClient();
 
+  const catalogProductTypeId = sparePartsCategoryFallback
+    ? productTypes.find(
+        (pt) =>
+          pt.slug === CAR_PARTS_PRODUCT_TYPE_SLUG ||
+          pt.code?.toLowerCase() === "car_parts"
+      )?.id ?? productType.id
+    : productType.id;
+
+  const defaultCategoryId = sparePartsCategoryFallback
+    ? SPARE_PARTS_CATEGORY_ID
+    : undefined;
+
   const productQueryBase = {
     storeId: defaultParams.storeId,
     languageId,
-    productTypeId: productType.id,
+    productTypeId: catalogProductTypeId,
     search: searchParams.search ?? undefined,
     carBrand: searchParams.carBrand ?? undefined,
     carModel: searchParams.carModel ?? undefined,
@@ -179,7 +230,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     categoryId:
       searchParams.categories && searchParams.categories.length > 0
         ? searchParams.categories.join(",")
-        : undefined,
+        : defaultCategoryId,
     sortBy: searchParams.sortBy ?? undefined,
     sortOrder: searchParams.sortOrder ?? undefined,
   };
@@ -189,7 +240,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     getApiCategoriesPublic({
       query: {
         storeId: defaultParams.storeId,
-        productTypeId: productType.id,
+        productTypeId: catalogProductTypeId,
         languageId,
       },
     }),
@@ -289,8 +340,12 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   }
 
   const productsQueryOptions = productsByTypeInfiniteQueryOptions({
-    productTypeId: productType.id,
-    params: searchParams,
+    productTypeId: catalogProductTypeId,
+    params:
+      sparePartsCategoryFallback &&
+      !(searchParams.categories && searchParams.categories.length > 0)
+        ? { ...searchParams, categories: [SPARE_PARTS_CATEGORY_ID] }
+        : searchParams,
     limit: LIMIT,
   });
 
@@ -303,15 +358,29 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   return {
     productsResponse: filteredProductsResponse,
-    categoriesResponse,
+    categoriesResponse: sparePartsCategoryFallback
+      ? {
+          ...categoriesResponse,
+          data: {
+            ...categoriesResponse.data,
+            data: (categoriesResponse.data?.data ?? []).filter(
+              (category: { id?: string }) =>
+                category.id === SPARE_PARTS_CATEGORY_ID
+            ),
+          },
+        }
+      : categoriesResponse,
     searchParams,
     countQueryBase: {
       storeId: defaultParams.storeId,
       languageId,
-      productTypeId: productType.id,
+      productTypeId: catalogProductTypeId,
     },
     productType,
     productTypeSlug: resolvedProductTypeSlug,
+    defaultCategoryId: sparePartsCategoryFallback
+      ? SPARE_PARTS_CATEGORY_ID
+      : undefined,
     dehydratedState: dehydrate(queryClient),
   };
 }
@@ -354,7 +423,9 @@ const MOTORCYCLES_CATEGORIES = [
 
 export default function ShopByProductType({
   loaderData,
-}: Route.ComponentProps) {
+}: {
+  loaderData: Awaited<ReturnType<typeof loadShopCatalog>>;
+}) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const { productType } = loaderData;
 
@@ -362,6 +433,7 @@ export default function ShopByProductType({
   const localizedProductTypeTitle = useMemo(() => {
     const normalizedType = slugToProductType(loaderData.productTypeSlug ?? "");
     if (normalizedType === "car_parts") return t("productTypes.carParts");
+    if (normalizedType === "spare_parts") return t("productTypes.spareParts");
     if (normalizedType === "motorcycles") return t("productTypes.motorcycles");
     if (normalizedType === "car_care") {
       return t("productTypes.carCareAccessories");
@@ -477,6 +549,7 @@ export default function ShopByProductType({
                   <ProductsGrid
                     initialData={data}
                     productType={productType}
+                    defaultCategoryId={loaderData.defaultCategoryId}
                     onListMetaChange={setListMeta}
                   />
                 )}
@@ -492,10 +565,12 @@ export default function ShopByProductType({
 function ProductsGrid({
   initialData,
   productType,
+  defaultCategoryId,
   onListMetaChange,
 }: {
   initialData: any;
   productType: { id: string; code: string; slug: string; name: string };
+  defaultCategoryId?: string;
   onListMetaChange: (meta: ShopListMeta) => void;
 }) {
   // Safely extract initial data
@@ -554,7 +629,12 @@ function ProductsGrid({
       carModel: searchParams.carModel ?? null,
       carYear: searchParams.carYear ?? null,
       carTrim: searchParams.carTrim ?? null,
-      categories: searchParams.categories ?? null,
+      categories:
+        searchParams.categories && searchParams.categories.length > 0
+          ? searchParams.categories
+          : defaultCategoryId
+            ? [defaultCategoryId]
+            : null,
       sortBy: resolvedSortBy ?? null,
       sortOrder: resolvedSortOrder ?? null,
     }),
@@ -565,6 +645,7 @@ function ProductsGrid({
       searchParams.carYear,
       searchParams.carTrim,
       searchParams.categories,
+      defaultCategoryId,
       resolvedSortBy,
       resolvedSortOrder,
     ]

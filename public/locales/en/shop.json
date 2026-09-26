@@ -60,6 +60,7 @@
   },
   "productTypes": {
     "carParts": "Car Parts",
+    "spareParts": "Spare Parts",
     "motorcycles": "Motorcycles",
     "carCareAccessories": "Car Care"
   },

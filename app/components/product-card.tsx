@@ -9,6 +9,7 @@ import { CheckIcon, Loader2, XIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { Link, href, useLocation, useRouteLoaderData } from "react-router";
 import { cn } from "~/lib/utils";
+import { isVehicleFitmentProductType } from "~/lib/constants";
 import type { GetApiHomeExteriorProductsResponse, ProductItem, UserCarsResponse, } from "~/lib/client";
 import { useCartManager } from "~/lib/cart-manager";
 import { useFavoritesManager } from "~/lib/favorites-manager";
@@ -333,12 +334,7 @@ function ProductCard({
     const code = product?.productType?.code?.toLowerCase();
     const slug = product?.productType?.slug?.toLowerCase();
     if (code || slug) {
-      return (
-        code === "car_parts" ||
-        code === "car-parts" ||
-        slug === "car-parts" ||
-        slug === "car_parts"
-      );
+      return isVehicleFitmentProductType({ code, slug });
     }
     if (hasCarFilter) {
       return true;
