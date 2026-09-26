@@ -169,9 +169,6 @@ export const LEGACY_CAR_CARE_PRODUCT_TYPE_SLUG = "car-care-accessiores" as const
 export const CAR_PARTS_PRODUCT_TYPE_SLUG = "car-parts" as const;
 export const SPARE_PARTS_PRODUCT_TYPE_SLUG = "spare-parts" as const;
 export const SPARE_PARTS_PATH = "/spare-parts" as const;
-/** Top-level "Spare Parts" category under car parts (API slug: spare-parts). */
-export const SPARE_PARTS_CATEGORY_ID =
-  "58f413fe-4af6-428b-9774-12941bc80a88" as const;
 
 /** Car accessories and spare parts share vehicle fitment (make, model, year, trim). */
 export function isVehicleFitmentProductType(pt: {

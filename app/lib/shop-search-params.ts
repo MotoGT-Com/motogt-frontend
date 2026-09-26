@@ -30,7 +30,13 @@ export const shopSearchParamsSchema = {
   carModel: parseAsString,
   carYear: parseAsInteger,
   carTrim: parseAsString,
-  productType: parseAsStringEnum(["car_parts", "riding_gear"]),
+  productType: parseAsStringEnum([
+    "car_parts",
+    "spare_parts",
+    "motorcycles",
+    "car_care",
+    "riding_gear",
+  ]),
 };
 
 export const loadShopSearchParams = createLoader(shopSearchParamsSchema);
@@ -40,3 +46,8 @@ export const serializeShopURL = createSerializer(shopSearchParamsSchema).bind(
   null,
   href("/shop")
 );
+
+/** Build `/spare-parts?…` links with the same typed query params. */
+export const serializeSparePartsURL = createSerializer(
+  shopSearchParamsSchema
+).bind(null, href("/spare-parts"));

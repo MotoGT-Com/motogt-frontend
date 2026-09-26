@@ -15,6 +15,7 @@ import { carBrandsQueryOptions, carModelsQueryOptions, carTrimsQueryOptions, pro
 import { createSerializer, useQueryStates } from "nuqs";
 import {
   serializeShopURL,
+  serializeSparePartsURL,
   shopSearchParamsSchema,
 } from "~/lib/shop-search-params";
 import { useDebounce } from "use-debounce";
@@ -171,22 +172,25 @@ function ProductSearch({
     [searchParams, setSearchParams]
   );
 
-  /** Leave PDP (and any non-listing page) and open the main shop grid with the same filters. */
+  /** Leave PDP (and any non-listing page) and open the matching shop grid with the same filters. */
   const navigateToShopListing = useCallback(
     (formValues: ProductSearchFormValues) => {
       const merged = shopParamsFromFormState(searchParams, formValues);
+      const nextParams = {
+        ...searchParams,
+        search: merged.search,
+        carBrand: merged.carBrand,
+        carModel: merged.carModel,
+        carYear: merged.carYear,
+        carTrim: merged.carTrim,
+      };
       navigate(
-        serializeShopURL({
-          ...searchParams,
-          search: merged.search,
-          carBrand: merged.carBrand,
-          carModel: merged.carModel,
-          carYear: merged.carYear,
-          carTrim: merged.carTrim,
-        })
+        isSparePartsListing
+          ? serializeSparePartsURL(nextParams)
+          : serializeShopURL(nextParams)
       );
     },
-    [navigate, searchParams]
+    [navigate, searchParams, isSparePartsListing]
   );
   const compactSelectWidth = "w-full sm:w-[8rem] lg:w-[8.5rem] xl:w-36";
 

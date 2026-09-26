@@ -5,7 +5,7 @@
 // - Wishlist (favorites) toggle
 // - Add-to-cart interaction
 import { SimpleCard } from "./ui/card";
-import { CheckIcon, Loader2, XIcon } from "lucide-react";
+import { CheckIcon, ImageIcon, Loader2, XIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { Link, href, useLocation, useRouteLoaderData } from "react-router";
 import { cn } from "~/lib/utils";
@@ -60,7 +60,37 @@ function productImageSrc(url: string): string {
 
 /**
  * Product image: fixed aspect-ratio box + shimmer until load to minimize CLS.
+ * Shows an empty placeholder when there is no image (or the image fails to load).
  */
+function ProductImagePlaceholder({
+  className,
+  label,
+}: {
+  className?: string;
+  label?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "relative w-full aspect-[4/3] overflow-hidden rounded-md bg-muted/40",
+        className
+      )}
+      aria-hidden={!label}
+      role={label ? "img" : undefined}
+      aria-label={label}
+    >
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-muted-foreground">
+        <ImageIcon className="size-10 opacity-35" strokeWidth={1.25} />
+        {label ? (
+          <span className="text-[11px] font-medium tracking-wide opacity-50">
+            {label}
+          </span>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 function BlurUpImage({
   src,
   alt,
@@ -71,6 +101,7 @@ function BlurUpImage({
   className?: string;
 }) {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
 
   const displaySrc = src ? productImageSrc(src) : "";
@@ -85,6 +116,7 @@ function BlurUpImage({
     if (!displaySrc) return;
 
     setIsLoaded(false);
+    setHasError(false);
 
     const img = imgRef.current;
     if (!img) return;
@@ -94,24 +126,31 @@ function BlurUpImage({
     };
 
     if (img.complete) {
-      markLoaded();
+      if (img.naturalWidth === 0) {
+        setHasError(true);
+        setIsLoaded(true);
+      } else {
+        markLoaded();
+      }
       return;
     }
 
     img.addEventListener("load", markLoaded, { once: true });
-    img.addEventListener("error", markLoaded, { once: true });
+    img.addEventListener(
+      "error",
+      () => {
+        setHasError(true);
+        setIsLoaded(true);
+      },
+      { once: true }
+    );
     return () => {
       img.removeEventListener("load", markLoaded);
-      img.removeEventListener("error", markLoaded);
     };
   }, [displaySrc]);
 
-  if (!displaySrc) {
-    return (
-      <div className={frameClass} aria-hidden>
-        <div className="absolute inset-0 skeleton-shimmer rounded-md" />
-      </div>
-    );
+  if (!displaySrc || hasError) {
+    return <ProductImagePlaceholder className={className} />;
   }
 
   return (
@@ -136,7 +175,10 @@ function BlurUpImage({
           isLoaded ? "opacity-100" : "opacity-0"
         )}
         onLoad={() => setIsLoaded(true)}
-        onError={() => setIsLoaded(true)}
+        onError={() => {
+          setHasError(true);
+          setIsLoaded(true);
+        }}
       />
     </div>
   );
