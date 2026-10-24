@@ -26,6 +26,7 @@ COPY ./package.json package-lock.json /app/
 COPY --from=production-dependencies-env /app/node_modules /app/node_modules
 COPY --from=build-env /app/build /app/build
 COPY --from=build-env /app/public /app/public
+COPY --from=build-env /app/scripts/server.mjs /app/scripts/server.mjs
 WORKDIR /app
 ENV NODE_ENV=production
 CMD ["npm", "run", "start"]
